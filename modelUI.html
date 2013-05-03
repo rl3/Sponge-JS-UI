@@ -9,26 +9,34 @@
 <template name="main">
     <div class="tabbable tabs-left">
         <ul class="nav nav-tabs">
-            {{#each mainNav}}
-                <li><a data-toggle="tab" href=".{{id}}">{{title}}</a></li>
+            {{#each menu}}
+                <li class="{{active id}}"><a data-toggle="tab" href=".{{id}}">{{title}}</a></li>
             {{/each}}
         </ul>
         <div class="tab-content">
-            {{#each mainNav}}
-                <div class="{{id}} tab-pane">
-                    {{content}}
-                    {{mainContent}}
+            {{#each menu}}
+                <div class="{{id}} {{active id}} tab-pane">
+                    {{#if enabled id}}
+                        {{helper id}}
+                    {{/if}}
                 </div>
             {{/each}}
         </div>
 </template>
 
 <template name="dataObjects">
-    <table>
-        {{#each dataObjects}}
-            <tr>
-                <td>{{id}}</td><td>{{version}}</td>
-            </tr>
+    <div class="objectTypes">
+    <ul>
+        {{#each schemas}}
+            <li id="{{type}}">
+                <a href="#">{{type}}</a>
+                <ul>
+                    {{#each versions}}
+                        <li id="{{type}}_{{version}}"><a href="#">{{version}}</a></li>
+                    {{/each}}
+                </ul>
+            </li>
         {{/each}}
-    </table>
+    </ul>
+    </div>
 </template>
