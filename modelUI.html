@@ -25,18 +25,9 @@
 </template>
 
 <template name="dataObjects">
-    <div class="objectTypes">
-    <ul>
-        {{#each schemas}}
-            <li id="{{type}}">
-                <a href="#">{{type}}</a>
-                <ul>
-                    {{#each versions}}
-                        <li id="{{type}}_{{version}}"><a href="#">{{version}}</a></li>
-                    {{/each}}
-                </ul>
-            </li>
-        {{/each}}
-    </ul>
-    </div>
+    {{schemas}}
+    {{#constant}}
+        <div class="objectTypes">
+        </div>
+    {{/constant}}
 </template>
