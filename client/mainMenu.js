@@ -44,8 +44,8 @@ Template.main.enabled= function(tabName) {
     return selectedTab() === tabName;
 }
 
-Template.main.helper=function(tabName) {
-    var item= menuItems[selectedTab()];
+Template.main.menuContent=function(tabName) {
+    var item= menuItems[tabName];
     if (!item) return;
 
     return typeof item.content === 'function' ? item.content() : item.content;

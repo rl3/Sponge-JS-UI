@@ -1,89 +1,87 @@
 
-var propertyNames= ['type', 'version', 'objectId'];
+var ItemsPerPage= 20;
 
-var getProperties= function(href) {
-    var reProperty= /(\w+)\[([^\]]+)\]/g;
-    var result= {};
-    for (var match; match= reProperty.exec(href);) {
-        result[match[1]]= match[2];
-    }
-    return result;
+var sessionGet= function( name ) {
+    return Session.get('dataObjects.' + name);
+}
+var sessionSet= function( name, value ) {
+    return Session.set('dataObjects.' + name, value);
+}
+
+Template.dataObjects.currentTypeVersion= function() {
+    var typeVersion= sessionGet('currentTypeVersion');
+    if ( !typeVersion ) return;
+
+    return typeVersion.type + " " + typeVersion.version;
 };
 
-var buildMenuPath= function(props) {
-    return propertyNames
-        .filter(function(p) { return props[p] !== undefined; })
-        .map(function(p) { return p + '[' + props[p] + ']'; })
-        .join('')
-};
-
-var isActive= function(path) {
-    var currentPath= Session.get('dataObjectsTreePath');
-    if (!currentPath) return false;
-    path= String(path);
-    if (path.length > currentPath.length) return false;
-    return path === currentPath.substr(0, path.length);
-};
-
-var currentData= undefined;
-var newData= false;
-var getSchemas= getCachedData('getTypeVersions', 100000);
+var getSchemas= getCachedData('getTypeVersions');
+var getObjectIds= getCachedData('getIdsByTypeVersion');
+var getAgroObject= getCachedData('getAgroObject');
 
 Template.dataObjects.schemas= function() {
-    newData= !currentData;
-    if (!currentData) currentData= getSchemas();
-//    return Session.get('dataObjectsTreePath');
-}
+    var schemas= getSchemas();
+    if ( !schemas ) return;
 
-Template.dataObjects.rendered= function() {
-    if (!currentData || !newData) return;
-
-    var nodes= Object.keys(currentData)
-        .map(function(type) { 
-            var path= buildMenuPath({type: type});
-            var versions= currentData[type];
-            return {
-                title: type + ' (' + versions.length + ')',
-                isFolder: true,
-                href: '#' + path,
-                expand: isActive(path),
-                children: versions.map(function(ver) {
-                    var path= buildMenuPath({type: type, version: ver});
-                    return {
-                        title: 'Version ' + ver,
-                        isFolder: true,
-                        isLazy: true,
-                        expand: isActive(path),
-                        href: '#' + path,
-                    };
-                }),
-            };
-        });
-
-    $('div.objectTypes').dynatree({
-        debugLevel: 0,
-        onActivate: function(node) {
-            var href= $(node.span).find('a').attr('href');
-            var typeVersion= getProperties(href);
-            var path= buildMenuPath(typeVersion);
-            Session.set('dataObjectsTreePath', path);
-        },
-        onLazyRead: function(node) {
-            var href= $(node.span).find('a').attr('href');
-            var typeVersion= getProperties(href);
-            Meteor.call('getIdsByTypeVersion', typeVersion, function(err, ids) {
-                if (err) return;
-                node.setTitle(node.data.title + ' (' + ids.length + ')');
-                (ids || []).forEach(function(id) {
-                    typeVersion.objectId= id;
-                    var path= buildMenuPath(typeVersion);
-                    node.addChild({
-                        title: id,
-                        href: '#' + path,
-                    });
-                })
-            });
-        },
-        children: nodes,
+    return Object.keys(schemas).map(function(type) {
+        return {
+            type: type,
+            versions: schemas[type],
+        }
     });
+};
+
+Template.dataObjects.events({
+    'click ul>li>ul>li>a': function( event ) {
+        var a= event.currentTarget;
+        var href= $(a).attr("href").replace(/^[\.\#]/, '');
+        var parts= href.split('::', 2);
+        if ( parts.length < 2 ) return;
+
+        sessionSet('currentTypeVersion', {
+            type: parts[0],
+            version: parts[1],
+        });
+        sessionSet('pageNo', 0);
+        return false;
+    },
+});
+
+var getSelectedIds= function() {
+    return getObjectIds(sessionGet('currentTypeVersion')) || [];
 }
+
+Template.dataObjects.pagination= function() {
+    return new Handlebars.SafeString(Template.pagination({count: getPageCount(), sessionName: 'dataObjects.pageNo'}));
+};
+
+var getPageCount= function() {
+    var ids= getSelectedIds();
+    var count= ids.length;
+    if ( count % ItemsPerPage === 0 ) return count / ItemsPerPage;
+    return Math.floor(count / ItemsPerPage) + 1;
+};
+
+Template.dataObjects.events({
+    'click .objectIds a': function( event ) {
+        var a= event.currentTarget;
+        var href= $(a).attr("href").replace(/^[\.\#]/, '');
+        sessionSet('objectId', href);
+    },
+});
+
+Template.dataObjects.activeObjectClass= function( id ) {
+    return sessionGet('objectId') == id ? 'active' : '';
+};
+
+Template.dataObjects.currentObjectId= function() {
+    return sessionGet('objectId');
+};
+
+Template.dataObjects.objectIds= function() {
+    var ids= getSelectedIds();
+    var page= sessionGet('pageNo');
+    return ids.slice(page * ItemsPerPage, (page + 1) * ItemsPerPage);
+};
+
+

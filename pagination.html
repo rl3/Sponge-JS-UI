@@ -1,0 +1,14 @@
+
+<template name="pagination">
+    {{#if visible}}
+        <div class="pagination pagination-mini">
+            <ul>
+                <li class="{{#if isFirstPage}}disabled{{/if}}"><a class="back" href="#">&laquo;</a></li>
+                {{#each pages}}
+                    <li class="{{#if active}}active{{/if}}"><a class="page" href="#{{num}}">{{title}}</a></li>
+                {{/each}}
+                <li class="{{#if isLastPage}}disabled{{/if}}"><a class="next" href="#">&raquo;</a></li>
+            </ul>
+        </div>
+    {{/if}}
+</template>
