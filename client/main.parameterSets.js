@@ -27,45 +27,103 @@ Template.parameterSets.schema= function() {
     return schema;
 };
 
-Template.parameterSets.values= function() {
-    if ( !this.objectType || !this.version ) return;
+var getValueHeaders= function( objectType, version ) {
+    if ( !objectType || !version ) return;
 
-    var schema= getSchema({type: this.objectType, version: this.version});
+    var schema= getSchema({type: objectType, version: version});
     if ( !schema ) return;
 
     var args= schema.fixArgs.typeMap;
     var result= Object.keys(args).map(function(name) {
         return {
-            name: name,
+            value: name,
             description: args[name].description,
             index: args[name].index,
             unit: args[name].unit,
             type: args[name].className,
+            header: true,
         };
     });
     result.sort(function( a, b ) { return a.index - b.index; });
+    result.unshift({
+        value: 'Iterator',
+        description: 'valid Range',
+        index: -1,
+        unit: schema.iteratorType.map(function( t ) {
+            return t.argName + (t.type && t.type.unit ? ' in ' + t.type.unit : '');
+        }).join(', '),
+        iteratorType: schema.iteratorType,
+        header: true,
+    });
     return result;
 };
 
-Template.parameterSets.sets= function( id ) {
+var getSets= function( id ) {
     var sets= getParameterSetKeys({id: id, start: +sessionGet('page') * SetsPerPage, count: SetsPerPage});
     return sets;
 };
 
-Template.parameterSets.value= function( name ) {
-console.log(v)
-    var v= this.values[name];
-    if ( !v ) return;
+var formatValue= function( value ) {
+    if ( !value ) return;
 
-    if ( 'value' in v ) return v.value;
-
-    if ( 'fixFunction' in v ) {
-        var ff= v.fixFunction;
-        var args= (v.fixArgs || {}).values || {};
-        return ff._id + '(' + Object.keys(args).map(function( name ) {
-            return name + '=' + args[name].value;
-        }).join(', ') + ')';
+    if ( 'value' in value ) {
+        return {
+            value: value.value,
+            decscription: value.value,
+        }
     }
 
-    return 'unknown';
+    if ( 'fixFunction' in value ) {
+        var ff= value.fixFunction;
+        var args= (value.fixArgs || {}).values || {};
+        return {
+            value: ff._id + '()',
+            description: ff._id + '(' + Object.keys(args).map(function( name ) {
+                return name + '=' + args[name].value;
+            }).join(', ') + ')',
+        };
+    }
+
+    return {
+        description: 'unknown value',
+    };
+};
+
+var iteratorMapper= function( v ) {
+    return v.value + (v.unit || '');
+};
+
+var iteratorDescriptionMapper= function( v ) {
+    return v.name + '=' + iteratorMapper(v);
+};
+
+Template.parameterSets.setValues= function() {
+    var valueHeaders= getValueHeaders(this.objectType, this.version);
+    if ( !valueHeaders ) return;
+
+    var rows= [ valueHeaders ];
+
+    var sets= getSets(this._id);
+    if ( !sets ) return;
+
+    sets.forEach(function( set ) {
+        rows.push(valueHeaders.map(function( header ) {
+            if ( 'iteratorType' in header ) {
+                var start= DataObjectTools.formatIteratorValues(set.start, header.iteratorType);
+                var end= DataObjectTools.formatIteratorValues(set.end, header.iteratorType);
+                var startValue= start.map(iteratorMapper).join(', ');
+                var endValue= end.map(iteratorMapper).join(', ');
+                var startDescr= start.map(iteratorDescriptionMapper).join(', ');
+                var endDescr= end.map(iteratorDescriptionMapper).join(', ');
+                return {
+                    value: startValue + (startValue === endValue ? '' : (' to ' + endValue)),
+                    description: startDescr + (startDescr === endDescr ? '' : (' to ' + endDescr)),
+                    header: true,
+                };
+            }
+            return formatValue(set.values[header.value]);
+        }));
+    });
+
+    return rows;
 };

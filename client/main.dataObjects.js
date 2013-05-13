@@ -26,21 +26,21 @@ Template.dataObjects.schemas= function() {
     return Object.keys(schemas).map(function(type) {
         return {
             type: type,
-            versions: schemas[type],
+            versions: schemas[type].map(function( v ) {
+                return {
+                    type: type,
+                    version: v,
+                };
+            }),
         }
     });
 };
 
 Template.dataObjects.events({
     'click ul>li>ul>li>a': function( event ) {
-        var a= event.currentTarget;
-        var href= $(a).attr("href").replace(/^[\.\#]/, '');
-        var parts= href.split('::', 2);
-        if ( parts.length < 2 ) return;
-
         sessionSet('currentTypeVersion', {
-            type: parts[0],
-            version: parts[1],
+            type: this.type,
+            version: this.version,
         });
         sessionSet('pageNo', 0);
         return false;
@@ -64,9 +64,7 @@ var getPageCount= function() {
 
 Template.dataObjects.events({
     'click .objectIds a': function( event ) {
-        var a= event.currentTarget;
-        var href= $(a).attr("href").replace(/^[\.\#]/, '');
-        sessionSet('objectId', href);
+        sessionSet('objectId', this.toString());
     },
 });
 

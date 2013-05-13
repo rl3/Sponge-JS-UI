@@ -20,7 +20,7 @@
     <div class="tabbable tabs-left main-menu">
         <ul class="nav nav-tabs">
             {{#each menu}}
-                <li class="{{active id}}"><a data-toggle="tab" href=".{{id}}">{{title}}</a></li>
+                <li class="{{active id}}"><a data-toggle="tab" href="#">{{title}}</a></li>
             {{/each}}
         </ul>
         <div class="tab-content">
@@ -47,7 +47,7 @@
                                     <a tabindex="-1" href="#">{{type}}</a>
                                     <ul class="dropdown-menu">
                                         {{#each versions}}
-                                            <li><a tabindex="-1" href="#{{../type}}::{{this}}">Version {{this}}</a>
+                                            <li><a tabindex="-1" href="#">Version {{version}}</a>
                                         {{/each}}
                                     </ul>
                                 </li>
@@ -74,7 +74,7 @@
                 {{#if objectIds}}
                     <div class="objectIds">
                         {{#each objectIds}}
-                            <a class="{{activeObjectClass this}}" href="#{{this}}">{{this}}</a><br />
+                            <a class="{{activeObjectClass this}}" href="#">{{this}}</a><br />
                         {{/each}}
                     </div>
                 {{else}}
@@ -124,12 +124,12 @@
 <template name="parameterSets">
     {{pagination}}
     <table class="parameterSets table table-hover table-striped table-bordered table-condensed">
-        {{#each values}}
-            <tr><th title="{{description}}{{#if unit}} in {{unit}}{{/if}}">{{name}}</th>
-                {{#each sets ../_id}}
-                    <td>{{value ../name}}</td>
-                {{else}}
-                    <td>{{> loadingImg}}</td>
+        {{#each setValues}}
+            <tr>
+                {{#each this}}
+                    <t{{#if header}}h{{else}}d{{/if}} title="{{description}}{{#if unit}} in {{unit}}{{/if}}">
+                        {{value}}
+                    </t{{#if header}}h{{else}}d{{/if}}>
                 {{/each}}
             </tr>
         {{else}}

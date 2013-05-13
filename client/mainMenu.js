@@ -25,9 +25,7 @@ Template.main.menu= function() {
 
 Template.main.events({
     'click ul.nav-tabs a': function(event) {
-        var a= event.currentTarget;
-        var href= $(a).attr("href").replace(/^[\.\#]/, '');
-        Session.set('mainMenuTab', href);
+        Session.set('mainMenuTab', this.id);
         return true;
     },
 });
