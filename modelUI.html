@@ -94,7 +94,7 @@
     {{#with dataObject this}}
         <table>
             <tr><td>Type/Version:</td><td>{{objectType}} Version {{version}}</td></tr>
-            <tr><td>Description:</td><td>{{description}}</td></tr>
+            <tr><td>Description:</td><td>{{> edit editDescription}}</td></tr>
             <tr><td>Tags:</td><td>{{#each tags}}{{this}}{{/each}}</td></tr>
             <tr><td>Range:</td><td>
                 from ({{#each iteratorValues start}}{{#if index}}, {{/if}}{{name}}={{value}}{{unit}}{{else}}{{> loadingImg}}{{/each}})

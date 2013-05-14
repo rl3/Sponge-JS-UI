@@ -20,3 +20,6 @@ Template.dataObject.iteratorValues= function( values ) {
     return DataObjectTools.formatIteratorValues( values, schema.iteratorType );
 };
 
+Template.dataObject.editDescription= function() {
+    return new GuiTools.Edit(this, 'description');
+}

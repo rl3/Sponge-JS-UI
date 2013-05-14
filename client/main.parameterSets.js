@@ -111,10 +111,10 @@ Template.parameterSets.setValues= function() {
             if ( 'iteratorType' in header ) {
                 var start= DataObjectTools.formatIteratorValues(set.start, header.iteratorType);
                 var end= DataObjectTools.formatIteratorValues(set.end, header.iteratorType);
-                var startValue= start.map(iteratorMapper).join(', ');
-                var endValue= end.map(iteratorMapper).join(', ');
-                var startDescr= start.map(iteratorDescriptionMapper).join(', ');
-                var endDescr= end.map(iteratorDescriptionMapper).join(', ');
+                var startValue= start ? start.map(iteratorMapper).join(', ') : '';
+                var endValue= end ? end.map(iteratorMapper).join(', ') : '';
+                var startDescr= start ? start.map(iteratorDescriptionMapper).join(', ') : '';
+                var endDescr= end ? end.map(iteratorDescriptionMapper).join(', ') : '';
                 return {
                     value: startValue + (startValue === endValue ? '' : (' to ' + endValue)),
                     description: startDescr + (startDescr === endDescr ? '' : (' to ' + endDescr)),

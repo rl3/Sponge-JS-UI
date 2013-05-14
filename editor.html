@@ -1,0 +1,14 @@
+
+<template name="edit">
+    {{#if editMode}}<span class="editMode">{{editTemplate}}</span><i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i>{{else}}<span class="viewMode">{{viewTemplate}}</span><i class="icon-edit"></i>{{/if}}
+</template>
+
+
+<template name="editEditText">
+    <input type="text" value="{{value}}" />
+</template>
+
+<template name="editViewText">
+    {{this}}
+</template>
+
