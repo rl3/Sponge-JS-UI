@@ -30,6 +30,12 @@
         <tr>
             <th>Name:</th><td>{{_id}}</td>
         </tr>
+        <tr>
+            <th>Description:</th><td>{{description}}</td>
+        </tr>
+        <tr>
+            <th>Last Changed:</th><td>{{timeStamp}}</td>
+        </tr>
         <tr valign="top">
             <th>Functions:</th><td>
                 <div class="accordion">
@@ -53,6 +59,9 @@
                     {{/each}}
                 </div>
             </td>
+        </tr>
+        <tr>
+            <th>Inputs:</th><td>{{isTemplate}}</td>
         </tr>
     </table>
 </template>

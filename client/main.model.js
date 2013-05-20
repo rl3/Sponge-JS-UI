@@ -69,3 +69,18 @@ Template.model.functionBodies= function() {
         };
     });
 };
+
+Template.model.isTemplate= function() {
+console.log(this);
+    return this.className === 'de.atb_potsdam.agrohyd.model.ModelTemplate';
+    return !('templateId' in this);
+};
+
+Template.model.timeStamp= function() {
+    return DataObjectTools.formatValue(this.timeStamp, true);
+}
+
+Template.model.inputDefinitions= function() {
+    var inputs= (this.inputDefinitions || {}).typeMap || {};
+    
+};
