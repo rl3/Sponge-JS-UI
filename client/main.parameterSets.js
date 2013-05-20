@@ -9,9 +9,10 @@ var sessionGet= function( name ) {
     return Session.get('parameterSet.' + name);
 };
 
-Template.parameterSets.created= function() {
-    Session.set('parameterSet.page', 0);
-}
+var injectPageNumber= function( context ) {
+    if ( !context.pageNumber ) context.pageNumber= ReactiveValue(0);
+    return context.pageNumber;
+};
 
 Template.parameterSets.pagination= function() {
     var setCount= getParameterSetCount(this._id);
@@ -19,7 +20,7 @@ Template.parameterSets.pagination= function() {
 
     var pageCount= Math.floor(setCount / SetsPerPage);
     if ( pageCount * SetsPerPage < setCount ) pageCount++;
-    return new Handlebars.SafeString(Template.pagination({count: pageCount, sessionName: 'parameterSet.page'}));
+    return new Handlebars.SafeString(Template.pagination({count: pageCount, pageNumber: injectPageNumber(this), }));
 };
 
 Template.parameterSets.schema= function() {
@@ -58,8 +59,8 @@ var getValueHeaders= function( objectType, version ) {
     return result;
 };
 
-var getSets= function( id ) {
-    var sets= getParameterSetKeys({id: id, start: +sessionGet('page') * SetsPerPage, count: SetsPerPage});
+var getSets= function( id, pageNumber ) {
+    var sets= getParameterSetKeys({id: id, start: +pageNumber() * SetsPerPage, count: SetsPerPage});
     return sets;
 };
 
@@ -103,7 +104,7 @@ Template.parameterSets.setValues= function() {
 
     var rows= [ valueHeaders ];
 
-    var sets= getSets(this._id);
+    var sets= getSets(this._id, injectPageNumber(this));
     if ( !sets ) return;
 
     sets.forEach(function( set ) {

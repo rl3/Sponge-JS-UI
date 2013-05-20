@@ -17,7 +17,6 @@ Template.dataObjects.currentTypeVersion= function() {
 
 var getSchemas= getCachedData('getTypeVersions');
 var getObjectIds= getCachedData('getIdsByTypeVersion');
-var getAgroObject= getCachedData('getAgroObject');
 
 Template.dataObjects.schemas= function() {
     var schemas= getSchemas();
@@ -42,7 +41,6 @@ Template.dataObjects.events({
             type: this.type,
             version: this.version,
         });
-        sessionSet('pageNo', 0);
         return false;
     },
 });
@@ -51,8 +49,13 @@ var getSelectedIds= function() {
     return getObjectIds(sessionGet('currentTypeVersion')) || [];
 }
 
+var injectPageNumber= function( context ) {
+    if ( !context.pageNumber ) context.pageNumber= ReactiveValue(0);
+    return context.pageNumber;
+}
+
 Template.dataObjects.pagination= function() {
-    return new Handlebars.SafeString(Template.pagination({count: getPageCount(), sessionName: 'dataObjects.pageNo'}));
+    return new Handlebars.SafeString(Template.pagination({count: getPageCount(), pageNumber: injectPageNumber(this)}));
 };
 
 var getPageCount= function() {
@@ -78,7 +81,7 @@ Template.dataObjects.currentObjectId= function() {
 
 Template.dataObjects.objectIds= function() {
     var ids= getSelectedIds();
-    var page= sessionGet('pageNo');
+    var page= injectPageNumber(this)();
     return ids.slice(page * ItemsPerPage, (page + 1) * ItemsPerPage);
 };
 

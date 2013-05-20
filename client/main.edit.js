@@ -5,7 +5,7 @@ var Edit= function( context, property, viewTemplateName, editTemplateName ) {
     this.property= property;
     this.viewTemplateName= viewTemplateName || 'editViewText';
     this.editTemplateName= editTemplateName || 'editEditText';
-    this.editMode= new DependendValue(false);
+    this.editMode= ReactiveValue(false);
 };
 Edit.prototype.get= function() {
     return this.context[this.property];
@@ -24,21 +24,21 @@ Template.edit.viewTemplate= function() {
 };
 
 Template.edit.editMode= function() {
-    return this.editMode.get();
+    return this.editMode();
 };
 
 Template.edit.events({
     'click i.icon-edit': function( event ) {
-        this.editMode.set(true);
+        this.editMode(true);
         return false;
     },
     'click i.icon-ok-sign': function( event ) {
-        this.editMode.set(false);
+        this.editMode(false);
         this.set(this.tempValue);
         return false;
     },
     'click i.icon-remove-sign': function( event ) {
-        this.editMode.set(false);
+        this.editMode(false);
         return false;
     },
     'change input': function( event ) {

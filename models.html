@@ -1,0 +1,59 @@
+
+<template name="models">
+    <table>
+        <tr>
+            <td colspan="2">{{pagination}}</td>
+        </tr>
+        <tr valign="top">
+            <td>
+                {{#each modelIds}}
+                    <div class="modelId">
+                        <a class="{{#if active}}active{{/if}}" href="#">{{id}}</a>
+                    </div>
+                {{/each}}
+            </td>
+            <td>
+                {{#if currentModelId}}
+                    {{#with currentModel}}
+                        {{> model}}
+                    {{else}}
+                        {{> loading}}
+                    {{/with}}
+                {{/if}}
+            </td>
+        </tr>
+    </table>
+</template>
+
+<template name="model">
+    <table>
+        <tr>
+            <th>Name:</th><td>{{_id}}</td>
+        </tr>
+        <tr valign="top">
+            <th>Functions:</th><td>
+                <div class="accordion">
+                    {{#each functionBodies}}
+                        <div class="accordion-group">
+                            <div class="accordion-heading">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent=".accordion" href=".collapse-{{name}}">{{name}}
+                                    ( {{#each args}}<span title="{{#if unit}}in {{unit}} {{/if}}{{#if type}}Type: {{type}} {{/if}}{{#if description}}Description: {{description}} {{/if}}">{{name}}</span> {{/each}})
+                                    &rArr; {{result}}
+                                </a>
+                            </div>
+                            <div class="collapse-{{name}} accordion-body collapse">
+                                <div class="accordion-inner">
+<!--
+                                    <pre class="prettyprint lang-js linenums prettyprinted"><code>{{bodyEscaped}}</code></pre>
+-->
+                                    <pre class="lang-js linenums prettyprinted" style="font-size: smaller"><code>{{bodyEscaped}}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+            </td>
+        </tr>
+    </table>
+</template>
+

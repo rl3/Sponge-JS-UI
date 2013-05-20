@@ -1,0 +1,105 @@
+<template name="dataObjects">
+    <table>
+        <tr valign="top">
+            <td>
+                {{#if schemas}}
+                    <div class="dropdown">
+                        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">{{#if currentTypeVersion}}{{currentTypeVersion}}{{else}}Bitte w&auml;hlen{{/if}} <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                            {{#each schemas}}
+                                <li class="dropdown-submenu">
+                                    <a tabindex="-1" href="#">{{type}}</a>
+                                    <ul class="dropdown-menu">
+                                        {{#each versions}}
+                                            <li><a tabindex="-1" href="#">Version {{version}}</a>
+                                        {{/each}}
+                                    </ul>
+                                </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                {{else}}
+                    {{> loading}}
+                {{/if}}
+            </td>
+            <td>
+                {{currentObjectId}}
+            </td>
+        </tr>
+        {{#if currentTypeVersion}}
+            <tr valign="top">
+                <td colspan="2">
+                    {{pagination}}
+                </td>
+            </tr>
+        {{/if}}
+        <tr valign="top">
+            <td>
+                {{#if objectIds}}
+                    <div class="objectIds">
+                        {{#each objectIds}}
+                            <a class="{{activeObjectClass this}}" href="#">{{this}}</a><br />
+                        {{/each}}
+                    </div>
+                {{else}}
+                    {{> loading}}
+                {{/if}}
+            </td>
+            <td>
+                {{#with currentObjectId}}
+                    {{> dataObject}}
+                {{/with}}
+            </td>
+        </tr>
+    </table>
+</template>
+
+<template name="dataObject">
+    {{#with dataObject this}}
+        <table>
+            <tr><td>Type/Version:</td><td>{{objectType}} Version {{version}}</td></tr>
+            <tr><td>Description:</td><td>{{> edit description}}</td></tr>
+            <tr><td>Tags:</td><td>{{#each tags}}{{this}}{{/each}}</td></tr>
+            <tr><td>Range:</td><td>
+                from ({{#each iteratorValues start}}{{#if index}}, {{/if}}{{name}}={{value}}{{unit}}{{else}}{{> loadingImg}}{{/each}})
+                until ({{#each iteratorValues end}}{{#if index}}, {{/if}}{{name}}={{value}}{{unit}}{{else}}{{> loadingImg}}{{/each}})
+            </td></tr>
+            {{#with source}}
+                <tr valign="top"><td>Source:</td><td>{{> source}}</td></tr>
+            {{/with}}
+        </table>
+        {{> parameterSets}}
+    {{else}}
+        {{> loading}}
+    {{/with}}
+</template>
+
+<template name="source">
+    {{#with source}}
+        <table>
+            <tr><td>Name:</td><td>{{> edit Name}}</td></tr>
+            <tr><td>Description:</td><td>{{> edit Description}}</td></tr>
+            <tr><td>Organisation:</td><td>{{> edit Organisation}}</td></tr>
+            <tr><td>Address:</td><td>{{> edit Address}}</td></tr>
+            <tr><td>Mail:</td><td><a href="mailto:{{source.Mail}}">{{> edit MailEdit}}</a></td></tr>
+            <tr><td>www:</td><td><a target="_blank" href="{{source.www}}">{{> edit wwwEdit}}</a></td></tr>
+        </table>
+    {{/with}}
+</template>
+
+<template name="parameterSets">
+    {{pagination}}
+    <table class="parameterSets table table-hover table-striped table-bordered table-condensed">
+        {{#each setValues}}
+            <tr>
+                {{#each this}}
+                    <t{{#if header}}h{{else}}d{{/if}} title="{{description}}{{#if unit}} in {{unit}}{{/if}}">
+                        {{value}}
+                    </t{{#if header}}h{{else}}d{{/if}}>
+                {{/each}}
+            </tr>
+        {{else}}
+            <tr><td>{{> loading}}</td></tr>
+        {{/each}}
+    </table>
+</template>
