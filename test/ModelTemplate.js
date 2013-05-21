@@ -3,10 +3,9 @@ var ModelTemplate=
 //    "_id" : new ObjectID(),
     "name" : "modified_soil_1",
     'type': 'ModelTemplate',
-//??    "version" : 1,
-    "resultDefinition" : {
-        "typeSignature" : "soil::v1",
-    },
+//    "resultDefinition" : {
+//        "typeSignature" : "soil::v1",
+//    },
     "resultDefinition" : {
         args: {
             z: 'Double',
@@ -20,9 +19,17 @@ var ModelTemplate=
     "inputDefinitions" : {
         "soil" : {
             // wie resultDefinition
+            args: {
+                z: 'Double',
+            },
+            result: {
+                name: 'String',
+                Qwc: 'Double',
+                Qwk: 'Double',
+            },
         },
     },
-    "timeStamp" : new Date("2013-05-17T16:44:04.040Z"),
+    "timeStamp" : new Date(),
     "functionBodies" : {
         "name" : function (args, lib, callback) {
             lib.callInputFunction("soil", "name", args, function(err, value) {
