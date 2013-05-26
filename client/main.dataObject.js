@@ -10,14 +10,12 @@ Template.dataObject.getType= DataObjectTools.getType;
 
 Template.dataObject.format= DataObjectTools.formatValue;
 
-Template.dataObject.iteratorValues= function( values ) {
+Template.dataObject.args= function( values ) {
     if ( !values ) return;
 
     var schema= getSchema({type: this.objectType, version: this.version});
 
-    if ( !schema || !schema.iteratorType ) return;
-
-    return DataObjectTools.formatIteratorValues( values, schema.iteratorType );
+    return DataObjectTools.formatIteratorValues( values, schema );
 };
 
 Template.dataObject.description= function() {

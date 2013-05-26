@@ -1,3 +1,4 @@
+var zuppi= function() {
 db.Schema.remove()
 
 db.Schema.save(
@@ -14,8 +15,8 @@ db.Schema.save(
     },
     iteratorCondition : function(value, lib) {
         return {
-            start.date: {$lte: value.date},
-            end.date: {$gte: value.date},
+            "start.date": {$lte: value.date},
+            "end.date": {$gte: value.date},
         };
     },
     iteratorCompare : function(v1, v2, lib) {
@@ -38,6 +39,7 @@ db.Schema.save(
             description: 'minimale Tagestemperatur',
             unit: '°C',
         },
+        {
             name: 'mean_temp',
             type: 'Double',
             description: 'durchschnittliche Tagestemperatur',
@@ -91,7 +93,7 @@ db.Schema.save(
             description: 'Bewoelkung',
             unit: '1/8',
         },
-    }
+    ]
 }
 )
 
@@ -144,7 +146,7 @@ db.Schema.save(
             description: 'yield response factor',
         },
         {
-            Ky_total' : {
+            'Ky_total' : {
                 'className' : 'de.atb_potsdam.agrohyd.type.TypeDouble',
                 'description': 'yield response factor',
                 'index': 5,
@@ -171,7 +173,7 @@ db.Schema.save(
                 'index': 9,
             }
         }
-    }
+    ]
 }
 )
 
@@ -1953,3 +1955,4 @@ db.Schema.save(
     }
 }
 )
+};

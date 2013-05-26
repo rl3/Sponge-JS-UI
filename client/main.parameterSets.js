@@ -34,26 +34,28 @@ var getValueHeaders= function( objectType, version ) {
     var schema= getSchema({type: objectType, version: version});
     if ( !schema ) return;
 
-    var args= schema.fixArgs.typeMap;
-    var result= Object.keys(args).map(function(name) {
+    var values= (schema.definition || {}).result || {};
+    var valuesInfo= ((schema.definition || {}).info || {}).result || {};
+    var result= schema.resultOrder.map(function( name, i ) {
         return {
             value: name,
-            description: args[name].description,
-            index: args[name].index,
-            unit: args[name].unit,
-            type: args[name].className,
+            description: (valuesInfo[name] || {}).description,
+            unit: (valuesInfo[name] || {}).unit,
+            type: values[name],
+            index: i,
             header: true,
         };
     });
-    result.sort(function( a, b ) { return a.index - b.index; });
+    var args= (schema.definition || {}).args || {};
+    var argsInfo= ((schema.definition || {}).info || {}).args || {};
     result.unshift({
         value: 'Iterator',
         description: 'valid Range',
         index: -1,
-        unit: schema.iteratorType.map(function( t ) {
-            return t.argName + (t.type && t.type.unit ? ' in ' + t.type.unit : '');
+        unit: Object.keys(args).map(function( name ) {
+            return name + (argsInfo[name] && argsInfo[name].unit ? ' in ' + argsInfo[name].unit : '');
         }).join(', '),
-        iteratorType: schema.iteratorType,
+        schema: schema,
         header: true,
     });
     return result;
@@ -64,17 +66,18 @@ var getSets= function( id, pageNumber ) {
     return sets;
 };
 
-var formatValue= function( value ) {
+var formatValue= function( value, headerData ) {
     if ( !value ) return;
 
-    if ( 'value' in value ) {
+    if ( typeof value !== 'object' ) {
         return {
-            value: value.value,
-            decscription: value.value,
-        }
+            value: value,
+            description: headerData.description,
+        };
     }
 
     if ( 'fixFunction' in value ) {
+console.log(value)
         var ff= value.fixFunction;
         var args= (value.fixArgs || {}).values || {};
         return {
@@ -109,9 +112,9 @@ Template.parameterSets.setValues= function() {
 
     sets.forEach(function( set ) {
         rows.push(valueHeaders.map(function( header ) {
-            if ( 'iteratorType' in header ) {
-                var start= DataObjectTools.formatIteratorValues(set.start, header.iteratorType);
-                var end= DataObjectTools.formatIteratorValues(set.end, header.iteratorType);
+            if ( 'schema' in header ) {
+                var start= DataObjectTools.formatIteratorValues(set.start, header.schema);
+                var end= DataObjectTools.formatIteratorValues(set.end, header.schema);
                 var startValue= start ? start.map(iteratorMapper).join(', ') : '';
                 var endValue= end ? end.map(iteratorMapper).join(', ') : '';
                 var startDescr= start ? start.map(iteratorDescriptionMapper).join(', ') : '';
@@ -122,7 +125,7 @@ Template.parameterSets.setValues= function() {
                     header: true,
                 };
             }
-            return formatValue(set.values[header.value]);
+            return formatValue(set.values[header.value], header);
         }));
     });
 

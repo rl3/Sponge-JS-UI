@@ -1,3 +1,4 @@
+var zuppi= function() {
 db.Schema.remove()
 
 
@@ -1977,3 +1978,4 @@ db.Schema.save(
     }
 }
 )
+};

@@ -16,7 +16,7 @@ Template.dataObjects.currentTypeVersion= function() {
 };
 
 var getSchemas= getCachedData('getTypeVersions');
-var getObjectIds= getCachedData('getIdsByTypeVersion');
+var getObjectIdNames= getCachedData('getIdNamesByTypeVersion');
 
 Template.dataObjects.schemas= function() {
     var schemas= getSchemas();
@@ -45,8 +45,10 @@ Template.dataObjects.events({
     },
 });
 
-var getSelectedIds= function() {
-    return getObjectIds(sessionGet('currentTypeVersion')) || [];
+var getSelectedIdNames= function() {
+    var idNames= getObjectIdNames(sessionGet('currentTypeVersion')) || [];
+    idNames.sort(function( a, b ) { return String(a.name).localeCompare(String(b.name)); });
+    return idNames;
 }
 
 var injectPageNumber= function( context ) {
@@ -59,28 +61,31 @@ Template.dataObjects.pagination= function() {
 };
 
 var getPageCount= function() {
-    var ids= getSelectedIds();
+    var ids= getSelectedIdNames();
     var count= ids.length;
     if ( count % ItemsPerPage === 0 ) return count / ItemsPerPage;
     return Math.floor(count / ItemsPerPage) + 1;
 };
 
 Template.dataObjects.events({
-    'click .objectIds a': function( event ) {
-        sessionSet('objectId', this.toString());
+    'click .objects a': function( event ) {
+        sessionSet('objectIdName', this);
     },
 });
 
 Template.dataObjects.activeObjectClass= function( id ) {
-    return sessionGet('objectId') == id ? 'active' : '';
+    return (sessionGet('objectIdName') || {})._id == id ? 'active' : '';
 };
 
+Template.dataObjects.currentObjectName= function() {
+    return (sessionGet('objectIdName') || {}).name;
+};
 Template.dataObjects.currentObjectId= function() {
-    return sessionGet('objectId');
+    return (sessionGet('objectIdName') || {})._id;
 };
 
-Template.dataObjects.objectIds= function() {
-    var ids= getSelectedIds();
+Template.dataObjects.objects= function() {
+    var ids= getSelectedIdNames();
     var page= injectPageNumber(this)();
     return ids.slice(page * ItemsPerPage, (page + 1) * ItemsPerPage);
 };

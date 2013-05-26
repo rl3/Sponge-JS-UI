@@ -1,5 +1,5 @@
-var Schema=
-{
+var zuppi= function() {
+return {
     type: 'Schema',
     objectType : 'soil',
     version : 1,
@@ -42,4 +42,5 @@ var Schema=
             unit : "mm/m",
         },
     ]
+}
 }

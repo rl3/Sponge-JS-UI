@@ -1,5 +1,5 @@
-var ModelTemplate=
-{
+var zuppi= function() {
+return {
 //    "_id" : new ObjectID(),
     "name" : "modified_soil_1",
     'type': 'ModelTemplate',
@@ -56,4 +56,5 @@ var ModelTemplate=
             });
         },
     },
+}
 }
