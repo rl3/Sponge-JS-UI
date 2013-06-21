@@ -6,9 +6,9 @@
         </tr>
         <tr valign="top">
             <td>
-                {{#each modelIds}}
+                {{#each modelNames}}
                     <div class="modelId">
-                        <a class="{{#if active}}active{{/if}}" href="#">{{id}}</a>
+                        <a class="{{#if active}}active{{/if}}" href="#">{{name}}</a>
                     </div>
                 {{/each}}
             </td>
@@ -28,7 +28,7 @@
 <template name="model">
     <table>
         <tr>
-            <th>Name:</th><td>{{_id}}</td>
+            <th>Name:</th><td>{{name}} (ID: {{_id}})</td>
         </tr>
         <tr>
             <th>Description:</th><td>{{description}}</td>
@@ -38,26 +38,17 @@
         </tr>
         <tr valign="top">
             <th>Functions:</th><td>
-                <div class="accordion">
-                    {{#each functionBodies}}
-                        <div class="accordion-group">
-                            <div class="accordion-heading">
-                                <a class="accordion-toggle" data-toggle="collapse" data-parent=".accordion" href=".collapse-{{name}}">{{name}}
-                                    ( {{#each args}}<span title="{{#if unit}}in {{unit}} {{/if}}{{#if type}}Type: {{type}} {{/if}}{{#if description}}Description: {{description}} {{/if}}">{{name}}</span> {{/each}})
-                                    &rArr; {{result}}
-                                </a>
-                            </div>
-                            <div class="collapse-{{name}} accordion-body collapse">
-                                <div class="accordion-inner">
+                {{#with functionBody}}
+                    <div>
+                        ( {{#each args}}<span title="{{#if unit}}in {{unit}} {{/if}}{{#if type}}Type: {{type}} {{/if}}{{#if description}}Description: {{description}} {{/if}}">{{name}}</span> {{/each}})
+                        &rArr;
+                        ( {{#each result}}<span title="{{#if unit}}in {{unit}} {{/if}}{{#if type}}Type: {{type}} {{/if}}{{#if description}}Description: {{description}} {{/if}}">{{name}}</span> {{/each}} )
 <!--
-                                    <pre class="prettyprint lang-js linenums prettyprinted"><code>{{bodyEscaped}}</code></pre>
+                        <pre class="prettyprint lang-js linenums prettyprinted"><code>{{bodyEscaped}}</code></pre>
 -->
-                                    <pre class="lang-js linenums prettyprinted" style="font-size: smaller"><code>{{bodyEscaped}}</code></pre>
-                                </div>
-                            </div>
-                        </div>
-                    {{/each}}
-                </div>
+                        {{> jsEditor}}
+                    </div>
+                {{/with}}
             </td>
         </tr>
         <tr>
@@ -66,3 +57,8 @@
     </table>
 </template>
 
+<template name="jsEditor">
+    <div class="js-editor-container">
+        <div class="js-editor"></div>
+    </div>
+</template>

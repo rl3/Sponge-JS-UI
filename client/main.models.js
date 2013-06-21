@@ -8,9 +8,9 @@ var injectVar= function( context, name, initValue ) {
     return context.modelData[name];
 }
 
-var getModelIds= {
-    Model: getCachedData('getModelIds'),
-    ModelTemplate: getCachedData('getModelTemplateIds'),
+var getModelNames= {
+    Model: getCachedData('getModelNames'),
+    ModelTemplate: getCachedData('getModelTemplateNames'),
 };
 
 var getModel= {
@@ -19,26 +19,27 @@ var getModel= {
 };
 
 Template.models.pagination= function() {
-    var modelIds= getModelIds[this.type]();
-    if ( !modelIds ) return;
+    var modelNames= getModelNames[this.type]();
+    if ( !modelNames ) return;
 
-    var count= Math.floor(modelIds.length / ItemsPerPage);
-    if ( count * ItemsPerPage < modelIds.length ) count++;
+    var count= Math.floor(modelNames.length / ItemsPerPage);
+    if ( count * ItemsPerPage < modelNames.length ) count++;
 
     return new Handlebars.SafeString(Template.pagination({count: count, pageNumber: injectVar(this, 'pageNumber', 0), }));
 };
 
-Template.models.modelIds= function() {
-    var modelIds= getModelIds[this.type]();
-    if ( !modelIds ) return;
+Template.models.modelNames= function() {
+    var modelNames= getModelNames[this.type]();
+    if ( !modelNames ) return;
 
     var activeFn= injectVar(this, 'modelId');
 
-    return modelIds.slice(injectVar(this, 'pageNumber', 0)() * ItemsPerPage, ItemsPerPage).map(function( id ) {
+    return modelNames.slice(injectVar(this, 'pageNumber', 0)() * ItemsPerPage, ItemsPerPage).map(function( model ) {
         return {
-            id: id,
+            id: model._id,
+            name: model.name,
             activateFn: activeFn,
-            active: function() { return activeFn() === id },
+            active: function() { return activeFn() === model._id },
         };
     });
 };
