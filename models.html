@@ -27,6 +27,11 @@
 
 <template name="model">
     <table>
+        {{#if isChanged}}
+            <tr>
+                <th></th><td><a href="#" class="save">save</a></td>
+            </tr>
+        {{/if}}
         <tr>
             <th>Name:</th><td>{{name}} (ID: {{_id}})</td>
         </tr>
@@ -37,18 +42,40 @@
             <th>Last Changed:</th><td>{{timeStamp}}</td>
         </tr>
         <tr valign="top">
-            <th>Functions:</th><td>
-                {{#with functionBody}}
-                    <div>
-                        ( {{#each args}}<span title="{{#if unit}}in {{unit}} {{/if}}{{#if type}}Type: {{type}} {{/if}}{{#if description}}Description: {{description}} {{/if}}">{{name}}</span> {{/each}})
-                        &rArr;
-                        ( {{#each result}}<span title="{{#if unit}}in {{unit}} {{/if}}{{#if type}}Type: {{type}} {{/if}}{{#if description}}Description: {{description}} {{/if}}">{{name}}</span> {{/each}} )
-<!--
-                        <pre class="prettyprint lang-js linenums prettyprinted"><code>{{bodyEscaped}}</code></pre>
--->
-                        {{> jsEditor}}
+            <th>Arguments:</th><td>
+                <table>
+                    {{#each args}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{type}}{{#if unit}}in {{unit}} {{/if}}{{#if description}}<br />{{description}}{{/if}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th>Result:</th><td>
+                <table>
+                    {{#each result}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{type}}{{#if unit}}in {{unit}} {{/if}}{{#if description}}<br />{{description}}{{/if}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th>Body:</th><td>
+                {{#if editFunction}}
+                    <div class="full-screen-editor">
+                        {{> jsEditor functionCode}}
                     </div>
-                {{/with}}
+                {{else}}
+                    <div class="js-editor-container">
+<pre class="pre-scrollable"><code class="javascript">{{bodyEscaped}}</code></pre>
+                    </div>
+                {{/if}}
             </td>
         </tr>
         <tr>
@@ -57,8 +84,3 @@
     </table>
 </template>
 
-<template name="jsEditor">
-    <div class="js-editor-container">
-        <div class="js-editor"></div>
-    </div>
-</template>

@@ -26,11 +26,24 @@ table.parameterSets {
     .js-editor {
         position: relative;
         border: 1px solid black;
-        resize: both;
         min-width: 600px;
         min-height: 400px;
-        max-width: 1000px;
-        max-height: 1000px;
-        position: relative;
+    }
+}
+.full-screen-editor {
+    .button-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2em;
+        background-color: white;
+    }
+    .js-editor {
+        position: fixed;
+        top: 2em;
+        left: 0;
+        right: 0;
+        bottom: 0;
     }
 }

@@ -1,12 +1,7 @@
 
 var ItemsPerPage= 50;
 
-var injectVar= function( context, name, initValue ) {
-    if ( !context.modelData ) context.modelData= {};
-    if ( !context.modelData[name] ) context.modelData[name]= ReactiveValue(initValue)
-
-    return context.modelData[name];
-}
+var injectVar= DataObjectTools.injectVar;
 
 var getModelNames= {
     Model: getCachedData('getModelNames'),
