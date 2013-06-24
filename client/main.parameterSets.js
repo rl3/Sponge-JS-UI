@@ -1,16 +1,16 @@
 
 var SetsPerPage= 20;
 
-var getSchema= getCachedData('getSchemaByTypeVersion');
-var getParameterSetCount= getCachedData('getParameterSetCount');
-var getParameterSetKeys= getCachedData('getParameterSets');
+var getSchema= DataObjectTools.getCachedData('getSchemaByTypeVersion');
+var getParameterSetCount= DataObjectTools.getCachedData('getParameterSetCount');
+var getParameterSetKeys= DataObjectTools.getCachedData('getParameterSets');
 
 var sessionGet= function( name ) {
     return Session.get('parameterSet.' + name);
 };
 
 var injectPageNumber= function( context ) {
-    if ( !context.pageNumber ) context.pageNumber= ReactiveValue(0);
+    if ( !context.pageNumber ) context.pageNumber= DataObjectTools.ReactiveValue(0);
     return context.pageNumber;
 };
 

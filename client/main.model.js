@@ -1,5 +1,10 @@
 
-var getSchema= getCachedData('getSchemaByTypeVersion');
+var getSchema= DataObjectTools.getCachedData('getSchemaByTypeVersion');
+
+var saveModel= {
+    'Model': DataObjectTools.saveData('Model'),
+    'ModelTemplate': DataObjectTools.saveData('ModelTemplate'),
+};
 
 var injectVar= DataObjectTools.injectVar;
 
@@ -23,7 +28,6 @@ var objectArrayMapper= function( obj ) {
 };
 
 Template.model.args= function() {
-console.log(this.definition.args)
     return objectArrayMapper((this.definition || {}).args);
 };
 
@@ -38,20 +42,22 @@ Template.model.functionCode= function() {
     var result= {
         getValue: function() { return body; },
     };
-    if ( isEditMode() ) {
-        result.setValue= function( newBody ) {
-            self.functionBody= {
-                bsontype: 'Code',
-                code: newBody,
-                scope: {},
-            };
+
+    $('html').css('overflow', 'hidden');
+    result.setValue= function( newBody ) {
+        self.functionBody= {
+            bsontype: 'Code',
+            code: newBody,
+            scope: {},
         };
-        result.hasButtonBar= true;
-        result.onClose= function() { isEditMode(false); }
+        injectVar(self, 'changed')(true);
+    };
+    result.hasButtonBar= true;
+    result.onClose= function() {
+        isEditMode(false);
+        $('html').css('overflow', 'auto');
     }
-    else {
-        result.onFocus= function() { isEditMode(true); };
-    }
+
     return result;
 };
 
@@ -84,4 +90,9 @@ Template.model.events({
     'click pre': function() {
         injectVar(this, 'editFunction')(true);
     },
+    'click a.save': function() {
+        saveModel(this);
+        injectVar(this, 'changed')(false);
+    },
 });
+

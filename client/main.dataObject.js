@@ -1,6 +1,6 @@
 
-var getSchema= getCachedData('getSchemaByTypeVersion');
-var getAgroObject= getCachedData('getAgroObject');
+var getSchema= DataObjectTools.getCachedData('getSchemaByTypeVersion');
+var getAgroObject= DataObjectTools.getCachedData('getAgroObject');
 
 Template.dataObject.dataObject= function( objectId ) {
     return getAgroObject(objectId);

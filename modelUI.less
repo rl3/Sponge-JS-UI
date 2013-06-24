@@ -31,19 +31,26 @@ table.parameterSets {
     }
 }
 .full-screen-editor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    overflow: auto;
+
     .button-bar {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        height: 2em;
-        background-color: white;
+        margin: 0;
     }
     .js-editor {
         position: fixed;
-        top: 2em;
+        top: 42px;
         left: 0;
-        right: 0;
+        width: 100%;
         bottom: 0;
     }
 }

@@ -29,7 +29,7 @@ Template.jsEditor.hasChanged= function() {
 };
 
 Template.jsEditor.events({
-    'click button.close': function() {
+    'click i.icon-remove': function() {
         if ( this.onClose ) this.onClose();
     },
     'click i.icon-ok': function() {

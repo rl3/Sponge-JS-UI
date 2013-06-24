@@ -1,9 +1,11 @@
 
 <template name="jsEditor">
     {{#if hasButtonBar}}
-        <div class="button-bar">
-            <button class="close pull-right">&times;</button>
-            <i class="icon-ok icon-white"></i>
+        <div class="well well-small button-bar">
+            <a class="btn btn-mini pull-right" href="#"><i class="icon-remove"></i></a>
+            <div class="btn-group">
+                <a class="btn btn-mini" href="#"><i class="icon-ok icon-white"></i></a>
+            </div>
         </div>
     {{/if}}
     <div class="js-editor"></div>

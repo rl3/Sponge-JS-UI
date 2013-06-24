@@ -16,7 +16,7 @@ Handlebars.registerHelper("ReactiveValue", function( oldContext, initValue ) {
     if ( typeof oldContext !== 'object' ) {
         oldContext= {};
     }
-    oldContext.__value= ReactiveValue(initValue);
+    oldContext.__value= DataObjectTools.ReactiveValue(initValue);
     return oldContext;
 });
 

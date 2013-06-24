@@ -15,8 +15,8 @@ Template.dataObjects.currentTypeVersion= function() {
     return typeVersion.type + " " + typeVersion.version;
 };
 
-var getSchemas= getCachedData('getTypeVersions');
-var getObjectIdNames= getCachedData('getIdNamesByTypeVersion');
+var getSchemas= DataObjectTools.getCachedData('getTypeVersions');
+var getObjectIdNames= DataObjectTools.getCachedData('getIdNamesByTypeVersion');
 
 Template.dataObjects.schemas= function() {
     var schemas= getSchemas();
@@ -52,7 +52,7 @@ var getSelectedIdNames= function() {
 }
 
 var injectPageNumber= function( context ) {
-    if ( !context.pageNumber ) context.pageNumber= ReactiveValue(0);
+    if ( !context.pageNumber ) context.pageNumber= DataObjectTools.ReactiveValue(0);
     return context.pageNumber;
 }
 

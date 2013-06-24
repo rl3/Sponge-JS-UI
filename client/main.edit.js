@@ -5,7 +5,7 @@ var Edit= function( context, property, viewTemplateName, editTemplateName ) {
     this.property= property;
     this.viewTemplateName= viewTemplateName || 'editViewText';
     this.editTemplateName= editTemplateName || 'editEditText';
-    this.editMode= ReactiveValue(false);
+    this.editMode= DataObjectTools.ReactiveValue(false);
 };
 Edit.prototype.get= function() {
     return this.context[this.property];

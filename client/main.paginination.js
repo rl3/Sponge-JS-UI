@@ -15,7 +15,7 @@ var buildPageVar= function( context ) {
         };
     }
 
-    context.pageVar= context.pageNumber || ReactiveValue(0);
+    context.pageVar= context.pageNumber || DataObjectTools.ReactiveValue(0);
     return context.pageVar;
 };
 

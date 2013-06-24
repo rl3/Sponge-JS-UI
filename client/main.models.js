@@ -4,13 +4,13 @@ var ItemsPerPage= 50;
 var injectVar= DataObjectTools.injectVar;
 
 var getModelNames= {
-    Model: getCachedData('getModelNames'),
-    ModelTemplate: getCachedData('getModelTemplateNames'),
+    Model: DataObjectTools.getCachedData('getModelNames'),
+    ModelTemplate: DataObjectTools.getCachedData('getModelTemplateNames'),
 };
 
 var getModel= {
-    Model: getCachedData('getModel'),
-    ModelTemplate: getCachedData('getModelTemplate'),
+    Model: DataObjectTools.getCachedData('getModel'),
+    ModelTemplate: DataObjectTools.getCachedData('getModelTemplate'),
 };
 
 Template.models.pagination= function() {
