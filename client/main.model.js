@@ -1,9 +1,8 @@
 
 var getSchema= DataObjectTools.getCachedData('getSchemaByTypeVersion');
 
-var saveModel= {
-    'Model': DataObjectTools.saveData('Model'),
-    'ModelTemplate': DataObjectTools.saveData('ModelTemplate'),
+var saveModel= function( model ) {
+    console.log(model);
 };
 
 var injectVar= DataObjectTools.injectVar;
