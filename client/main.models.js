@@ -34,7 +34,7 @@ Template.models.modelNames= function() {
             id: model._id,
             name: model.name,
             activateFn: activeFn,
-            active: function() { return activeFn() === model._id },
+            active: function() { return _.isEqual(activeFn(), model._id) },
         };
     });
 };

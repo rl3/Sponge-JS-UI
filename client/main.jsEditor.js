@@ -25,7 +25,7 @@ Template.jsEditor.rendered= function() {
 };
 
 Template.jsEditor.hasChanged= function() {
-    return injectVar(this, "hasChanged")();
+    return injectVar(this, 'hasChanged')();
 };
 
 Template.jsEditor.events({

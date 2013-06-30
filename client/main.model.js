@@ -1,54 +1,103 @@
 
 var getSchema= DataObjectTools.getCachedData('getSchemaByTypeVersion');
 
+var _saveModel= {
+    'Model': DataObjectTools.postData('saveModel'),
+    'ModelTemplate': DataObjectTools.postData('saveModelTemplate'),
+}
+
 var saveModel= function( model ) {
-    console.log(model);
+    var type= model.type;
+    return _saveModel[type](model);
 };
 
 var injectVar= DataObjectTools.injectVar;
 
-var objectArrayMapper= function( obj ) {
+var objectArrayMapper= function( context, prop, changedVar ) {
+    if ( !context ) context= {};
+    if ( !changedVar ) changedVar= function() {};
+    var obj= context[prop];
+    var info= (context.info || {})[prop];
+
+    var infoFields= [ 'unit', 'description' ];
+
     return Object.keys(obj).map(function( key ) {
-        var value= obj[key];
-        if ( typeof value !== 'object' ) {
-            value= {
-                type: value,
-            };
-        }
-        var result= {
-            name: key,
-            type: value.type,
-        };
-        ['unit', 'description'].forEach(function( key ) {
-            if ( key in value ) result[key]= value[key];
+        return new GuiTools.Edit({
+            get: function() {
+                var value= obj[key];
+                var valueInfo= (info || {})[key] || {};
+                if ( typeof value !== 'object' ) {
+                    value= {
+                        type: value,
+                    };
+                }
+                if ( valueInfo.unit === 'none' ) delete valueInfo.unit;
+                return _.extend({ name: key }, value, valueInfo);
+            },
+            set: function( newValue ) {
+                var oldValue= obj[key];
+                var newInfo;
+                var newName= newValue.name;
+                changedVar(true);
+
+                if ( newName !== key ) {
+                    if ( !newName || newName in obj ) {
+                        delete obj[key];
+                        if ( info[key] ) delete info[key];
+                        return;
+                    }
+                    obj[newName]= obj[key];
+                    delete obj[key];
+                    if ( key in info ) {
+                        info[newName]= info[key];
+                        delete info[key];
+                    }
+                    key= newName;
+                }
+                if ( typeof oldValue !== 'object' ) {
+                    obj[key]= newValue.type;
+                    if ( !info ) {
+                        if ( context.info ) context.info= {};
+                        context.info[prop]= info= {};
+                    }
+                    info[key]= newInfo= {};
+                }
+                else {
+                    obj[key]= newInfo= { type: newValue.type };
+                }
+                _.extend(
+                    newInfo,
+                    _.chain(newValue).omit('type', 'name').pairs().filter(function( value ) { return value[1] !== undefined; }).object().value()
+                );
+            },
+            viewTemplateName: 'editViewType',
+            editTemplateName: 'editEditType',
+            asTr: true,
         });
-        return result;
+
+
     })
 };
 
 Template.model.args= function() {
-    return objectArrayMapper((this.definition || {}).args);
+    return objectArrayMapper(this.definition, 'args', injectVar(this, 'changed'));
 };
 
 Template.model.result= function() {
-    return objectArrayMapper((this.definition || {}).result);
+    return objectArrayMapper(this.definition, 'result', injectVar(this, 'changed'));
 };
 
 Template.model.functionCode= function() {
     var body= (this.functionBody || {}).code || '';
     var self= this;
-    var isEditMode= injectVar(this, 'editFunction');
+    var isEditMode= injectVar(this, 'editFunction', false);
     var result= {
         getValue: function() { return body; },
     };
 
     $('html').css('overflow', 'hidden');
     result.setValue= function( newBody ) {
-        self.functionBody= {
-            bsontype: 'Code',
-            code: newBody,
-            scope: {},
-        };
+        self.functionBody= new DataObjectTools.Types.Code(newBody);
         injectVar(self, 'changed')(true);
     };
     result.hasButtonBar= true;
@@ -64,8 +113,8 @@ Template.model.editFunction= function() {
     return injectVar(this, 'editFunction', false)();
 }
 
-Template.model.isChanged= function() {
-    return injectVar(this, 'changed', false);
+Template.modelChangedRow.isChanged= function() {
+    return injectVar(this, 'changed', false)();
 }
 
 Template.model.bodyEscaped= function() {
@@ -74,7 +123,8 @@ Template.model.bodyEscaped= function() {
 }
 
 Template.model.isTemplate= function() {
-    return !('templateId' in this);
+console.log(this)
+    return this.type === 'ModelTemplate';
 };
 
 Template.model.timeStamp= function() {

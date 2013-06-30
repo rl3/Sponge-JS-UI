@@ -19,6 +19,6 @@ Template.dataObject.args= function( values ) {
 };
 
 Template.dataObject.description= function() {
-    return new GuiTools.Edit(this, 'description');
+    return new GuiTools.Edit({ context: this, property: 'description' });
 };
 

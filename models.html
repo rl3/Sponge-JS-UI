@@ -27,13 +27,9 @@
 
 <template name="model">
     <table>
-        {{#if isChanged}}
-            <tr>
-                <th></th><td><a href="#" class="save">save</a></td>
-            </tr>
-        {{/if}}
+        {{> modelChangedRow}}
         <tr>
-            <th>Name:</th><td>{{name}} (ID: {{_id}})</td>
+            <th>Name:</th><td>{{name}} <span class="id">({{_id}})</span></td>
         </tr>
         <tr>
             <th>Description:</th><td>{{description}}</td>
@@ -45,10 +41,7 @@
             <th>Arguments:</th><td>
                 <table>
                     {{#each args}}
-                        <tr>
-                            <td>{{name}}</td>
-                            <td>{{type}}{{#if unit}}in {{unit}} {{/if}}{{#if description}}<br />{{description}}{{/if}}</td>
-                        </tr>
+                        {{> edit this}}
                     {{/each}}
                 </table>
             </td>
@@ -57,10 +50,7 @@
             <th>Result:</th><td>
                 <table>
                     {{#each result}}
-                        <tr>
-                            <td>{{name}}</td>
-                            <td>{{type}}{{#if unit}}in {{unit}} {{/if}}{{#if description}}<br />{{description}}{{/if}}</td>
-                        </tr>
+                        {{> edit this}}
                     {{/each}}
                 </table>
             </td>
@@ -84,3 +74,10 @@
     </table>
 </template>
 
+<template name="modelChangedRow">
+    {{#if isChanged}}
+        <tr>
+            <th></th><td><a href="#" class="save">save</a></td>
+        </tr>
+    {{/if}}
+</template>

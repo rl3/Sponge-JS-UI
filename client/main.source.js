@@ -1,25 +1,25 @@
 
 Template.source.Name= function() {
-    return new GuiTools.Edit(this, 'Name');
+    return new GuiTools.Edit({ context: this, property: 'Name' });
 };
 
 Template.source.Description= function() {
-    return new GuiTools.Edit(this, 'Description');
+    return new GuiTools.Edit({ context: this, property: 'Description' });
 };
 
 Template.source.Organisation= function() {
-    return new GuiTools.Edit(this, 'Organisation');
+    return new GuiTools.Edit({ context: this, property: 'Organisation' });
 };
 
 Template.source.Address= function() {
-    return new GuiTools.Edit(this, 'Address');
+    return new GuiTools.Edit({ context: this, property: 'Address' });
 };
 
 Template.source.MailEdit= function() {
-    return new GuiTools.Edit(this, 'Mail');
+    return new GuiTools.Edit({ context: this, property: 'Mail' });
 };
 
 Template.source.wwwEdit= function() {
-    return new GuiTools.Edit(this, 'www');
+    return new GuiTools.Edit({ context: this, property: 'www' });
 };
 
