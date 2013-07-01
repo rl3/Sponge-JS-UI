@@ -2,8 +2,6 @@
 
 var Edit= function( options ) {
     this.options= options;
-    if ( 'context' in options ) this.context= options.context;
-    if ( 'property' in options ) this.property= options.property;
     if ( 'get' in options ) this.get= options.get;
     if ( 'set' in options ) this.set= options.set;
     this.viewTemplateName= options.viewTemplateName || 'editViewText';
@@ -27,7 +25,7 @@ Template.edit.editTemplate= function() {
     return new Handlebars.SafeString(Template[this.editTemplateName]({
         value: this.tempValue,
         set: function( property, value ) {
-            if ( property !== undefined ) {
+            if ( property ) {
                 self.tempValue[property]= value;
                 return;
             }
@@ -44,13 +42,15 @@ Template.edit.editMode= function() {
 };
 
 Template.edit.events({
-    'click i.icon-edit': function( event ) {
+    'click i.icon-edit, dblclick .viewMode.value': function( event ) {
         this.editMode(true);
         return false;
     },
     'click i.icon-ok-sign': function( event ) {
         this.editMode(false);
-        this.set(this.tempValue);
+        if ( !_.isEqual(this.get(), this.tempValue) ) {
+            this.set(this.tempValue);
+        }
         return false;
     },
     'click i.icon-remove-sign': function( event ) {

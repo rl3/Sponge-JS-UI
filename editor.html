@@ -3,7 +3,7 @@
     {{#if asTr}}
         {{#if editMode}}<tr class="editMode value">{{editTemplate}}<td><i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i></td></tr>{{else}}<tr class="viewMode value">{{viewTemplate}}<td><i class="icon-edit"></i></td></tr>{{/if}}
     {{else}}
-        {{#if editMode}}<span class="editMode">{{editTemplate}}</span> <i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i>{{else}}<span class="viewMode">{{viewTemplate}}</span> <i class="icon-edit"></i>{{/if}}
+        {{#if editMode}}<span class="editMode value">{{editTemplate}} <i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i></span>{{else}}<span class="viewMode value">{{viewTemplate}} <i class="icon-edit"></i></span>{{/if}}
     {{/if}}
 </template>
 

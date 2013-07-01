@@ -29,16 +29,16 @@
     <table>
         {{> modelChangedRow}}
         <tr>
-            <th>Name:</th><td>{{name}} <span class="id">({{_id}})</span></td>
+            <th align="right">Name:</th><td>{{> edit Name}} <span class="id">({{_id}})</span></td>
         </tr>
         <tr>
-            <th>Description:</th><td>{{description}}</td>
+            <th align="right">Description:</th><td>{{> edit Description}}</td>
         </tr>
         <tr>
-            <th>Last Changed:</th><td>{{timeStamp}}</td>
+            <th align="right">Last Changed:</th><td>{{timeStamp}}</td>
         </tr>
         <tr valign="top">
-            <th>Arguments:</th><td>
+            <th align="right">Arguments:</th><td>
                 <table>
                     {{#each args}}
                         {{> edit this}}
@@ -47,7 +47,7 @@
             </td>
         </tr>
         <tr valign="top">
-            <th>Result:</th><td>
+            <th align="right">Result:</th><td>
                 <table>
                     {{#each result}}
                         {{> edit this}}
@@ -56,28 +56,26 @@
             </td>
         </tr>
         <tr valign="top">
-            <th>Body:</th><td>
+            <th align="right">Body:</th><td>
                 {{#if editFunction}}
                     <div class="full-screen-editor">
                         {{> jsEditor functionCode}}
                     </div>
                 {{else}}
                     <div class="js-editor-container">
-<pre class="pre-scrollable"><code class="javascript">{{bodyEscaped}}</code></pre>
+                        <pre class="pre-scrollable"><code class="javascript">{{bodyEscaped}}</code></pre>
                     </div>
                 {{/if}}
             </td>
         </tr>
         <tr>
-            <th>Inputs:</th><td>{{isTemplate}}</td>
+            <th align="right">Inputs:</th><td>{{isTemplate}}</td>
         </tr>
     </table>
 </template>
 
 <template name="modelChangedRow">
-    {{#if isChanged}}
-        <tr>
-            <th></th><td><a href="#" class="save">save</a></td>
-        </tr>
-    {{/if}}
+    <tr>
+        <td></td><td><button class="btn btn-mini {{class}} save" type="button">Save changes</button></td>
+    </tr>
 </template>

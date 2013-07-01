@@ -79,6 +79,24 @@ var objectArrayMapper= function( context, prop, changedVar ) {
     })
 };
 
+var editor= function( context, property ) {
+    return new GuiTools.Edit({
+        get: function() { return context[property]; },
+        set: function( newValue ) {
+            context[property]= newValue;
+            injectVar(context, 'changed')(true);
+        },
+    });
+}
+
+Template.model.Name= function() {
+    return editor(this, 'name');
+}
+
+Template.model.Description= function() {
+    return editor(this, 'description');
+}
+
 Template.model.args= function() {
     return objectArrayMapper(this.definition, 'args', injectVar(this, 'changed'));
 };
@@ -113,17 +131,12 @@ Template.model.editFunction= function() {
     return injectVar(this, 'editFunction', false)();
 }
 
-Template.modelChangedRow.isChanged= function() {
-    return injectVar(this, 'changed', false)();
-}
-
 Template.model.bodyEscaped= function() {
     var body= (this.functionBody || {}).code || '';
     return body.replace(/\&/g, '&amp;').replace(/\</g, '&lt;');
 }
 
 Template.model.isTemplate= function() {
-console.log(this)
     return this.type === 'ModelTemplate';
 };
 
@@ -139,9 +152,17 @@ Template.model.events({
     'click pre': function() {
         injectVar(this, 'editFunction')(true);
     },
-    'click a.save': function() {
+    'click button.btn-primary.save': function() {
         saveModel(this);
         injectVar(this, 'changed')(false);
     },
 });
+
+Template.modelChangedRow.isChanged= function() {
+    return injectVar(this, 'changed', false)();
+}
+
+Template.modelChangedRow.class= function() {
+    return injectVar(this, 'changed', false)() ? 'btn-primary' : 'disabled';
+}
 
