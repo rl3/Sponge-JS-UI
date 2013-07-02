@@ -1,6 +1,4 @@
 
-var getSchema= DataObjectTools.getCachedData('getSchemaByTypeVersion');
-
 var _saveModel= {
     'Model': DataObjectTools.postData('saveModel'),
     'ModelTemplate': DataObjectTools.postData('saveModelTemplate'),
@@ -24,19 +22,18 @@ var objectArrayMapper= function( context, prop, changedVar ) {
     return Object.keys(obj).map(function( key ) {
         return new GuiTools.Edit({
             get: function() {
-                var value= obj[key];
+                var type= obj[key];
                 var valueInfo= (info || {})[key] || {};
-                if ( typeof value !== 'object' ) {
-                    value= {
-                        type: value,
-                    };
-                }
+
                 if ( valueInfo.unit === 'none' ) delete valueInfo.unit;
-                return _.extend({ name: key }, value, valueInfo);
+                return _.extend({
+                    name: key,
+                    type: type,
+                    sparse: !info,
+                }, valueInfo);
             },
             set: function( newValue ) {
                 var oldValue= obj[key];
-                var newInfo;
                 var newName= newValue.name;
                 changedVar(true);
 
@@ -54,21 +51,14 @@ var objectArrayMapper= function( context, prop, changedVar ) {
                     }
                     key= newName;
                 }
-                if ( typeof oldValue !== 'object' ) {
-                    obj[key]= newValue.type;
-                    if ( !info ) {
-                        if ( context.info ) context.info= {};
-                        context.info[prop]= info= {};
-                    }
-                    info[key]= newInfo= {};
+
+                obj[key]= newValue.type;
+                if ( !info ) {
+                    if ( !context.info ) context.info= {};
+                    context.info[prop]= info= {};
                 }
-                else {
-                    obj[key]= newInfo= { type: newValue.type };
-                }
-                _.extend(
-                    newInfo,
-                    _.chain(newValue).omit('type', 'name').pairs().filter(function( value ) { return value[1] !== undefined; }).object().value()
-                );
+                info[key]= _.chain(newValue).omit('type', 'name', 'sparse').pairs().
+                    filter(function( value ) { return value[1] !== undefined; }).object().value();
             },
             viewTemplateName: 'editViewType',
             editTemplateName: 'editEditType',
@@ -115,6 +105,8 @@ Template.model.functionCode= function() {
 
     $('html').css('overflow', 'hidden');
     result.setValue= function( newBody ) {
+        if ( self.functionBody.code === newBody ) return;
+
         self.functionBody= new DataObjectTools.Types.Code(newBody);
         injectVar(self, 'changed')(true);
     };
@@ -145,11 +137,15 @@ Template.model.timeStamp= function() {
 }
 
 Template.model.inputDefinitions= function() {
-    var inputs= (this.inputDefinitions || {}).typeMap || {};
+    var changedFn= injectVar(this, 'changed');
+    var result= _.chain(this.inputDefinitions).pairs().map(function( input ) {
+        return _.extend(_.clone(input[1]), { name: input[0], onChange: changedFn, });
+    }).value();
+    return result;
 };
 
 Template.model.events({
-    'click pre': function() {
+    'dblclick pre.javascript': function() {
         injectVar(this, 'editFunction')(true);
     },
     'click button.btn-primary.save': function() {
@@ -158,6 +154,10 @@ Template.model.events({
     },
 });
 
+/**
+ * TEMPLATE modelChangedRow
+ */
+
 Template.modelChangedRow.isChanged= function() {
     return injectVar(this, 'changed', false)();
 }
@@ -165,4 +165,21 @@ Template.modelChangedRow.isChanged= function() {
 Template.modelChangedRow.class= function() {
     return injectVar(this, 'changed', false)() ? 'btn-primary' : 'disabled';
 }
+
+/**
+ * TEMPLATE modelInputDefinition
+ */
+
+Template.modelInputDefinition.schema= function() {
+    var schema= DataObjectTools.findThisSchema(this.args, this.result);
+    return schema;
+};
+
+Template.modelInputDefinition.args= function() {
+    return objectArrayMapper(this, 'args', this.onChange);
+};
+
+Template.modelInputDefinition.result= function() {
+    return objectArrayMapper(this, 'result', this.onChange);
+};
 

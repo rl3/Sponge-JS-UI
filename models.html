@@ -38,20 +38,21 @@
             <th align="right">Last Changed:</th><td>{{timeStamp}}</td>
         </tr>
         <tr valign="top">
-            <th align="right">Arguments:</th><td>
+            <th align="right">Definition:</th><td>
                 <table>
-                    {{#each args}}
-                        {{> edit this}}
-                    {{/each}}
-                </table>
-            </td>
-        </tr>
-        <tr valign="top">
-            <th align="right">Result:</th><td>
-                <table>
-                    {{#each result}}
-                        {{> edit this}}
-                    {{/each}}
+                    <tr><th>Arguments</th><th>Result</th></tr>
+                    <tr valign="top">
+                        <td><table>
+                            {{#each args}}
+                                {{> edit this}}
+                            {{/each}}
+                        </table></td>
+                        <td><table>
+                            {{#each result}}
+                                {{> edit this}}
+                            {{/each}}
+                        </table></td>
+                    </tr>
                 </table>
             </td>
         </tr>
@@ -63,13 +64,19 @@
                     </div>
                 {{else}}
                     <div class="js-editor-container">
-                        <pre class="pre-scrollable"><code class="javascript">{{bodyEscaped}}</code></pre>
+                        <pre class="pre-scrollable javascript"><code class="javascript">{{bodyEscaped}}</code></pre>
                     </div>
                 {{/if}}
             </td>
         </tr>
         <tr>
-            <th align="right">Inputs:</th><td>{{isTemplate}}</td>
+            <th align="right">Inputs:</th><td>
+                <table>
+                    {{#each inputDefinitions}}
+                        {{> modelInputDefinition}}
+                    {{/each}}
+                </table>
+            </td>
         </tr>
     </table>
 </template>
@@ -79,3 +86,36 @@
         <td></td><td><button class="btn btn-mini {{class}} save" type="button">Save changes</button></td>
     </tr>
 </template>
+
+<template name="modelInputDefinition">
+    <tr valign="top">
+        <td>{{name}}<td>
+        <td>
+            {{#with schema}}
+                <span class="typeSignature"><span class="objectType">{{objectType}}</span>/<span class="version">{{version}}</span></span>
+                <span class="description">({{description}})</span>
+            {{else}}
+                <table>
+                    <tr><th>Arguments</th><th>Result</th></tr>
+                    <tr valign="top">
+                        <td>
+                            <table>
+                                {{#each args}}
+                                    {{> edit this}}
+                                {{/each}}
+                            </table>
+                        </td>
+                        <td>
+                            <table>
+                                {{#each result}}
+                                    {{> edit this}}
+                                {{/each}}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            {{/with}}
+        </td>
+    </tr>
+</template>
+
