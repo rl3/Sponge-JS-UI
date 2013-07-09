@@ -7,10 +7,7 @@ var _saveModel= {
 var saveModel= function( model ) {
     var type= model.type;
 
-console.log(model);
-console.log('save:', DataObjectTools.cachedMethodUrl['get' + type](model._id));
-
-    DataObjectTools.updateCache(DataObjectTools.cachedMethodUrl['get' + type](model._id), model);
+    _saveModel[type](model);
 };
 
 var injectVar= DataObjectTools.injectVar;
