@@ -69,53 +69,83 @@
                 {{/if}}
             </td>
         </tr>
-        <tr>
-            <th align="right">Inputs:</th><td>
-                <table>
-                    {{#each inputDefinitions}}
-                        {{> modelInputDefinition}}
-                    {{/each}}
-                </table>
-            </td>
-        </tr>
+        {{#if inputDefinitions}}
+            <tr>
+                <th align="right">Inputs:</th><td>
+                    <table>
+                        {{#each inputDefinitions}}
+                            {{> modelInputDefinition}}
+                        {{/each}}
+                    </table>
+                </td>
+            </tr>
+        {{/if}}
     </table>
 </template>
 
 <template name="modelChangedRow">
     <tr>
-        <td></td><td><button class="btn btn-mini {{class}} save" type="button">Save changes</button></td>
+        <td></td>
+        <td>
+            <button class="btn btn-mini {{class}} save" type="button">Save changes</button>
+            {{#if isModel}}
+                <a href=".runModel" role="button" class="btn btn-mini" data-toggle="modal">run Model</a>
+                {{> runModel}}
+            {{/if}}
+        </td>
     </tr>
 </template>
 
 <template name="modelInputDefinition">
     <tr valign="top">
         <td>{{name}}<td>
-        <td>
-            {{#with schema}}
-                <span class="typeSignature"><span class="objectType">{{objectType}}</span>/<span class="version">{{version}}</span></span>
-                <span class="description">({{description}})</span>
-            {{else}}
-                <table>
-                    <tr><th>Arguments</th><th>Result</th></tr>
-                    <tr valign="top">
-                        <td>
-                            <table>
-                                {{#each args}}
-                                    {{> edit this}}
-                                {{/each}}
-                            </table>
-                        </td>
-                        <td>
-                            <table>
-                                {{#each result}}
-                                    {{> edit this}}
-                                {{/each}}
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            {{/with}}
-        </td>
+        <td>{{> objectType}}</td>
     </tr>
 </template>
 
+<template name="objectType">
+    {{#with schema}}
+        <span class="typeSignature"><span class="objectType">{{objectType}}</span>/<span class="version">{{version}}</span></span>
+        <span class="description">({{description}})</span>
+    {{else}}
+        <table>
+            <tr><th>Arguments</th><th>Result</th></tr>
+            <tr valign="top">
+                <td>
+                    <table>
+                        {{#each args}}
+                            {{> edit this}}
+                        {{/each}}
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        {{#each result}}
+                            {{> edit this}}
+                        {{/each}}
+                    </table>
+                </td>
+            </tr>
+        </table>
+    {{/with}}
+</template>
+
+<template name="runModel">
+    <div class="modal hide fade runModel">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Run Model {{name}}</h3>
+        </div>
+        <div class="modal-body">
+            {{#with args}}
+                {{#each args}}
+                    {{name}}<br />
+                {{/each}}
+            {{/with}}
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn">Close</a>
+            <a href="#" class="btn btn-primary">Save changes</a>
+        </div>
+    </div>
+</template>

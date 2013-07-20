@@ -20,7 +20,7 @@
 <template name="editViewType">
     <td><span class="valueName">{{name}}</span></td>
     <td>
-        <span class="valueType">{{type}}</span>
+        <span class="valueType">{{#if objectType}}{{> objectType type}}{{else}}{{type}}{{/if}}</span>
         {{#if sparse}}
         {{else}}
             {{#if unit}}<span class="valueUnit">in <span class="unit">{{unit}}</span></span>{{/if}}

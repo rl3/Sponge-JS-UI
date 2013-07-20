@@ -10,6 +10,8 @@ var saveModel= function( model ) {
     _saveModel[type](model);
 };
 
+var getModelArgs= DataObjectTools.getCachedData('getModelArgs');
+
 var injectVar= DataObjectTools.injectVar;
 
 var objectArrayMapper= function( context, prop, changedVar ) {
@@ -30,6 +32,7 @@ var objectArrayMapper= function( context, prop, changedVar ) {
                 return _.extend({
                     name: key,
                     type: type,
+                    objectType: typeof type === 'object',
                     sparse: !info,
                 }, valueInfo);
             },
@@ -167,20 +170,52 @@ Template.modelChangedRow.class= function() {
     return injectVar(this, 'changed', false)() ? 'btn-primary' : 'disabled';
 }
 
+Template.modelChangedRow.isModel= function() {
+    return this.type === 'Model';
+}
+
 /**
- * TEMPLATE modelInputDefinition
+ * TEMPLATE objectType
  */
 
-Template.modelInputDefinition.schema= function() {
+Template.objectType.schema= function() {
     var schema= DataObjectTools.findThisSchema(this.args, this.result);
     return schema;
 };
 
-Template.modelInputDefinition.args= function() {
+Template.objectType.args= function() {
     return objectArrayMapper(this, 'args', this.onChange);
 };
 
-Template.modelInputDefinition.result= function() {
+Template.objectType.result= function() {
     return objectArrayMapper(this, 'result', this.onChange);
 };
 
+
+Template.runModel.args= function() {
+    if ( !this._id ) return;
+
+    var args= getModelArgs(this._id);
+    if ( !args ) return;
+
+    var result= {};
+
+    if ( args.args ) {
+        result.args= Object.keys(args.args).map(function(argName) {
+            return {
+                name: argName,
+                type: args.args[argName],
+            };
+        });
+    }
+    if ( args.inputs ) {
+        result.inputs= Object.keys(args.inputs).map(function(inputName) {
+            return {
+                name: inputName,
+                type: args.input[inputName],
+            };
+        });
+    }
+    console.log(result);
+    return result;
+};
