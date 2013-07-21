@@ -7,17 +7,19 @@ var getCachedData= function(name, timeout) {
         var than= new Date(now - timeout);
         var id= DataObjectTools.cachedMethodUrl[name](options);
 
-        var query= { _id: id, timeStamp: { $gt: than }, };
+        var key= typeof id === 'object' ? JSON.stringify(id) : id;
+
+        var query= { _id: key, timeStamp: { $gt: than }, };
 
         var data= DataObjectTools.dataCache.findOne(query);
         if ( data ) {
-            delete running[id];
+            delete running[key];
             return data.data;
         }
 
-        if ( id in running ) return;
+        if ( key in running ) return;
 
-        running[id]= undefined;
+        running[key]= undefined;
         Meteor.apply(name, Array.prototype.slice.call(arguments));
     };
 };

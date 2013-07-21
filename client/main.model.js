@@ -10,8 +10,6 @@ var saveModel= function( model ) {
     _saveModel[type](model);
 };
 
-var getModelArgs= DataObjectTools.getCachedData('getModelArgs');
-
 var injectVar= DataObjectTools.injectVar;
 
 var objectArrayMapper= function( context, prop, changedVar ) {
@@ -192,30 +190,3 @@ Template.objectType.result= function() {
 };
 
 
-Template.runModel.args= function() {
-    if ( !this._id ) return;
-
-    var args= getModelArgs(this._id);
-    if ( !args ) return;
-
-    var result= {};
-
-    if ( args.args ) {
-        result.args= Object.keys(args.args).map(function(argName) {
-            return {
-                name: argName,
-                type: args.args[argName],
-            };
-        });
-    }
-    if ( args.inputs ) {
-        result.inputs= Object.keys(args.inputs).map(function(inputName) {
-            return {
-                name: inputName,
-                type: args.input[inputName],
-            };
-        });
-    }
-    console.log(result);
-    return result;
-};

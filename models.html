@@ -89,8 +89,7 @@
         <td>
             <button class="btn btn-mini {{class}} save" type="button">Save changes</button>
             {{#if isModel}}
-                <a href=".runModel" role="button" class="btn btn-mini" data-toggle="modal">run Model</a>
-                {{> runModel}}
+                <a href="#modelRun" role="button" class="btn btn-mini" data-toggle="modal">run Model</a>
             {{/if}}
         </td>
     </tr>
@@ -130,22 +129,3 @@
     {{/with}}
 </template>
 
-<template name="runModel">
-    <div class="modal hide fade runModel">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>Run Model {{name}}</h3>
-        </div>
-        <div class="modal-body">
-            {{#with args}}
-                {{#each args}}
-                    {{name}}<br />
-                {{/each}}
-            {{/with}}
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn">Close</a>
-            <a href="#" class="btn btn-primary">Save changes</a>
-        </div>
-    </div>
-</template>
