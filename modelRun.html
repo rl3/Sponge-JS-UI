@@ -30,13 +30,17 @@
                     <tr>
                         <td>{{name}}</td>
                         <td>
-                            {{typeInput}}
+                            {{> valueInput this}}
                         </td>
                     </tr>
                 {{/each}}
             </table>
         {{/if}}
     {{/with}}
+</template>
+
+<template name="valueInput">
+    {{input}}
 </template>
 
 <template name="valueInputDouble">
@@ -56,22 +60,23 @@
 </template>
 
 <template name="valueInputModel">
-    {{#with matching}}
-        <div class="input-prepend">
-            <div class="btn-group">
-                <button class="btn dropdown-toggle" data-toggle="dropdown">
-                    {{value.type.label}}
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    {{#each typeName}}
-                        <li value="{{type}}">{{label}}</li>
-                    {{/each}}
-                </ul>
-            </div>
-            <select class="span2">
-            </select>
+    <div class="input-prepend">
+        <div class="btn-group">
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                {{currentLabel}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                {{#each typeName}}
+                    <li value="{{type}}">{{label}}</li>
+                {{/each}}
+            </ul>
         </div>
-    {{/with}}
+        <select class="span3">
+            {{#each values}}
+                <option value="{{id}}">{{name}}</option>
+            {{/each}}
+        </select>
+    </div>
 </template>
 
