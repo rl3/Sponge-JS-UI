@@ -29,54 +29,10 @@
                 {{#each args}}
                     <tr>
                         <td>{{name}}</td>
-                        <td>
-                            {{> valueInput this}}
-                        </td>
+                        <td><a href="#">{{valueText}}</a></td>
                     </tr>
                 {{/each}}
             </table>
         {{/if}}
     {{/with}}
 </template>
-
-<template name="valueInput">
-    {{input}}
-</template>
-
-<template name="valueInputDouble">
-    <input type="number" onkeyup="this.value=this.value.replace(/[^\d\.\-]/, '').replace(/^(.+)\-/, '\1')" />
-</template>
-
-<template name="valueInputInteger">
-    <input type="number" onkeyup="this.value=this.value.replace(/[^\d\-]/,'').replace(/^(.+)\-/, '\1')" />
-</template>
-
-<template name="valueInputDate">
-    <input type="date" />
-</template>
-
-<template name="valueInputLocation">
-    <input type="text" /><input type="text" />
-</template>
-
-<template name="valueInputModel">
-    <div class="input-prepend">
-        <div class="btn-group">
-            <button class="btn dropdown-toggle" data-toggle="dropdown">
-                {{currentLabel}}
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                {{#each typeName}}
-                    <li value="{{type}}">{{label}}</li>
-                {{/each}}
-            </ul>
-        </div>
-        <select class="span3">
-            {{#each values}}
-                <option value="{{id}}">{{name}}</option>
-            {{/each}}
-        </select>
-    </div>
-</template>
-

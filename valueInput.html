@@ -1,0 +1,116 @@
+
+<body>
+<div id="valueInput" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="valueInputLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="valueInputLabel">{{> valueInputTitle}}</h3>
+    </div>
+    <div class="modal-body">
+        {{> valueInputBody}}
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button class="btn btn-primary">Save changes</button>
+    </div>
+</div>
+</body>
+
+<template name="valueInputTitle">
+    {{title}}
+    <div class="description">{{description}}</div>
+</template>
+
+<template name="valueInputBody">
+    <table><tr valign="top">
+        <td>
+            {{#each inputTypes}}
+                <label class="radio">
+                    <input type="radio" name="inputTypes" value="{{value}}" {{checked}}>{{label}}
+                </label>
+            {{/each}}
+        </td>
+        <td>
+            {{inputValue}}
+        </td>
+    </tr></table>
+</template>
+
+<template name="inputTypeSingle">
+    Single
+    {{> valueInput value}}
+</template>
+
+<template name="inputTypeArray">
+    Array
+    <table>
+        {{#each values}}
+            <tr><td>{{> valueInput value}}</td><td><a class="remove" href="#">remove</a></td></tr>
+        {{/each}}
+        <tr><td colspan="2"><a class="add" href="#">add</a></td></tr>
+    </table>
+</template>
+
+<template name="inputTypeRange">
+    Range
+    <table>
+        <tr><td>From:</td><td>{{> valueInput vaueFrom}}</td></tr>
+        <tr><td>To:</td><td>{{> valueInput vaueTo}}</td></tr>
+        <tr><td>Step:</td><td>{{> valueInput vaueStep}}</td></tr>
+    </table>
+</template>
+
+<template name="inputTypeMap">
+    Map
+</template>
+
+<template name="inputTypeNearest">
+    Nearest
+</template>
+
+
+
+
+
+
+<template name="valueInput">
+    1
+    {{x_input}}
+</template>
+
+<template name="valueInputDouble">
+    <input type="number" onkeyup="this.value=this.value.replace(/[^\d\.\-]/, '').replace(/^(.+)\-/, '\1')" />
+</template>
+
+<template name="valueInputInteger">
+    <input type="number" onkeyup="this.value=this.value.replace(/[^\d\-]/,'').replace(/^(.+)\-/, '\1')" />
+</template>
+
+<template name="valueInputDate">
+    <input type="date" />
+</template>
+
+<template name="valueInputLocation">
+    <input type="text" /><input type="text" />
+</template>
+
+<template name="valueInputModel">
+    <div class="input-prepend">
+        <div class="btn-group">
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                {{currentLabel}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                {{#each typeName}}
+                    <li value="{{type}}">{{label}}</li>
+                {{/each}}
+            </ul>
+        </div>
+        <select class="span3">
+            {{#each values}}
+                <option value="{{id}}">{{name}}</option>
+            {{/each}}
+        </select>
+    </div>
+</template>
+
