@@ -1,6 +1,6 @@
 
 <body>
-<div id="valueInput" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="valueInputLabel" aria-hidden="true">
+<div id="valueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="valueInputLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="valueInputLabel">{{> valueInputTitle}}</h3>
@@ -30,18 +30,16 @@
             {{/each}}
         </td>
         <td>
-            {{inputValue}}
+            {{inputType}}
         </td>
     </tr></table>
 </template>
 
 <template name="inputTypeSingle">
-    Single
     {{> valueInput value}}
 </template>
 
 <template name="inputTypeArray">
-    Array
     <table>
         {{#each values}}
             <tr><td>{{> valueInput value}}</td><td><a class="remove" href="#">remove</a></td></tr>
@@ -51,7 +49,6 @@
 </template>
 
 <template name="inputTypeRange">
-    Range
     <table>
         <tr><td>From:</td><td>{{> valueInput vaueFrom}}</td></tr>
         <tr><td>To:</td><td>{{> valueInput vaueTo}}</td></tr>
@@ -73,20 +70,41 @@
 
 
 <template name="valueInput">
-    1
-    {{x_input}}
+    {{input}}
 </template>
 
 <template name="valueInputDouble">
-    <input type="number" onkeyup="this.value=this.value.replace(/[^\d\.\-]/, '').replace(/^(.+)\-/, '\1')" />
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                <input type="text" class="double" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
 </template>
 
 <template name="valueInputInteger">
-    <input type="number" onkeyup="this.value=this.value.replace(/[^\d\-]/,'').replace(/^(.+)\-/, '\1')" />
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                <input type="text" class="integer" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
 </template>
 
 <template name="valueInputDate">
     <input type="date" />
+</template>
+
+<template name="valueInputString">
+    <input type="text" />
+</template>
+
+<template name="valueInputBoolean">
+    <input type="checkbox" />
 </template>
 
 <template name="valueInputLocation">

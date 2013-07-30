@@ -1,6 +1,6 @@
 
 <body>
-<div id="modelRun" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modelRunLabel" aria-hidden="true">
+<div id="modelRun" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="modelRunLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="modelRunLabel">{{> modelRunTitle}}</h3>
@@ -29,7 +29,7 @@
                 {{#each args}}
                     <tr>
                         <td>{{name}}</td>
-                        <td><a href="#">{{valueText}}</a></td>
+                        <td><a class="editValue" href="#">{{valueText}}</a></td>
                     </tr>
                 {{/each}}
             </table>

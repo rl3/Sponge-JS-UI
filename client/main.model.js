@@ -154,6 +154,9 @@ Template.model.events({
         saveModel(this);
         injectVar(this, 'changed')(false);
     },
+    'click a.modelRun': function() {
+        DataObjectTools.showModal($('#modelRun'));
+    },
 });
 
 /**

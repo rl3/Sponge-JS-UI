@@ -13,7 +13,7 @@ var getTempValue= function( name, initValue ) {
 };
 
 var getNewValue= function( initValue ) {
-    var type= getTempValue('type')();
+    var type= getTempValue('inputType')();
     if ( !type ) return function() {};
 
     return getTempValue(type + '.value', initValue);
@@ -74,7 +74,7 @@ Template.valueInputBody.inputTypes= function() {
         getTempValue('value')(currentValue);
     }
 
-    var currentInputType= getTempValue('type')();
+    var currentInputType= getTempValue('inputType')();
     if ( currentInputType === undefined ) {
         currentInputType= 'single';
         if ( typeof currentValue === 'object' ) {
@@ -83,7 +83,7 @@ Template.valueInputBody.inputTypes= function() {
             else if ( currentValue.type === 'map' )     currentInputType= 'map';
             else if ( currentValue.type === 'nearest' ) currentInputType= 'nearest';
         }
-        getTempValue('type')(currentInputType);
+        getTempValue('inputType')(currentInputType);
     }
 
     var result= [
@@ -108,20 +108,21 @@ Template.valueInputBody.inputTypes= function() {
 
 Template.valueInputBody.events({
     'change input[name="inputTypes"]': function( event ) {
-        getTempValue('type')(this.value);
+        getTempValue('inputType')(this.value);
         return false;
     }
 });
 
-Template.valueInputBody.inputValue= function() {
-    var type= getTempValue('type')();
+Template.valueInputBody.inputType= function() {
+    var type= getTempValue('inputType')();
     if ( !type ) return;
 
-    return new Handlebars.SafeString(Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)](this));
+    return new Handlebars.SafeString(Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)]());
 };
 
 Template.inputTypeSingle.value= function() {
-    return getNewValue()();
+    var getValue= getNewValue();
+    return { value: getValue };
 };
 
 Template.inputTypeArray.values= function() {
@@ -132,33 +133,45 @@ Template.inputTypeArray.values= function() {
     return currentValue.$array.map(function( value, i ) {
         return {
             index: i,
-            value: value,
-            $array: currentValue.$array,
+            value: function( newValue ) {
+                if ( arguments.length ) currentValue.$array[i]= newValue;
+                return currentValue.$array[i];
+            },
         };
     });
 };
 
 Template.inputTypeArray.events({
     'click a.remove': function( event ) {
-        console.log('remove', this.index);
+        getNewValue({ $array: [] })().$array.splice(this.index, 1);
+        invalidate();
     },
     'click a.add': function( event ) {
-        this.$array.push(undefined);
+        getNewValue({ $array: [] })().$array.push(undefined);
         invalidate();
     },
 });
 
+var buildRangeValue= function( name ) {
+    var $range= getNewValue({ $range: {} })().$range;
+    return function( newValue ) {
+        if ( arguments.length ) $range[name]= newValue;
+        return $range[name];
+    };
+};
+
 Template.inputTypeRange.valueFrom= function() {
-    return getNewValue({ $range: {} })().$range.from;
+    return { value: buildRangeValue('from') };
 };
 
 Template.inputTypeRange.valueTo= function() {
-    return getNewValue({ $range: {} })().$range.to;
+    return { value: buildRangeValue('to') };
 };
 
 Template.inputTypeRange.valueStep= function() {
-    return getNewValue({ $range: {} })().$range.step;
+    return { value: buildRangeValue('step') };
 };
+
 
 
 
@@ -170,20 +183,16 @@ Template.inputTypeRange.valueStep= function() {
  * TEMPLATE valueInput
  */
 
-var cleanType= function( type ) {
-    var result= _.clone(type);
-    if ( 'info' in result ) delete result.info;
-    return result;
-};
+var buildContextForModel= function() {
+    var value= getValue();
 
-var buildContextForModel= function( context ) {
-    var result= getMatchingTypes(cleanType(getTempValue('type')()));
+    var result= getMatchingTypes(value.type);
 
     var typeNames= [];
 
     if ( !result ) return { typeName: typeNames };
 
-    result.requestedType= context.type;
+    result.requestedType= value.type;
 
     var setFn= function( typeName ) {
         injectVar(result, 'value')({
@@ -206,27 +215,31 @@ var buildContextForModel= function( context ) {
 
 
 Template.valueInput.input= function() {
-console.log('valueINput.input');
-    var templateName;
-    var context= this;
+    var value= getValue();
 
-    var type= getTempValue('type')();
+    if ( !value ) return;
+
+    var type= value.type;
+
+    var templateName;
 
     switch ( type ) {
-        case 'Double': templateName= 'Double'; break;
-        case 'Location': templateName= 'Location'; break;
-        case 'Date': templateName='Date'; break;
+        case 'Double':
+        case 'Integer':
+        case 'Location':
+        case 'Date':
+        case 'String':
+        case 'Boolean':
+            templateName= type; break;
         default: 
             templateName= 'Model';
-            context= buildContextForModel(this);
+            buildContextForModel();
             break;
     }
 
-console.log(type. templateName);
-
     if ( !templateName ) return;
 
-    return new Handlebars.SafeString(Template['valueInput' + templateName](context));
+    return new Handlebars.SafeString(Template['valueInput' + templateName]());
 };
 
 Template.valueInputModel.currentLabel= function() {

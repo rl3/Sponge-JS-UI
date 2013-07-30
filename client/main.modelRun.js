@@ -65,9 +65,9 @@ Template.modelRunBody.getArgs= function() {
 };
 
 Template.modelRunBody.events({
-    'click a': function( event ) {
+    'click a.editValue': function( event ) {
         injectGlobalVar('valueInput')(this);
-        $('#valueInput').modal({ show: true, });
+        DataObjectTools.showModal($('#valueInput'));
     },
 });
 
