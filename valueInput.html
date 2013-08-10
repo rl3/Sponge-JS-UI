@@ -50,9 +50,9 @@
 
 <template name="inputTypeRange">
     <table>
-        <tr><td>From:</td><td>{{> valueInput vaueFrom}}</td></tr>
-        <tr><td>To:</td><td>{{> valueInput vaueTo}}</td></tr>
-        <tr><td>Step:</td><td>{{> valueInput vaueStep}}</td></tr>
+        <tr valign="middle"><td align="right">From:</td><td>{{> valueInput valueFrom}}</td></tr>
+        <tr valign="middle"><td align="right">To:</td><td>{{> valueInput valueTo}}</td></tr>
+        <tr valign="middle"><td align="right">Step:</td><td>{{> valueInput valueStep}}</td></tr>
     </table>
 </template>
 
@@ -77,7 +77,7 @@
     <div class="control-group">
         <div class="controls">
             <label class="control-label">
-                <input type="text" class="double" />
+                <input type="text" class="double" value="{{value}}" />
                 <span class='help-inline on-error'>Only numbers are allowed</span>
             </label>
         </div>
@@ -88,7 +88,7 @@
     <div class="control-group">
         <div class="controls">
             <label class="control-label">
-                <input type="text" class="integer" />
+                <input type="text" class="integer" value="{{value}}" />
                 <span class='help-inline on-error'>Only numbers are allowed</span>
             </label>
         </div>

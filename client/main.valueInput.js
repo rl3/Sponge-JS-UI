@@ -239,8 +239,45 @@ Template.valueInput.input= function() {
 
     if ( !templateName ) return;
 
-    return new Handlebars.SafeString(Template['valueInput' + templateName]());
+    return new Handlebars.SafeString(Template['valueInput' + templateName](value));
 };
+
+var simpleValueGet= function() {
+    return this ? this.getValue() : undefined;
+};
+
+var simpleValueEvents= {
+    'change input': function( event ) {
+        if ( !this ) return;
+
+        var newValue= event.currentTarget.value;
+        switch ( this.type ) {
+            case 'Integer': newValue= parseInt(newValue, 10); break;
+            case 'Double':  newValue= parseFloat(newValue); break;
+        }
+        this.setValue(newValue);
+    },
+};
+
+['Double', 'Integer', 'String'].forEach(function( type ) {
+    Template['valueInput' + type].value= simpleValueGet;
+    Template['valueInput' + type].events(simpleValueEvents);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Template.valueInputModel.currentLabel= function() {
     var value= injectVar(this, 'value', {
