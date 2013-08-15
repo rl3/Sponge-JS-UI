@@ -19,6 +19,10 @@ var getNewValue= function( initValue ) {
     return getTempValue(type + '.value', initValue);
 };
 
+var getSubValue= function() {
+    return getTempValue('subValue');
+}
+
 var isInvalid= function() {
     return getTempValue('updated')();
 };
@@ -121,6 +125,19 @@ Template.valueInputBody.inputType= function() {
 };
 
 Template.inputTypeSingle.value= function() {
+    var value= getNewValue()();
+    return value === undefined ? "<empty>" : value;
+}
+
+Template.inputTypeSingle.events({
+    'click a.value': function() {
+        getSubValue()(getNewValue()());
+        DataObjectTools.showModal($('#singleValueInput'));
+    }
+})
+
+/*
+Template.inputTypeSingle.value= function() {
     var getValue= getNewValue();
     return { value: getValue };
 };
@@ -171,7 +188,7 @@ Template.inputTypeRange.valueTo= function() {
 Template.inputTypeRange.valueStep= function() {
     return { value: buildRangeValue('step') };
 };
-
+*/
 
 
 

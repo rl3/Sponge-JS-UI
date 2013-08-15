@@ -10,3 +10,6 @@ bootstrap
 less
 http
 underscore
+standard-app-packages
+ace
+ejson
