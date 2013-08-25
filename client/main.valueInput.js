@@ -7,11 +7,18 @@ var injectGlobalVar= DataObjectTools.injectGlobalVar;
 
 var currentValue;
 var tempValue= {};
+var invalidData= {};
 
+/*
+ * generic local temporary value
+ */
 var getTempValue= function( name, initValue ) {
     return injectVar(tempValue, name, initValue);
 };
 
+/*
+ * stores new values per type
+ */
 var getNewValue= function( initValue ) {
     var type= getTempValue('inputType')();
     if ( !type ) return function() {};
@@ -19,19 +26,31 @@ var getNewValue= function( initValue ) {
     return getTempValue(type + '.value', initValue);
 };
 
-var getSubValue= function() {
-    return getTempValue('subValue');
-}
-
-var isInvalid= function() {
-    return getTempValue('updated')();
+var singleValue= {
+    get: function() {},
+    set: function() {},
+    type: undefined,
+    description: undefined,
+    newValue: undefined,
 };
 
+/*
+ * invalidate a template
+ */
 var _invalidateCounter= 0;
-var invalidate= function() {
-    return getTempValue('updated')(_invalidateCounter++);
+var invalidate= function( name ) {
+console.log('invalidating', name);
+    return injectVar(invalidData, name)(_invalidateCounter++);
+};
+var isInvalid= function( name ) {
+console.log('isInvalid', name);
+    return injectVar(invalidData, name)();
 };
 
+/*
+ * gets the current value to edit
+ * if value has changed, reset temporary values
+ */
 var getValue= function() {
     var value= injectGlobalVar('valueInput')();
     if ( value === currentValue ) return value;
@@ -47,6 +66,10 @@ var getValue= function() {
     return value;
 };
 
+/*
+ * TEMPLATE valueInputTitle
+ * shows title and description of value to change/inspect
+ */
 Template.valueInputTitle.title= function() {
     var value= getValue();
     if ( ! value ) return;
@@ -61,16 +84,27 @@ Template.valueInputTitle.description= function() {
     return (value.info || {}).description;
 };
 
+var typeMapper= function( type ) {
+    if ( typeof type === 'object' ) return 'object';
+
+    switch( type ) {
+        case 'Date':     return 'date';
+        case 'Location': return 'location';
+        case 'Double':   return 'number';
+    }
+    return 'value';
+}
+
+/*
+ * TEMPLATE valueInputBody
+ * show current value and allows to change value type (single, array, range...)
+ */
 Template.valueInputBody.inputTypes= function() {
     var value= getValue();
 
     if ( !value ) return;
 
-    var type= 'value';
-    if ( typeof value.type === 'object' ) type= 'object';
-    else if ( value.type === 'Date' )     type= 'date';
-    else if ( value.type === 'Location' ) type= 'location';
-    else if ( value.type === 'Double' )   type= 'number';
+    var type= typeMapper(value.type);
 
     var currentValue= getTempValue('value')();
     if ( currentValue === undefined ) {
@@ -124,6 +158,10 @@ Template.valueInputBody.inputType= function() {
     return new Handlebars.SafeString(Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)]());
 };
 
+/*
+ * TEMPLATE inputTypeSingle
+ * shows a single value to edit
+ */
 Template.inputTypeSingle.value= function() {
     var value= getNewValue()();
     return value === undefined ? "<empty>" : value;
@@ -131,19 +169,22 @@ Template.inputTypeSingle.value= function() {
 
 Template.inputTypeSingle.events({
     'click a.value': function() {
-        getSubValue()(getNewValue()());
+        singleValue= {
+            get: function() { return getNewValue()(); },
+            set: function( value ) { getNewValue()(value); },
+            type: (getValue() || {}).type,
+        }
+        invalidate('singlevalue');
         DataObjectTools.showModal($('#singleValueInput'));
     }
 })
 
 /*
-Template.inputTypeSingle.value= function() {
-    var getValue= getNewValue();
-    return { value: getValue };
-};
-
+ * TEMPLATE inputTypeArray
+ * shows an array of values to edit
+ */
 Template.inputTypeArray.values= function() {
-    isInvalid();
+    isInvalid('arraylist');
 
     var currentValue= getNewValue({ $array: [] })();
 
@@ -158,17 +199,37 @@ Template.inputTypeArray.values= function() {
     });
 };
 
+Template.inputTypeArray.value= function() {
+    var value= this.value && this.value();
+    return value === undefined ? "<empty>" : value;
+}
+
 Template.inputTypeArray.events({
     'click a.remove': function( event ) {
         getNewValue({ $array: [] })().$array.splice(this.index, 1);
-        invalidate();
+        invalidate('arraylist');
     },
     'click a.add': function( event ) {
         getNewValue({ $array: [] })().$array.push(undefined);
-        invalidate();
+        invalidate('arraylist');
     },
+    'click a.value': function() {
+        var self= this;
+        var v= self.value || function() {};
+        singleValue= {
+            get: function() { return v(); },
+            set: function( value ) { v(value); },
+            type: (getValue() || {}).type,
+        }
+        invalidate('singlevalue');
+        DataObjectTools.showModal($('#singleValueInput'));
+    }
 });
 
+/*
+ * TEMPLATE inputTypeRange
+ * shows a range of values
+ */
 var buildRangeValue= function( name ) {
     var $range= getNewValue({ $range: {} })().$range;
     return function( newValue ) {
@@ -188,8 +249,43 @@ Template.inputTypeRange.valueTo= function() {
 Template.inputTypeRange.valueStep= function() {
     return { value: buildRangeValue('step') };
 };
-*/
 
+
+/*
+ * TEMPLATE singleValueInputBody
+ * shows input for a single value.
+ * selects template by type
+ */
+Template.singleValueInputBody.input= function() {
+    isInvalid('singlevalue');
+
+    if ( !singleValue ) return;
+
+    var type= singleValue.type;
+
+console.log(type);
+    if ( !type ) return;
+
+    var templateName= 'valueInput';
+
+    switch ( type ) {
+        case 'Double':
+        case 'Integer':
+        case 'Location':
+        case 'Date':
+        case 'String':
+        case 'Boolean':
+            templateName+= type; break;
+        default: 
+            templateName+= 'Model';
+            buildContextForModel();
+            break;
+    }
+
+    if ( !Template[templateName] ) return;
+
+    return new Handlebars.SafeString(Template[templateName]());
+};
 
 
 
@@ -201,15 +297,13 @@ Template.inputTypeRange.valueStep= function() {
  */
 
 var buildContextForModel= function() {
-    var value= getValue();
-
-    var result= getMatchingTypes(value.type);
+    var result= getMatchingTypes(singleValue.type);
 
     var typeNames= [];
 
     if ( !result ) return { typeName: typeNames };
 
-    result.requestedType= value.type;
+    result.requestedType= singleValue.type;
 
     var setFn= function( typeName ) {
         injectVar(result, 'value')({
@@ -225,60 +319,50 @@ var buildContextForModel= function() {
         typeNames.push({ label: 'AgroObjects', type: 'agroObj', setType: setFn, });
     }
 
-
     result.typeName= typeNames;
     return result;
 };
 
 
-Template.valueInput.input= function() {
-    var value= getValue();
-
-    if ( !value ) return;
-
-    var type= value.type;
-
-    var templateName;
-
-    switch ( type ) {
-        case 'Double':
-        case 'Integer':
-        case 'Location':
-        case 'Date':
-        case 'String':
-        case 'Boolean':
-            templateName= type; break;
-        default: 
-            templateName= 'Model';
-            buildContextForModel();
-            break;
-    }
-
-    if ( !templateName ) return;
-
-    return new Handlebars.SafeString(Template['valueInput' + templateName](value));
-};
-
 var simpleValueGet= function() {
-    return this ? this.getValue() : undefined;
+    return singleValue.get();
 };
 
 var simpleValueEvents= {
     'change input': function( event ) {
-        if ( !this ) return;
-
         var newValue= event.currentTarget.value;
         switch ( this.type ) {
             case 'Integer': newValue= parseInt(newValue, 10); break;
             case 'Double':  newValue= parseFloat(newValue); break;
         }
-        this.setValue(newValue);
+        singleValue.newValue= newValue;
     },
 };
 
+
+$(function() {
+    $('body').delegate('#singleValueInput button.btn-primary', 'click', function() {
+        singleValue.set(singleValue.newValue);
+        $('#singleValueInput').modal('hide');
+    });
+});
+
 ['Double', 'Integer', 'String'].forEach(function( type ) {
-    Template['valueInput' + type].value= simpleValueGet;
-    Template['valueInput' + type].events(simpleValueEvents);
+    var templateName= 'valueInput' + type;
+
+    if ( !(templateName in Template) ) return;
+
+    Template[templateName].value= simpleValueGet;
+    Template[templateName].events(simpleValueEvents);
+});
+['Double', 'Integer', 'String', 'Boolean', 'Model'].forEach(function( type ) {
+    var templateName= 'valueInput' + type;
+
+    if ( !(templateName in Template) ) return;
+
+    Template[templateName].created= function() {
+        singleValue.newValue= singleValue.get();
+    };
 });
 
 

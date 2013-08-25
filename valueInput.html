@@ -1,31 +1,32 @@
 
 <body>
-<div id="valueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="valueInputLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="valueInputLabel">{{> valueInputTitle}}</h3>
+    <div id="valueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="valueInputLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="valueInputLabel">{{> valueInputTitle}}</h3>
+        </div>
+        <div class="modal-body">
+            {{> valueInputBody}}
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary">Save changes</button>
+        </div>
     </div>
-    <div class="modal-body">
-        {{> valueInputBody}}
+
+    <div id="singleValueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="singleValueInputLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="singleValueInputLabel">{{> singleValueInputTitle}}</h3>
+        </div>
+        <div class="modal-body">
+            {{> singleValueInputBody}}
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary">Save changes</button>
+        </div>
     </div>
-    <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-        <button class="btn btn-primary">Save changes</button>
-    </div>
-</div>
-<div id="singleValueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="singleValueInputLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="singleValueInputLabel">{{> singleValueInputTitle}}</h3>
-    </div>
-    <div class="modal-body">
-        {{> singleValueInputBody}}
-    </div>
-    <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-        <button class="btn btn-primary">Save changes</button>
-    </div>
-</div>
 </body>
 
 <template name="valueInputTitle">
@@ -55,7 +56,7 @@
 <template name="inputTypeArray">
     <table>
         {{#each values}}
-            <tr><td>{{> valueInput value}}</td><td><a class="remove" href="#">remove</a></td></tr>
+            <tr><td><a class="value">{{value}}</a></td><td><a class="remove" href="#">remove</a></td></tr>
         {{/each}}
         <tr><td colspan="2"><a class="add" href="#">add</a></td></tr>
     </table>
@@ -63,9 +64,9 @@
 
 <template name="inputTypeRange">
     <table>
-        <tr valign="middle"><td align="right">From:</td><td>{{> valueInput valueFrom}}</td></tr>
-        <tr valign="middle"><td align="right">To:</td><td>{{> valueInput valueTo}}</td></tr>
-        <tr valign="middle"><td align="right">Step:</td><td>{{> valueInput valueStep}}</td></tr>
+        <tr valign="middle"><td align="right">From:</td><td>{{valueFrom}}</td></tr>
+        <tr valign="middle"><td align="right">To:</td><td>{{valueTo}}</td></tr>
+        <tr valign="middle"><td align="right">Step:</td><td>{{valueStep}}</td></tr>
     </table>
 </template>
 
@@ -82,7 +83,11 @@
 
 
 
-<template name="valueInput">
+<template name="singleValueInputTitle">
+    Value
+</template>
+
+<template name="singleValueInputBody">
     {{input}}
 </template>
 

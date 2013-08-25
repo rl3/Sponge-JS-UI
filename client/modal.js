@@ -1,21 +1,26 @@
 
+var hidingSemaphore= false;
 
 var showModal = function ( $dialog ) {
     var $currentModals = $('.modal.in');
-    if ($currentModals.length > 0) { // if we have active modals
-        $currentModals.one('hidden', function () { 
-            // when they've finished hiding
-            $dialog.modal('show');
-            $dialog.one('hidden', function () {
-                // when we close the dialog
-                $currentModals.modal('show');
 
-            });
-        }).modal('hide');
+    if ( !$currentModals.length ) return $dialog.modal('show');
+
+    var onHide= function() {
+        if ( hidingSemaphore ) return $dialog.one('hidden', onHide);
+
+        // when we close the dialog
+        $currentModals.modal('show');
     }
-    else { // otherwise just simply show the modal
+
+    hidingSemaphore= true;
+    return $currentModals.one('hidden', function () {
+        hidingSemaphore= false;
+
+        // when they've finished hiding
         $dialog.modal('show');
-    }
+        $dialog.one('hidden', onHide);
+    }).modal('hide');
 };
 
 DataObjectTools.showModal= showModal;
