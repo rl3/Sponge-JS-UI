@@ -64,9 +64,9 @@
 
 <template name="inputTypeRange">
     <table>
-        <tr valign="middle"><td align="right">From:</td><td>{{valueFrom}}</td></tr>
-        <tr valign="middle"><td align="right">To:</td><td>{{valueTo}}</td></tr>
-        <tr valign="middle"><td align="right">Step:</td><td>{{valueStep}}</td></tr>
+        <tr valign="middle"><td align="right">From:</td><td>{{#with valueFrom}}<a class="value" href="#">{{valueText}}</a>{{/with}}</td></tr>
+        <tr valign="middle"><td align="right">To:</td>  <td>{{#with valueTo}}  <a class="value" href="#">{{valueText}}</a>{{/with}}</td></tr>
+        <tr valign="middle"><td align="right">Step:</td><td>{{#with valueStep}}<a class="value" href="#">{{valueText}}</a>{{/with}}</td></tr>
     </table>
 </template>
 
@@ -130,7 +130,14 @@
 </template>
 
 <template name="valueInputModel">
-    <div class="input-prepend">
+    <div>
+        <label>Name: <input type="text" /></label>
+    </div>
+    {{> valueInputModelSelector}}
+</template>
+
+<template name="valueInputModelSelector">
+    <div class="input-prepend input-append">
         <div class="btn-group">
             <button class="btn dropdown-toggle" data-toggle="dropdown">
                 {{currentLabel}}
@@ -138,7 +145,7 @@
             </button>
             <ul class="dropdown-menu">
                 {{#each typeName}}
-                    <li value="{{type}}">{{label}}</li>
+                    <li class="type">{{label}}</li>
                 {{/each}}
             </ul>
         </div>
@@ -147,6 +154,7 @@
                 <option value="{{id}}">{{name}}</option>
             {{/each}}
         </select>
+        <span class="add-on">{{valueCount}}</span>
     </div>
 </template>
 

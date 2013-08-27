@@ -93,7 +93,7 @@ var typeMapper= function( type ) {
         case 'Double':   return 'number';
     }
     return 'value';
-}
+};
 
 /*
  * TEMPLATE valueInputBody
@@ -109,11 +109,16 @@ Template.valueInputBody.inputTypes= function() {
     var currentValue= getTempValue('value')();
     if ( currentValue === undefined ) {
         currentValue= value.getValue();
+        if ( typeof currentValue === 'object' ) {
+            currentValue= JSON.parse(JSON.stringify(currentValue));
+        }
         getTempValue('value')(currentValue);
     }
 
     var currentInputType= getTempValue('inputType')();
     if ( currentInputType === undefined ) {
+
+console.log('currentType uninitialized', currentValue, value);
         currentInputType= 'single';
         if ( typeof currentValue === 'object' ) {
             if ( '$array' in currentValue )             currentInputType= 'array';
@@ -122,6 +127,7 @@ Template.valueInputBody.inputTypes= function() {
             else if ( currentValue.type === 'nearest' ) currentInputType= 'nearest';
         }
         getTempValue('inputType')(currentInputType);
+        getNewValue()(currentValue);
     }
 
     var result= [
@@ -148,7 +154,7 @@ Template.valueInputBody.events({
     'change input[name="inputTypes"]': function( event ) {
         getTempValue('inputType')(this.value);
         return false;
-    }
+    },
 });
 
 Template.valueInputBody.inputType= function() {
@@ -158,14 +164,21 @@ Template.valueInputBody.inputType= function() {
     return new Handlebars.SafeString(Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)]());
 };
 
+$(function() {
+    $('body').delegate('#valueInput button.btn-primary', 'click', function() {
+        var value= getValue();
+        if ( value ) value.setValue(getNewValue()());
+        $('#valueInput').modal('hide');
+    });
+});
+
 /*
  * TEMPLATE inputTypeSingle
  * shows a single value to edit
  */
 Template.inputTypeSingle.value= function() {
-    var value= getNewValue()();
-    return value === undefined ? "<empty>" : value;
-}
+    return DataObjectTools.valueToString(getNewValue()());
+};
 
 Template.inputTypeSingle.events({
     'click a.value': function() {
@@ -192,7 +205,10 @@ Template.inputTypeArray.values= function() {
         return {
             index: i,
             value: function( newValue ) {
-                if ( arguments.length ) currentValue.$array[i]= newValue;
+                if ( arguments.length ) {
+                    currentValue.$array[i]= newValue;
+                    invalidate('arraylist');
+                }
                 return currentValue.$array[i];
             },
         };
@@ -200,8 +216,7 @@ Template.inputTypeArray.values= function() {
 };
 
 Template.inputTypeArray.value= function() {
-    var value= this.value && this.value();
-    return value === undefined ? "<empty>" : value;
+    return DataObjectTools.valueToString(this.value && this.value());
 }
 
 Template.inputTypeArray.events({
@@ -233,22 +248,45 @@ Template.inputTypeArray.events({
 var buildRangeValue= function( name ) {
     var $range= getNewValue({ $range: {} })().$range;
     return function( newValue ) {
-        if ( arguments.length ) $range[name]= newValue;
+        if ( arguments.length ) {
+            invalidate('rangeview.' + name);
+            $range[name]= newValue;
+        }
         return $range[name];
     };
 };
 
 Template.inputTypeRange.valueFrom= function() {
-    return { value: buildRangeValue('from') };
+    isInvalid('rangeview.from');
+    var value= buildRangeValue('from')
+    return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
 };
 
 Template.inputTypeRange.valueTo= function() {
-    return { value: buildRangeValue('to') };
+    isInvalid('rangeview.to');
+    var value= buildRangeValue('to')
+    return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
 };
 
 Template.inputTypeRange.valueStep= function() {
-    return { value: buildRangeValue('step') };
+    isInvalid('rangeview.step');
+    var value= buildRangeValue('step')
+    return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
 };
+
+Template.inputTypeRange.events({
+    'click a.value': function() {
+        var self= this;
+        var v= self.value || function() {};
+        singleValue= {
+            get: function() { return v(); },
+            set: function( value ) { v(value); },
+            type: (getValue() || {}).type,
+        }
+        invalidate('singlevalue');
+        DataObjectTools.showModal($('#singleValueInput'));
+    }
+});
 
 
 /*
@@ -263,7 +301,6 @@ Template.singleValueInputBody.input= function() {
 
     var type= singleValue.type;
 
-console.log(type);
     if ( !type ) return;
 
     var templateName= 'valueInput';
@@ -355,7 +392,7 @@ $(function() {
     Template[templateName].value= simpleValueGet;
     Template[templateName].events(simpleValueEvents);
 });
-['Double', 'Integer', 'String', 'Boolean', 'Model'].forEach(function( type ) {
+['Double', 'Integer', 'String', 'Boolean', 'Model', 'Date', 'Location'].forEach(function( type ) {
     var templateName= 'valueInput' + type;
 
     if ( !(templateName in Template) ) return;
@@ -380,43 +417,100 @@ $(function() {
 
 
 
-Template.valueInputModel.currentLabel= function() {
-    var value= injectVar(this, 'value', {
-        label: (this.typeName[0] || {}).label,
-        type:  (this.typeName[0] || {}).type,
-    })();
-    return value.label;
-}
-
+/*
+ * delay key press for name filter
+ */
+var modelNameTimer= null;
 Template.valueInputModel.events({
-    'click li[value]': function( event ) {
-        this.setType(this);
+    'keypress input': function( event ) {
+        var target= event.currentTarget;
+        if ( modelNameTimer ) clearTimeout(modelNameTimer);
+
+        modelNameTimer= setTimeout(function() {
+            modelNameTimer= null;
+            getTempValue('modelName')(target.value);
+        }, 1000);
     },
 });
 
-Template.valueInputModel.values= function() {
 
-    var value= injectVar(this, 'value')();
-    if ( !value ) return;
+Template.valueInputModelSelector.currentLabel= function() {
+    var value= getTempValue('modelVariant')();
 
-    switch ( value.type ) {
-        case 'model':
-            return this.models.map(function( model ){
-                return { id: model._id.toHexString(), name: model.name };
-            });
+    return value && value.label;
+};
 
-        case 'map':
-        case 'nearest':
-            return this.schemas.map(function( schema ){
-                return { id: schema.objectType + '::' + schema.version, name: schema.objectType + '/' + schema.version };
-            });
-
-        case 'agroObj':
-            var result= getMatchingObjects(cleanType(this.requestedType));
-            if ( !result || !result.agroObjs ) return;
-
-            return result.agroObjs.map(function( agroObj ) {
-                return { id: agroObj._id.toHexString(), name: agroObj.name };
-            })
+var getCompatibleTypes= function() {
+    var value= getValue();
+    if ( !value ) {
+        return {
+            schemas: [],
+            models: [],
+        };
     }
+
+    var compatibleTypes= getMatchingTypes( value.type ) || {};
+
+    if ( !compatibleTypes.schemas ) compatibleTypes.schemas= [];
+    if ( !compatibleTypes.models )  compatibleTypes.models= [];
+
+    return compatibleTypes;
+}
+
+Template.valueInputModelSelector.typeName= function() {
+    var compatibleTypes= getCompatibleTypes();
+
+    var typeNames= compatibleTypes.schemas.map(function( schema ) {
+        return {
+            label: schema.objectType + '/' + schema.version,
+            schema: schema,
+        }
+    });
+    if ( compatibleTypes.models.length ) {
+        typeNames.unshift({
+            label: 'Model',
+            schema: undefined,
+        });
+    }
+    return typeNames;
+};
+
+Template.valueInputModelSelector.events({
+    'click li.type': function( event ) {
+        getTempValue('modelVariant')(this);
+    },
+});
+
+var getCompatibleObjects= function() {
+    var selectedType= getTempValue('modelVariant')();
+
+    if ( !selectedType ) return [];
+
+    if ( selectedType.schema === undefined ) {
+        var compatibleTypes= getCompatibleTypes();
+        return compatibleTypes.models.map(function( model ){
+            return { id: model._id.toHexString(), name: model.name };
+        });
+    }
+
+    return getMatchingObjects({
+        objectType: selectedType.schema.objectType,
+        version: selectedType.schema.version,
+        name: getTempValue('modelName', '')(),
+        limit: 30,
+    }) || [];
+}
+
+Template.valueInputModelSelector.values= function() {
+    var objects= getCompatibleObjects();
+
+    return objects.map(function( agroObj ) {
+        return { id: agroObj._id.toHexString(), name: agroObj.name };
+    });
+};
+
+Template.valueInputModelSelector.valueCount= function() {
+    var count= getCompatibleObjects().length;
+
+    return count == 0 ? '' : count;
 };
