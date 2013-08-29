@@ -114,7 +114,7 @@
 </template>
 
 <template name="valueInputDate">
-    <input type="date" />
+    <input type="text" />
 </template>
 
 <template name="valueInputString">
@@ -130,10 +130,10 @@
 </template>
 
 <template name="valueInputModel">
-    <div>
-        <label>Name: <input type="text" /></label>
-    </div>
     {{> valueInputModelSelector}}
+    <div>
+        <label>Name Filter: <input type="text" /></label>
+    </div>
 </template>
 
 <template name="valueInputModelSelector">
@@ -151,7 +151,7 @@
         </div>
         <select class="span3">
             {{#each values}}
-                <option value="{{id}}">{{name}}</option>
+                <option value="{{id}}" {{selected}}>{{name}}</option>
             {{/each}}
         </select>
         <span class="add-on">{{valueCount}}</span>

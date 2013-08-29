@@ -9,6 +9,11 @@ var currentValue;
 var tempValue= {};
 var invalidData= {};
 
+// maximum number of object's names to load
+var limitAgroObjs= 30;
+
+var dateFormat= 'dd.mm.yyyy';
+
 /*
  * generic local temporary value
  */
@@ -39,11 +44,9 @@ var singleValue= {
  */
 var _invalidateCounter= 0;
 var invalidate= function( name ) {
-console.log('invalidating', name);
     return injectVar(invalidData, name)(_invalidateCounter++);
 };
 var isInvalid= function( name ) {
-console.log('isInvalid', name);
     return injectVar(invalidData, name)();
 };
 
@@ -118,7 +121,6 @@ Template.valueInputBody.inputTypes= function() {
     var currentInputType= getTempValue('inputType')();
     if ( currentInputType === undefined ) {
 
-console.log('currentType uninitialized', currentValue, value);
         currentInputType= 'single';
         if ( typeof currentValue === 'object' ) {
             if ( '$array' in currentValue )             currentInputType= 'array';
@@ -321,6 +323,7 @@ Template.singleValueInputBody.input= function() {
 
     if ( !Template[templateName] ) return;
 
+    Template[templateName].init();
     return new Handlebars.SafeString(Template[templateName]());
 };
 
@@ -377,10 +380,18 @@ var simpleValueEvents= {
 };
 
 
+var singleValueCleanup= [];
+
 $(function() {
     $('body').delegate('#singleValueInput button.btn-primary', 'click', function() {
         singleValue.set(singleValue.newValue);
         $('#singleValueInput').modal('hide');
+    });
+    $('body').delegate('#singleValueInput', 'hide', function() {
+        while ( singleValueCleanup.length ) {
+            var $element= $(singleValueCleanup.shift())
+            $element.detach();
+        }
     });
 });
 
@@ -397,13 +408,26 @@ $(function() {
 
     if ( !(templateName in Template) ) return;
 
-    Template[templateName].created= function() {
+    Template[templateName].init= function() {
         singleValue.newValue= singleValue.get();
     };
 });
 
 
-
+Template.valueInputDate.rendered= function() {
+    var self= this;
+    var $modal= $('#singleValueInput');
+    var $input= $(this.find('input'));
+    $input.datepicker({
+        format: dateFormat,
+        weekStart: 1,
+        viewMode: 'years',
+    }).on('show', function( event ) {
+        var zindex= $modal.css('z-index');
+        $('.datepicker').css('z-index', zindex + 1);
+    });
+    singleValueCleanup.push($input.data().datepicker.picker);
+};
 
 
 
@@ -437,6 +461,8 @@ Template.valueInputModel.events({
 Template.valueInputModelSelector.currentLabel= function() {
     var value= getTempValue('modelVariant')();
 
+    if ( !value ) getTempValue('modelVariant')(buildTypeNames()[0]);
+
     return value && value.label;
 };
 
@@ -455,9 +481,9 @@ var getCompatibleTypes= function() {
     if ( !compatibleTypes.models )  compatibleTypes.models= [];
 
     return compatibleTypes;
-}
+};
 
-Template.valueInputModelSelector.typeName= function() {
+var buildTypeNames= function() {
     var compatibleTypes= getCompatibleTypes();
 
     var typeNames= compatibleTypes.schemas.map(function( schema ) {
@@ -475,9 +501,23 @@ Template.valueInputModelSelector.typeName= function() {
     return typeNames;
 };
 
+Template.valueInputModelSelector.typeName= buildTypeNames;
+
 Template.valueInputModelSelector.events({
     'click li.type': function( event ) {
         getTempValue('modelVariant')(this);
+    },
+    'change select': function( event ) {
+        var selectedType= getTempValue('modelVariant')();
+
+        if ( !selectedType ) return;
+
+        singleValue.newValue= {
+            $ref: selectedType.schema ? 'AgroObj' : 'Model',
+            selector: {
+                _id: event.currentTarget.value,
+            },
+       };
     },
 });
 
@@ -497,9 +537,9 @@ var getCompatibleObjects= function() {
         objectType: selectedType.schema.objectType,
         version: selectedType.schema.version,
         name: getTempValue('modelName', '')(),
-        limit: 30,
+        limit: limitAgroObjs + 1,
     }) || [];
-}
+};
 
 Template.valueInputModelSelector.values= function() {
     var objects= getCompatibleObjects();
@@ -512,5 +552,11 @@ Template.valueInputModelSelector.values= function() {
 Template.valueInputModelSelector.valueCount= function() {
     var count= getCompatibleObjects().length;
 
-    return count == 0 ? '' : count;
+    return count == 0 ? '' : count > limitAgroObjs ? limitAgroObjs + '+' : count;
+};
+
+Template.valueInputModelSelector.selected= function() {
+    if ( !singleValue.newValue ) return;
+
+    if ( (singleValue.newValue.selector || {})._id === this.id ) return 'SELECTED';
 };
