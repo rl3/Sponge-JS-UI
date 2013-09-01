@@ -21,14 +21,23 @@ var getTempValue= function( name, initValue ) {
     return injectVar(tempValue, name, initValue);
 };
 
+
+var inputType= function() {
+    return getTempValue('inputType').apply(null, arguments);
+};
+
 /*
  * stores new values per type
  */
-var getNewValue= function( initValue ) {
-    var type= getTempValue('inputType')();
-    if ( !type ) return function() {};
+var newValue= function( _newValue ) {
+    var type= inputType();
+    if ( !type ) return;
 
-    return getTempValue(type + '.value', initValue);
+    return getTempValue(type + '.value').apply(null, arguments);
+};
+var getNewValueInit= function( defaultValue ) {
+    var result= newValue();
+    return result === undefined ? newValue(defaultValue) : result;
 };
 
 var singleValue= {
@@ -61,12 +70,19 @@ var getValue= function() {
     currentValue= value;
 
     // empty current values
+    tempValue= {};
+/*
     if ( tempValue._meta ) {
         Object.keys(tempValue._meta).slice().forEach(function( property ) {
             delete tempValue._meta[property];
         });
     }
+*/
     return value;
+};
+
+var getType= function() {
+    return (getValue() || {}).type;
 };
 
 /*
@@ -109,27 +125,26 @@ Template.valueInputBody.inputTypes= function() {
 
     var type= typeMapper(value.type);
 
-    var currentValue= getTempValue('value')();
-    if ( currentValue === undefined ) {
-        currentValue= value.getValue();
+    var currentInputType= inputType();
+
+    // initialize inputType and newValue
+    if ( currentInputType === undefined ) {
+        var currentValue= value.getValue();
+
+        // clone object
         if ( typeof currentValue === 'object' ) {
             currentValue= JSON.parse(JSON.stringify(currentValue));
         }
-        getTempValue('value')(currentValue);
-    }
-
-    var currentInputType= getTempValue('inputType')();
-    if ( currentInputType === undefined ) {
 
         currentInputType= 'single';
-        if ( typeof currentValue === 'object' ) {
+        if ( currentValue && typeof currentValue === 'object' ) {
             if ( '$array' in currentValue )             currentInputType= 'array';
             else if ( '$range' in currentValue )        currentInputType= 'range';
             else if ( currentValue.type === 'map' )     currentInputType= 'map';
             else if ( currentValue.type === 'nearest' ) currentInputType= 'nearest';
         }
-        getTempValue('inputType')(currentInputType);
-        getNewValue()(currentValue);
+        inputType(currentInputType);
+        newValue(currentValue);
     }
 
     var result= [
@@ -137,7 +152,7 @@ Template.valueInputBody.inputTypes= function() {
         { value: 'array',  label: 'array of ' + type + 's' },
     ];
 
-    if ( typeof value.type === 'object' ) {
+    if ( value.type === 'object' ) {
         result.push({ value: 'map',  label: 'map of objects' });
         result.push({ value: 'nearest',  label: 'nearest object by tag' });
     }
@@ -154,13 +169,13 @@ Template.valueInputBody.inputTypes= function() {
 
 Template.valueInputBody.events({
     'change input[name="inputTypes"]': function( event ) {
-        getTempValue('inputType')(this.value);
+        inputType(this.value);
         return false;
     },
 });
 
 Template.valueInputBody.inputType= function() {
-    var type= getTempValue('inputType')();
+    var type= inputType();
     if ( !type ) return;
 
     return new Handlebars.SafeString(Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)]());
@@ -169,7 +184,7 @@ Template.valueInputBody.inputType= function() {
 $(function() {
     $('body').delegate('#valueInput button.btn-primary', 'click', function() {
         var value= getValue();
-        if ( value ) value.setValue(getNewValue()());
+        if ( value ) value.setValue(newValue());
         $('#valueInput').modal('hide');
     });
 });
@@ -179,15 +194,15 @@ $(function() {
  * shows a single value to edit
  */
 Template.inputTypeSingle.value= function() {
-    return DataObjectTools.valueToString(getNewValue()());
+    return DataObjectTools.valueToString(newValue());
 };
 
 Template.inputTypeSingle.events({
     'click a.value': function() {
         singleValue= {
-            get: function() { return getNewValue()(); },
-            set: function( value ) { getNewValue()(value); },
-            type: (getValue() || {}).type,
+            get: function() { return newValue(); },
+            set: function( value ) { newValue(value); },
+            type: getType(),
         }
         invalidate('singlevalue');
         DataObjectTools.showModal($('#singleValueInput'));
@@ -201,7 +216,7 @@ Template.inputTypeSingle.events({
 Template.inputTypeArray.values= function() {
     isInvalid('arraylist');
 
-    var currentValue= getNewValue({ $array: [] })();
+    var currentValue= getNewValueInit({ $array: [] });
 
     return currentValue.$array.map(function( value, i ) {
         return {
@@ -223,11 +238,11 @@ Template.inputTypeArray.value= function() {
 
 Template.inputTypeArray.events({
     'click a.remove': function( event ) {
-        getNewValue({ $array: [] })().$array.splice(this.index, 1);
+        getNewValueInit({ $array: [] }).$array.splice(this.index, 1);
         invalidate('arraylist');
     },
     'click a.add': function( event ) {
-        getNewValue({ $array: [] })().$array.push(undefined);
+        getNewValueInit({ $array: [] }).$array.push(undefined);
         invalidate('arraylist');
     },
     'click a.value': function() {
@@ -236,7 +251,7 @@ Template.inputTypeArray.events({
         singleValue= {
             get: function() { return v(); },
             set: function( value ) { v(value); },
-            type: (getValue() || {}).type,
+            type: getType(),
         }
         invalidate('singlevalue');
         DataObjectTools.showModal($('#singleValueInput'));
@@ -248,7 +263,7 @@ Template.inputTypeArray.events({
  * shows a range of values
  */
 var buildRangeValue= function( name ) {
-    var $range= getNewValue({ $range: {} })().$range;
+    var $range= getNewValueInit({ $range: {} }).$range;
     return function( newValue ) {
         if ( arguments.length ) {
             invalidate('rangeview.' + name);
@@ -283,7 +298,7 @@ Template.inputTypeRange.events({
         singleValue= {
             get: function() { return v(); },
             set: function( value ) { v(value); },
-            type: (getValue() || {}).type,
+            type: getType(),
         }
         invalidate('singlevalue');
         DataObjectTools.showModal($('#singleValueInput'));
@@ -371,7 +386,7 @@ var simpleValueGet= function() {
 var simpleValueEvents= {
     'change input': function( event ) {
         var newValue= event.currentTarget.value;
-        switch ( this.type ) {
+        switch ( singleValue.type ) {
             case 'Integer': newValue= parseInt(newValue, 10); break;
             case 'Double':  newValue= parseFloat(newValue); break;
         }
@@ -425,13 +440,32 @@ Template.valueInputDate.rendered= function() {
     }).on('show', function( event ) {
         var zindex= $modal.css('z-index');
         $('.datepicker').css('z-index', zindex + 1);
+    }).on('changeDate', function( event ) {
+        singleValue.newValue= event.date;
     });
+    var startValue= singleValue.get();
+    if ( startValue ) {
+        $input.datepicker('setValue', startValue);
+    }
     singleValueCleanup.push($input.data().datepicker.picker);
 };
 
-
-
-
+Template.valueInputLocation.lat= function() {
+    return (singleValue.newValue || [])[1];
+};
+Template.valueInputLocation.lon= function() {
+    return (singleValue.newValue || [])[0];
+};
+var _genSetLocation= function( index ) {
+    return function( event ) {
+        if ( !_.isArray(singleValue.newValue) ) singleValue.newValue= [];
+        singleValue.newValue[index]= parseFloat(event.currentTarget.value);
+    };
+};
+Template.valueInputLocation.events({
+    'change input.lat': _genSetLocation(1),
+    'change input.lon': _genSetLocation(0),
+});
 
 
 

@@ -31,12 +31,11 @@ var buildValues= function( args, property, valueContext ) {
     var injectPrefix= 'args.' + property + '.';
     return Object.keys(args[property]).map(function( name ) {
         var valueVar= injectVar(valueContext, injectPrefix + name, undefined);
-console.log('reinitializing ', injectPrefix, name, "with", valueVar() );
         var result= {
             name: name,
             type: args[property][name],
             valueText: function() {
-                return valueVar() === undefined ? '<empty>' : DataObjectTools.valueToString(valueVar());
+                return DataObjectTools.valueToString(valueVar());
             },
             getValue: function() { return valueVar(); },
             setValue: function( newValue ) { valueVar(newValue); }

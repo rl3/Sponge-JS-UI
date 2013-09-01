@@ -126,7 +126,24 @@
 </template>
 
 <template name="valueInputLocation">
-    <input type="text" /><input type="text" />
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                Lat:
+                <input type="text" class="double span2 lat" value="{{lat}}" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                Lon:
+                <input type="text" class="double span2 lon" value="{{lon}}" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
 </template>
 
 <template name="valueInputModel">

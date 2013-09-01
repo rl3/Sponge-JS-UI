@@ -9,6 +9,17 @@ var rangeToString= function( value ) {
         + ' Step: ' + valueToString(value.$range.step);
 };
 
+var pad= function( value ) {
+    return +value < 10 ? "0" + value : String(value);
+};
+var dateToString= function( value ) {
+    return pad(value.getDate()) + '.' + pad(value.getMonth() + 1) + '.' + value.getFullYear();
+};
+
+var locationToString= function( value ) {
+    return 'lat(' + value[1] + ')/lon(' + value[0] + ')';
+};
+
 var getObject= {
     'Model': DataObjectTools.getCachedData('getModel'),
     'AgroObj': DataObjectTools.getCachedData('getAgroObject'),
@@ -39,6 +50,9 @@ var valueToString= function( value ) {
     if ( value === undefined ) return '<empty>';
 
     if ( typeof value === 'object' ) {
+        if ( value instanceof Date )    return dateToString(value);
+        if ( _.isArray(value) && value.length === 2 )
+                                        return locationToString(value);
         if ( '$array' in value )        return arrayToString(value);
         if ( '$range' in value )        return rangeToString(value);
         if ( value.type === 'map' )     return mapToString(value);
