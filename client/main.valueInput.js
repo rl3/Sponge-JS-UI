@@ -242,8 +242,22 @@ Template.inputTypeArray.events({
         invalidate('arraylist');
     },
     'click a.add': function( event ) {
-        getNewValueInit({ $array: [] }).$array.push(undefined);
+        var array= getNewValueInit({ $array: [] }).$array;
+        var index= array.length;
+        array.push(undefined);
         invalidate('arraylist');
+
+        // open newly added value in singleValueInput
+        singleValue= {
+            get: function() { return array[index]; },
+            set: function( value ) {
+                array[index]= value;
+                invalidate('arraylist');
+            },
+            type: getType(),
+        }
+        invalidate('singlevalue');
+        DataObjectTools.showModal($('#singleValueInput'));
     },
     'click a.value': function() {
         var self= this;
@@ -426,6 +440,9 @@ $(function() {
     Template[templateName].init= function() {
         singleValue.newValue= singleValue.get();
     };
+    Template[templateName].rendered= function() {
+        this.find('input').focus();
+    }
 });
 
 

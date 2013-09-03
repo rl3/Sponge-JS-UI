@@ -15,6 +15,11 @@ var getModelArgs= function() {
     return _getModelArgs(modelId);
 };
 
+var _runModel= DataObjectTools.getCachedData('startJob');
+var runModel= function( args ) {
+    console.log()
+};
+
 var injectVar= DataObjectTools.injectVar;
 var injectGlobalVar= DataObjectTools.injectGlobalVar;
 
@@ -47,6 +52,8 @@ var buildValues= function( args, property, valueContext ) {
     });
 };
 
+var onClose= undefined;
+
 Template.modelRunBody.getArgs= function() {
     var args= getModelArgs();
     if ( !args ) return;
@@ -61,6 +68,10 @@ Template.modelRunBody.getArgs= function() {
         result[property]= buildValues(args, property, self);
     });
 
+    onClose= function() {
+        return runModel(result);
+    };
+
     return result;
 };
 
@@ -71,3 +82,14 @@ Template.modelRunBody.events({
     },
 });
 
+
+$(function() {
+    $('body').delegate('#modelRun button.btn-primary', 'click', function() {
+        $('#modelRun').modal('hide');
+        if ( !onClose ) return;
+
+        var _onClose= onClose;
+        onClose= undefined;
+        return _onClose();
+    });
+});
