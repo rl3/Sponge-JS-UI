@@ -17,7 +17,10 @@ var getModelArgs= function() {
 
 var _runModel= DataObjectTools.getCachedData('startJob');
 var runModel= function( args ) {
-    console.log()
+    return _runModel({
+        modelId: DataObjectTools.modelId(),
+        args: args,
+    });
 };
 
 var injectVar= DataObjectTools.injectVar;
@@ -54,6 +57,16 @@ var buildValues= function( args, property, valueContext ) {
 
 var onClose= undefined;
 
+var parseArgs= function( args ) {
+    if ( !args ) return args;
+
+    var result= {};
+    args.forEach(function( arg ) {
+        result[arg.name]= arg.getValue();
+    });
+    return result;
+};
+
 Template.modelRunBody.getArgs= function() {
     var args= getModelArgs();
     if ( !args ) return;
@@ -69,7 +82,10 @@ Template.modelRunBody.getArgs= function() {
     });
 
     onClose= function() {
-        return runModel(result);
+        return runModel({
+            args: parseArgs(result.args),
+            input: parseArgs(result.input),
+        });
     };
 
     return result;

@@ -132,9 +132,7 @@ Template.valueInputBody.inputTypes= function() {
         var currentValue= value.getValue();
 
         // clone object
-        if ( typeof currentValue === 'object' ) {
-            currentValue= JSON.parse(JSON.stringify(currentValue));
-        }
+        currentValue= DataObjectTools.clone(currentValue);
 
         currentInputType= 'single';
         if ( currentValue && typeof currentValue === 'object' ) {
