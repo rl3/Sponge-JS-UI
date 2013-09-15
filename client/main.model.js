@@ -12,65 +12,6 @@ var saveModel= function( model ) {
 
 var injectVar= DataObjectTools.injectVar;
 
-var objectArrayMapper= function( context, prop, changedVar ) {
-    if ( !context ) context= {};
-    if ( !changedVar ) changedVar= function() {};
-    var obj= context[prop];
-    var info= (context.info || {})[prop];
-
-    var infoFields= [ 'unit', 'description' ];
-
-    return Object.keys(obj).map(function( key ) {
-        return new GuiTools.Edit({
-            get: function() {
-                var type= obj[key];
-                var valueInfo= (info || {})[key] || {};
-
-                if ( valueInfo.unit === 'none' ) delete valueInfo.unit;
-                return _.extend({
-                    name: key,
-                    type: type,
-                    objectType: typeof type === 'object',
-                    sparse: !info,
-                }, valueInfo);
-            },
-            set: function( newValue ) {
-                var oldValue= obj[key];
-                var newName= newValue.name;
-                changedVar(true);
-
-                if ( newName !== key ) {
-                    if ( !newName || newName in obj ) {
-                        delete obj[key];
-                        if ( info[key] ) delete info[key];
-                        return;
-                    }
-                    obj[newName]= obj[key];
-                    delete obj[key];
-                    if ( key in info ) {
-                        info[newName]= info[key];
-                        delete info[key];
-                    }
-                    key= newName;
-                }
-
-                obj[key]= newValue.type;
-                if ( !info ) {
-                    if ( !context.info ) context.info= {};
-                    context.info[prop]= info= {};
-                }
-                info[key]= _.chain(newValue).omit('type', 'name', 'sparse').pairs().
-                    filter(function( value ) { return value[1] !== undefined; }).object().value();
-            },
-            viewTemplateName: 'editViewType',
-            editTemplateName: 'editEditType',
-            asTr: true,
-        });
-
-
-    })
-};
-
 var editor= function( context, property ) {
     return new GuiTools.Edit({
         get: function() { return context[property]; },
@@ -90,11 +31,11 @@ Template.model.Description= function() {
 }
 
 Template.model.args= function() {
-    return objectArrayMapper(this.definition, 'args', injectVar(this, 'changed'));
+    return DataObjectTools.editableTypeMap(this.definition, 'args', injectVar(this, 'changed'));
 };
 
 Template.model.result= function() {
-    return objectArrayMapper(this.definition, 'result', injectVar(this, 'changed'));
+    return DataObjectTools.editableTypeMap(this.definition, 'result', injectVar(this, 'changed'));
 };
 
 Template.model.functionCode= function() {
@@ -146,6 +87,14 @@ Template.model.inputDefinitions= function() {
     return result;
 };
 
+Template.model.inputs= function() {
+    var changedFn= injectVar(this, 'changed');
+    var result= _.chain(this.inputs).pairs().map(function( input ) {
+        return _.extend(_.clone(input[1]), { name: input[0], onChange: changedFn, });
+    }).value();
+    return result;
+};
+
 Template.model.events({
     'dblclick pre.javascript': function() {
         injectVar(this, 'editFunction')(true);
@@ -185,11 +134,13 @@ Template.objectType.schema= function() {
 };
 
 Template.objectType.args= function() {
-    return objectArrayMapper(this, 'args', this.onChange);
+return;
+    return DataObjectTools.editableTypeMap(this, 'args', this.onChange);
 };
 
 Template.objectType.result= function() {
-    return objectArrayMapper(this, 'result', this.onChange);
+return;
+    return DataObjectTools.editableTypeMap(this, 'result', this.onChange);
 };
 
 

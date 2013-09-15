@@ -80,6 +80,17 @@
                 </td>
             </tr>
         {{/if}}
+        {{#if inputs}}
+            <tr>
+                <th align="right">Inputs:</th><td>
+                    <table>
+                        {{#each inputs}}
+                            {{> editValue this}}
+                        {{/each}}
+                    </table>
+                </td>
+            </tr>
+        {{/if}}
     </table>
 </template>
 
@@ -96,6 +107,13 @@
 </template>
 
 <template name="modelInputDefinition">
+    <tr valign="top">
+        <td>{{name}}<td>
+        <td>{{> objectType}}</td>
+    </tr>
+</template>
+
+<template name="modelInput">
     <tr valign="top">
         <td>{{name}}<td>
         <td>{{> objectType}}</td>

@@ -38,11 +38,27 @@ var objectToString= function( value ) {
 };
 
 var mapToString= function( value ) {
+console.log('Map', value);
     return 'MAP: ' + value;
 };
 
 var nearestToString= function( value ) {
-    return 'NEAREST: ' + value;
+console.log(value)
+    var result= 'Nearest ';
+    var sel= value.selector;
+    if ( sel ) {
+        result+= sel.objectType + '/' + sel.version;
+        var args= [];
+        for ( var prop in sel ) {
+            if ( prop === 'objectType' || prop === 'version' ) continue;
+
+            args.push(prop + '="' + sel[prop] + '"');
+        }
+        if ( args.length ) {
+            result+= ' (' + args.join(', ') + ')';
+        }
+    }
+    return result;
 };
 
 
@@ -55,8 +71,10 @@ var valueToString= function( value ) {
                                         return locationToString(value);
         if ( '$array' in value )        return arrayToString(value);
         if ( '$range' in value )        return rangeToString(value);
-        if ( value.type === 'map' )     return mapToString(value);
-        if ( value.type === 'nearest' ) return nearestToString(value);
+        if ( String(value.type).toLowerCase() === 'map' )
+                                        return mapToString(value);
+        if ( String(value.type).toLowerCase() === 'nearest' )
+                                        return nearestToString(value);
         if ( '$ref' in value )          return objectToString(value);
     }
 

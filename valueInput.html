@@ -75,7 +75,18 @@
 </template>
 
 <template name="inputTypeNearest">
-    Nearest
+    <select class="typeName">
+        <option style="display: none">Please select</option>
+        {{#each typeName}}
+            <option {{selectedType}} value="{{schema.objectType}}/{{schema.version}}">{{label}}</option>
+        {{/each}}
+    </select>
+    <select class="tagName">
+        <option style="display: none">Please select</option>
+        {{#each tag}}
+            <option {{selectedTag}} value="{{this}}">{{this}}</option>
+        {{/each}}
+    </select>
 </template>
 
 

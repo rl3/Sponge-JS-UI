@@ -1,6 +1,7 @@
 
 var getMatchingTypes= DataObjectTools.getCachedData('getMatchingTypes');
 var getMatchingObjects= DataObjectTools.getCachedData('getMatchingObjects');
+var getTags= DataObjectTools.getCachedData('getTagsByTypeVersion');
 
 var injectVar= DataObjectTools.injectVar;
 var injectGlobalVar= DataObjectTools.injectGlobalVar;
@@ -138,8 +139,10 @@ Template.valueInputBody.inputTypes= function() {
         if ( currentValue && typeof currentValue === 'object' ) {
             if ( '$array' in currentValue )             currentInputType= 'array';
             else if ( '$range' in currentValue )        currentInputType= 'range';
-            else if ( currentValue.type === 'map' )     currentInputType= 'map';
-            else if ( currentValue.type === 'nearest' ) currentInputType= 'nearest';
+            else if ( String(currentValue.type).toLowerCase() === 'map' )
+                                                        currentInputType= 'map';
+            else if ( String(currentValue.type).toLowerCase() === 'nearest' )
+                                                        currentInputType= 'nearest';
         }
         inputType(currentInputType);
         newValue(currentValue);
@@ -150,7 +153,7 @@ Template.valueInputBody.inputTypes= function() {
         { value: 'array',  label: 'array of ' + type + 's' },
     ];
 
-    if ( value.type === 'object' ) {
+    if ( type === 'object' ) {
         result.push({ value: 'map',  label: 'map of objects' });
         result.push({ value: 'nearest',  label: 'nearest object by tag' });
     }
@@ -609,3 +612,55 @@ Template.valueInputModelSelector.selected= function() {
 
     if ( (singleValue.newValue.selector || {})._id === this.id ) return 'SELECTED';
 };
+
+
+
+
+
+var getNearestValue= function() {
+    return getNewValueInit({ type: 'Nearest', selector: { objectType: undefined, version: undefined, tag: undefined, }, });
+};
+
+var setNearestSelector= function( newSelector ) {
+    var value= _.clone(getNearestValue());
+    value.selector= _.extend(_.clone(value.selector), newSelector);
+    return newValue(value);
+};
+
+Template.inputTypeNearest.typeName= buildTypeNames;
+
+Template.inputTypeNearest.selectedType= function() {
+    if ( !this.schema ) return;
+
+    var sel= getNearestValue().selector;
+
+    if ( this.schema.objectType === sel.objectType && this.schema.version === sel.version ) return 'SELECTED';
+};
+
+Template.inputTypeNearest.tag= function() {
+    var sel= getNearestValue().selector;
+
+    var tags= getTags(sel);
+    if ( !tags || tags.length === 0 ) return;
+
+    return tags;
+};
+
+Template.inputTypeNearest.selectedTag= function() {
+    if ( getNearestValue().selector.tag === String(this) ) return 'SELECTED';
+};
+
+Template.inputTypeNearest.events({
+    'change select.typeName': function( event ) {
+        var typeVersion= $(event.target).val().split('/');
+        var type= typeVersion[0];
+        var version= +typeVersion[1];
+
+        setNearestSelector({ objectType: type, version: version, });
+    },
+    'change select.tagName': function( event ) {
+        var tag= $(event.target).val();
+
+        setNearestSelector({ tag: tag, });
+    },
+});
