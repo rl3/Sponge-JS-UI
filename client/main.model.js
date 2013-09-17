@@ -89,9 +89,25 @@ Template.model.inputDefinitions= function() {
 
 Template.model.inputs= function() {
     var changedFn= injectVar(this, 'changed');
-    var result= _.chain(this.inputs).pairs().map(function( input ) {
-        return _.extend(_.clone(input[1]), { name: input[0], onChange: changedFn, });
-    }).value();
+    var inputChangedFn= injectVar(this, 'inputChanged');
+    var model= this;
+    if ( !model.inputs ) model.inputs= {};
+    var inputs= model.inputs;
+    var inputDefs= model.inputDefinitions;
+    var result= Object.keys(inputDefs).map(function( name ) {
+        var inputChangedFn= injectVar(this, 'input.' + name, inputs[name]);
+        inputChangedFn();
+        var varFn= function( newValue ) {
+            if ( arguments.length ) {
+                inputs[name]= newValue;
+                changedFn(true);
+                inputChangedFn(newValue);
+            }
+
+            return inputs[name];
+        }
+        return DataObjectTools.buildValue(name, inputDefs[name], varFn, null);
+    });
     return result;
 };
 

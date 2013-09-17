@@ -618,7 +618,7 @@ Template.valueInputModelSelector.selected= function() {
 
 
 var getNearestValue= function() {
-    return getNewValueInit({ type: 'Nearest', selector: { objectType: undefined, version: undefined, tag: undefined, }, });
+    return getNewValueInit({ type: 'Nearest', selector: { objectType: undefined, version: undefined, tags: undefined, }, });
 };
 
 var setNearestSelector= function( newSelector ) {
@@ -647,7 +647,7 @@ Template.inputTypeNearest.tag= function() {
 };
 
 Template.inputTypeNearest.selectedTag= function() {
-    if ( getNearestValue().selector.tag === String(this) ) return 'SELECTED';
+    if ( getNearestValue().selector.tags === String(this) ) return 'SELECTED';
 };
 
 Template.inputTypeNearest.events({
@@ -661,6 +661,6 @@ Template.inputTypeNearest.events({
     'change select.tagName': function( event ) {
         var tag= $(event.target).val();
 
-        setNearestSelector({ tag: tag, });
+        setNearestSelector({ tags: tag, });
     },
 });

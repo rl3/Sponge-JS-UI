@@ -35,26 +35,6 @@ Template.modelRunTitle.title= function() {
  * TEMPLATE runModel
  */
 
-var buildValues= function( args, property, valueContext ) {
-    var injectPrefix= 'args.' + property + '.';
-    return Object.keys(args[property]).map(function( name ) {
-        var valueVar= injectVar(valueContext, injectPrefix + name, undefined);
-        var result= {
-            name: name,
-            type: args[property][name],
-            valueText: function() {
-                return DataObjectTools.valueToString(valueVar());
-            },
-            getValue: function() { return valueVar(); },
-            setValue: function( newValue ) { valueVar(newValue); }
-        };
-        if ( args.info && args.info[property] && args.info[property][name] ) {
-            result.info= args.info[property][name];
-        }
-        return result;
-    });
-};
-
 var onClose= undefined;
 
 var parseArgs= function( args ) {
@@ -78,7 +58,7 @@ Template.modelRunBody.getArgs= function() {
     [ 'args', 'inputs' ].forEach(function( property ) {
         if ( !args[property] ) return;
 
-        result[property]= buildValues(args, property, self);
+        result[property]= DataObjectTools.buildValues(args, property, self);
     });
 
     onClose= function() {

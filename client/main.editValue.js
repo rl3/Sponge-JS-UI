@@ -1,9 +1,8 @@
 
-Template.editValue.helpers({
-    name: function() {
-        return this.name;
-    },
-    value: function() {
-        return DataObjectTools.valueToString(this);
+Template.editValue.events({
+    'click a': function( event ) {
+        DataObjectTools.injectGlobalVar('valueInput')(this);
+        DataObjectTools.showModal($('#valueInput'));
+        return false;
     },
 });

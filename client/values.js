@@ -43,7 +43,6 @@ console.log('Map', value);
 };
 
 var nearestToString= function( value ) {
-console.log(value)
     var result= 'Nearest ';
     var sel= value.selector;
     if ( sel ) {
@@ -83,4 +82,34 @@ var valueToString= function( value ) {
     return String(value);
 };
 
+var buildValue= function( name, type, valueFn, info ) {
+    var result= {
+        name: name,
+        type: type,
+        valueText: function() {
+            return DataObjectTools.valueToString(valueFn());
+        },
+        getValue: function() { return valueFn(); },
+        setValue: function( newValue ) { valueFn(newValue); }
+    };
+    if ( info ) result.info= info;
+
+    return result;
+};
+
+var buildValues= function( args, property, valueContext ) {
+    var injectPrefix= 'args.' + property + '.';
+    return Object.keys(args[property]).map(function( name ) {
+        return buildValue(
+            name,
+            args[property][name], // type
+            DataObjectTools.injectVar(valueContext, injectPrefix + name, undefined),
+            args.info && args.info[property] && args.info[property][name] // info
+        );
+    });
+};
+
+
 DataObjectTools.valueToString= valueToString;
+DataObjectTools.buildValues= buildValues;
+DataObjectTools.buildValue= buildValue;
