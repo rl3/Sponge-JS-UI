@@ -91,9 +91,12 @@ Template.model.inputs= function() {
     var changedFn= injectVar(this, 'changed');
     var inputChangedFn= injectVar(this, 'inputChanged');
     var model= this;
+    var inputDefs= model.inputDefinitions;
+
+    if ( !inputDefs ) return;
+
     if ( !model.inputs ) model.inputs= {};
     var inputs= model.inputs;
-    var inputDefs= model.inputDefinitions;
     var result= Object.keys(inputDefs).map(function( name ) {
         var inputChangedFn= injectVar(this, 'input.' + name, inputs[name]);
         inputChangedFn();
