@@ -45,6 +45,10 @@ addMenuItem("models", "Models", function() {
     return new Handlebars.SafeString(Template.models({ type: 'Model' }));
 });
 
+addMenuItem("jobs", "Jobs", function() {
+    return new Handlebars.SafeString(Template.jobs());
+});
+
 Template.main.created= function() {
 }
 

@@ -8,6 +8,23 @@ a.active {
     background-color: lightgray;
 }
 
+.jobId a {
+    border-style: solid;
+    border-style: blue;
+    &.error {
+        border-color: red;
+        border-width: 1px;
+    }
+    &.success {
+        border-color: green;
+        border-width: 1px;
+    }
+    &.running {
+        border-style: dashed;
+        border-width: 1px;
+    }
+}
+
 .loading {
     width: 100%;
     height: 100%;
