@@ -1,0 +1,33 @@
+
+<template name="jobs">
+    <table>
+        <tr>
+            <td colspan="2">{{pagination}}</td>
+        </tr>
+        <tr valign="top">
+            <td>
+                {{#each jobs}}
+                    <div class="jobId">
+                        <a class="{{classes}}" href="#">{{startTime}}</a>
+                    </div>
+                {{/each}}
+            </td>
+            <td>
+                {{#with currentJob}}
+                    {{> job}}
+                {{else}}
+                    {{> loading}}
+                {{/with}}
+            </td>
+        </tr>
+    </table>
+</template>
+
+<template name="job">
+    <table>
+        <tr>
+            <th align="right">Status:</th><td class="{{statusClass}}">{{status}}</td>
+        </tr>
+    </table>
+</template>
+

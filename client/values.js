@@ -13,7 +13,7 @@ var pad= function( value ) {
     return +value < 10 ? "0" + value : String(value);
 };
 var dateToString= function( value ) {
-    return pad(value.getDate()) + '.' + pad(value.getMonth() + 1) + '.' + value.getFullYear();
+    return pad(value.getUTCDate()) + '.' + pad(value.getUTCMonth() + 1) + '.' + value.getUTCFullYear();
 };
 
 var locationToString= function( value ) {
@@ -31,7 +31,7 @@ var objectToString= function( value ) {
 
     var name= '';
     if ( collection in getObject && id ) {
-        var object= getObject[collection](new Meteor.Collection.ObjectID(id));
+        var object= getObject[collection](id);
         if ( object ) name= object.name;
     }
     return collection + ' ' + name;

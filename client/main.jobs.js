@@ -3,7 +3,7 @@ var ItemsPerPage= 50;
 
 var injectVar= DataObjectTools.injectVar;
 
-var _getJobs= DataObjectTools.getCachedData('getJobs');
+var _getJobs= DataObjectTools.getCachedData('getJobs', 2000);
 var getJobs= function() {
     var jobs= _getJobs({
         userId: null,
@@ -17,7 +17,7 @@ var getJobs= function() {
     return jobs;
 };
 
-var getJob= DataObjectTools.getCachedData('getJob');
+var getJob= DataObjectTools.getCachedData('getJob', 2000);
 
 var _getModel= DataObjectTools.getCachedData('getModel');
 var getModel= function() {

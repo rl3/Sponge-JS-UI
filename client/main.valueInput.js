@@ -3,6 +3,8 @@ var getMatchingTypes= DataObjectTools.getCachedData('getMatchingTypes');
 var getMatchingObjects= DataObjectTools.getCachedData('getMatchingObjects');
 var getTags= DataObjectTools.getCachedData('getTagsByTypeVersion');
 
+var ObjectId= DataObjectTools.ObjectId;
+
 var injectVar= DataObjectTools.injectVar;
 var injectGlobalVar= DataObjectTools.injectGlobalVar;
 
@@ -447,6 +449,7 @@ $(function() {
 });
 
 
+//FIXME: convert local date to UTC and vice versa
 Template.valueInputDate.rendered= function() {
     var self= this;
     var $modal= $('#singleValueInput');
@@ -459,7 +462,7 @@ Template.valueInputDate.rendered= function() {
         var zindex= $modal.css('z-index');
         $('.datepicker').css('z-index', zindex + 1);
     }).on('changeDate', function( event ) {
-        singleValue.newValue= event.date;
+        singleValue.newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
     });
     var startValue= singleValue.get();
     if ( startValue ) {
@@ -567,7 +570,7 @@ Template.valueInputModelSelector.events({
         singleValue.newValue= {
             $ref: selectedType.schema ? 'AgroObj' : 'Model',
             selector: {
-                _id: event.currentTarget.value,
+                _id: new ObjectId(event.currentTarget.value),
             },
        };
     },

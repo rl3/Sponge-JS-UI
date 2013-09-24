@@ -11,7 +11,7 @@ var getCachedData= function(name, timeout) {
 
         var query= { _id: key, timeStamp: { $gt: than }, };
 
-        var data= DataObjectTools.dataCache.findOne(query);
+        var data= DataObjectTools.convertFromMongo(DataObjectTools.dataCache.findOne(query));
         if ( data ) {
             delete running[key];
             return data.data;
