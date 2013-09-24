@@ -5,7 +5,7 @@
             <td colspan="2">{{pagination}}</td>
         </tr>
         <tr valign="top">
-            <td>
+            <td nowrap>
                 {{#each jobs}}
                     <div class="jobId">
                         <a class="{{classes}}" href="#">{{startTime}}</a>
@@ -25,9 +25,17 @@
 
 <template name="job">
     <table>
-        <tr>
-            <th align="right">Status:</th><td class="{{statusClass}}">{{status}}</td>
+        <tr valign="top">
+            <th align="right">Status:</th><td class="status {{statusClass}}">{{status}}</td>
         </tr>
+        <tr valign="top">
+            <th align="right">Started:</th><td class="">{{startTime}}</td>
+        </tr>
+        {{#if finishTime}}
+            <tr valign="top">
+                <th align="right">Finished:</th><td class="">{{finishTime}}</td>
+            </tr>
+        {{/if}}
     </table>
 </template>
 

@@ -4,24 +4,33 @@
     height: 100%;
 }
 
+@active: #DDDDDD;
+@success: #99DD99;
+@error: #FFDDDD;
+@running: #DDDDFF;
+
 a.active {
-    background-color: lightgray;
+    background-color: @active;
 }
 
-.jobId a {
-    border-style: solid;
-    border-style: blue;
+.jobId a, .status {
     &.error {
-        border-color: red;
-        border-width: 1px;
+        background-color: @error;
+        &.active {
+            background-color: darken(@error, 20%);
+        }
     }
     &.success {
-        border-color: green;
-        border-width: 1px;
+        background-color: @success;
+        &.active {
+            background-color: darken(@success, 20%);
+        }
     }
     &.running {
-        border-style: dashed;
-        border-width: 1px;
+        background-color: @running;
+        &.active {
+            background-color: darken(@running, 20%);
+        }
     }
 }
 

@@ -86,9 +86,17 @@ Template.job.statusClass= function() {
 };
 
 Template.job.status= function() {
-    if ( this.status.error )     return 'error ("' + this.status.error + '")';
-    if ( this.status.success )   return 'success';
-    if ( !this.status.finished ) return 'running';
+    if ( this.status.error )     return new Handlebars.SafeString('Error:<br /><code>' + this.status.error + '</code>');
+    if ( this.status.success )   return 'Successfully finished';
+    if ( !this.status.finished ) return 'Running';
     return '';
+};
+
+Template.job.startTime= function() {
+    return this.status.started.toLocaleString();
+};
+
+Template.job.finishTime= function() {
+    return this.status.finished.toLocaleString();
 };
 
