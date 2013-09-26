@@ -19,6 +19,8 @@ var getJobs= function() {
 
 var getJob= DataObjectTools.getCachedData('getJob', 2000);
 
+var getJobLog= DataObjectTools.postData('getJobLog');
+
 var _getModel= DataObjectTools.getCachedData('getModel');
 var getModel= function() {
     return _getModel(DataObjectTools.modelId());
@@ -100,3 +102,19 @@ Template.job.finishTime= function() {
     return this.status.finished.toLocaleString();
 };
 
+Template.job.model= function() {
+    var model= getModel();
+    if ( !model ) return DataObjectTools.valueToString(DataObjectTools.modelId());
+
+    return model.name;
+};
+
+Template.job.events({
+    'click a.show-log': function( event ) {
+        return getJobLog([this.jobId], {
+            onResultReceived: function() {
+                console.log(arguments);
+            }
+        }, function() {console.log(arguments)});
+    },
+});

@@ -7,8 +7,8 @@
         <tr valign="top">
             <td nowrap>
                 {{#each jobs}}
-                    <div class="jobId">
-                        <a class="{{classes}}" href="#">{{startTime}}</a>
+                    <div class="jobId status {{classes}}">
+                        <a href="#">{{startTime}}</a>
                     </div>
                 {{/each}}
             </td>
@@ -25,6 +25,9 @@
 
 <template name="job">
     <table>
+        <tr valign="top">
+            <th align="right">Model:</th><td class="">{{model}}<a href="#" class="show-log">show log</a></td>
+        </tr>
         <tr valign="top">
             <th align="right">Status:</th><td class="status {{statusClass}}">{{status}}</td>
         </tr>
