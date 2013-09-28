@@ -109,6 +109,18 @@ Template.job.model= function() {
     return model.name;
 };
 
+Template.job.args= function() {
+    if ( !this.inArgs || !this.inArgs.args ) return;
+
+    var args= this.inArgs.args;
+    return Object.keys(args).map(function( argName ) {
+        return {
+            name: argName,
+            value: DataObjectTools.valueToString(args[argName]),
+        };
+    });
+};
+
 Template.job.events({
     'click a.show-log': function( event ) {
         return getJobLog([this.jobId], {

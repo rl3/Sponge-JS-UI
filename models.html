@@ -113,13 +113,6 @@
     </tr>
 </template>
 
-<template name="modelInput">
-    <tr valign="top">
-        <td>{{name}}<td>
-        <td>{{> objectType}}</td>
-    </tr>
-</template>
-
 <template name="objectType">
     {{#with schema}}
         <span class="typeSignature"><span class="objectType">{{objectType}}</span>/<span class="version">{{version}}</span></span>
