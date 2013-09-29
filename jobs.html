@@ -22,9 +22,7 @@
                     <button class="btn btn-small btn-primary refresh" type="button">refresh</button>
                 </div>
                 {{#each jobs}}
-                    <div class="jobId status {{classes}}">
-                        <a href="#">{{startTime}}</a>
-                    </div>
+                    {{> jobStatus}}
                 {{/each}}
             </td>
             <td>
@@ -36,6 +34,14 @@
             </td>
         </tr>
     </table>
+</template>
+
+<template name="jobStatus">
+    {{#with status}}
+        <div class="jobId status {{classes}}">
+            <a href="#">{{startTime}}</a>
+        </div>
+    {{/with}}
 </template>
 
 <template name="job">

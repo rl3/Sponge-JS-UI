@@ -1,13 +1,14 @@
 
 var ItemsPerPage= 50;
+var jobUpdateTimeout= 5000; // 5s
 
 var injectVar= DataObjectTools.injectVar;
 
-var invalidate= DataObjectTools.invalidator();
+var invalidateList= DataObjectTools.invalidator();
 
 var _getJobs= DataObjectTools.getCachedData('getJobs', 2000);
 var getJobs= function() {
-    invalidate();
+    invalidateList();
     var jobs= _getJobs({
         userId: null,
         modelId: DataObjectTools.modelId(),
@@ -30,20 +31,43 @@ var getJobResult= DataObjectTools.getCachedData('getJobResult', 2000);
 var _restartJob= DataObjectTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
     _restartJob(DataObjectTools.jobId());
-    invalidate(true);
 };
 
 var _removeJob= DataObjectTools.getCachedData('removeJob', 2000);
 var removeJob= function() {
     _removeJob(DataObjectTools.jobId());
     DataObjectTools.jobId(undefined);
-    invalidate(true);
 };
 
 var _getModel= DataObjectTools.getCachedData('getModel');
 var getModel= function() {
     return _getModel(DataObjectTools.modelId());
 };
+
+var watchedJobs= undefined;
+var watchJob= function( jobId ) {
+    if ( watchedJobs ) {
+        watchedJobs[jobId]= undefined;
+        return;
+    }
+    watchedJobs= { jobId: undefined };
+    setTimeout(updateJobs, jobUpdateTimeout);
+};
+var updateJobs= function() {
+console.log('updateJobs', watchedJobs);
+    var newWatchedJobs= {};
+    for ( var jobId in watchedJobs ) {
+        var job= getJob(jobId);
+        if ( !job || !job.status.finished ) newWatchedJobs[jobId]= undefined;
+    }
+    if ( !Object.keys(newWatchedJobs).length ) {
+        watchedJobs= undefined;
+        return;
+    }
+    watchedJobs= newWatchedJobs;
+    setTimeout(updateJobs, jobUpdateTimeout);
+};
+
 
 Template.jobs.pagination= function() {
     var jobs= getJobs();
@@ -55,46 +79,49 @@ Template.jobs.pagination= function() {
     return new Handlebars.SafeString(Template.pagination({count: count, pageNumber: injectVar(this, 'pageNumber', 0), }));
 };
 
-Template.jobs.model= getModel;
+Template.jobs.events({
+    'click button.refresh': function( event ) {
+        invalidateList(true);
+    },
+});
 
 Template.jobs.jobs= function( modelId ) {
     var jobs= getJobs();
     if ( !jobs ) return;
 
-    return jobs.slice(injectVar(this, 'pageNumber', 0)() * ItemsPerPage, ItemsPerPage).map(function( job ) {
-        return {
-            id: job.jobId,
-            job: job,
-            startTime: job.status.started.toLocaleString(),
-            classes: function() {
-                var classes= [];
-                if ( DataObjectTools.jobId() === job.jobId ) classes.push('active');
-                if ( job.status.error )                      classes.push('error');
-                if ( job.status.success )                    classes.push('success');
-                if ( !job.status.finished )                  classes.push('running');
-
-                return classes.join(' ');
-            },
-        };
-    });
+    return jobs.slice(injectVar(this, 'pageNumber', 0)() * ItemsPerPage, ItemsPerPage);
 };
 
 Template.jobs.currentJob= function() {
     var jobId= DataObjectTools.jobId();
     if ( !jobId ) return;
 
-    var jobs= getJobs();
-    for ( var i in jobs ) {
-        if ( jobs[i].jobId === jobId ) return jobs[i];
-    }
+    return getJob(jobId);
 };
 
-Template.jobs.events({
+Template.jobStatus.status= function() {
+    var jobId= this.jobId;
+    var realJob= getJob(jobId) || this;
+    if ( !realJob.status.finished ) watchJob(jobId);
+    return {
+        id: jobId,
+        job: realJob,
+        startTime: realJob.status.started.toLocaleString(),
+        classes: function() {
+            var classes= [];
+            if ( DataObjectTools.jobId() === jobId ) classes.push('active');
+            if ( realJob.status.error )              classes.push('error');
+            if ( realJob.status.success )            classes.push('success');
+            if ( !realJob.status.finished )          classes.push('running');
+
+            return classes.join(' ');
+        },
+    };
+};
+
+Template.jobStatus.events({
     'click .jobId a': function( event ) {
         DataObjectTools.jobId(this.id);
-    },
-    'click button.refresh': function( event ) {
-        invalidate(true);
     },
 });
 
