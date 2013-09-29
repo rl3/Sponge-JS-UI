@@ -27,7 +27,12 @@ var getCachedData= function(name, timeout) {
 var postData= function( id, timeout ) {
     if ( arguments.length < 2 ) timeout= 1000000;
     return function( data, options ) {
-        Meteor.apply(id, Array.prototype.slice.call(arguments));
+        var args= Array.prototype.slice.call(arguments);
+        if ( typeof args[args.length - 1] === 'function' ) {
+            var cb= args.pop();
+            return Meteor.apply(id, args, cb);
+        }
+        Meteor.apply(id, args);
     };
 };
 

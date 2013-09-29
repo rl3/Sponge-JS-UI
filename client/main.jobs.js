@@ -3,8 +3,11 @@ var ItemsPerPage= 50;
 
 var injectVar= DataObjectTools.injectVar;
 
+var invalidate= DataObjectTools.invalidator();
+
 var _getJobs= DataObjectTools.getCachedData('getJobs', 2000);
 var getJobs= function() {
+    invalidate();
     var jobs= _getJobs({
         userId: null,
         modelId: DataObjectTools.modelId(),
@@ -19,7 +22,23 @@ var getJobs= function() {
 
 var getJob= DataObjectTools.getCachedData('getJob', 2000);
 
+// var getJobLog= DataObjectTools.getCachedData('getJobLog', 2000);
 var getJobLog= DataObjectTools.postData('getJobLog');
+
+var getJobResult= DataObjectTools.getCachedData('getJobResult', 2000);
+
+var _restartJob= DataObjectTools.getCachedData('restartJob', 2000);
+var restartJob= function() {
+    _restartJob(DataObjectTools.jobId());
+    invalidate(true);
+};
+
+var _removeJob= DataObjectTools.getCachedData('removeJob', 2000);
+var removeJob= function() {
+    _removeJob(DataObjectTools.jobId());
+    DataObjectTools.jobId(undefined);
+    invalidate(true);
+};
 
 var _getModel= DataObjectTools.getCachedData('getModel');
 var getModel= function() {
@@ -73,7 +92,10 @@ Template.jobs.currentJob= function() {
 Template.jobs.events({
     'click .jobId a': function( event ) {
         DataObjectTools.jobId(this.id);
-    }
+    },
+    'click button.refresh': function( event ) {
+        invalidate(true);
+    },
 });
 
 
@@ -99,7 +121,7 @@ Template.job.startTime= function() {
 };
 
 Template.job.finishTime= function() {
-    return this.status.finished.toLocaleString();
+    return this.status.finished && this.status.finished.toLocaleString();
 };
 
 Template.job.model= function() {
@@ -121,12 +143,59 @@ Template.job.args= function() {
     });
 };
 
+var setLogResult= function( content ) {
+    $('#jobLog pre').html(content);
+};
+
 Template.job.events({
-    'click a.show-log': function( event ) {
-        return getJobLog([this.jobId], {
-            onResultReceived: function() {
-                console.log(arguments);
-            }
-        }, function() {console.log(arguments)});
+    'click button.show-log': function( event ) {
+        setLogResult('');
+        DataObjectTools.showModal($('#jobLog'));
+
+        var jobId= DataObjectTools.jobId();
+        if ( !jobId ) return;
+
+        var log= getJobLog(jobId, function(err, result) {
+            if ( err ) console.error(err);
+            setLogResult((result || {}).content);
+        });
+
     },
+    'click button.rerun': restartJob,
+    'click button.delete': removeJob,
 });
+
+Template.job.results= function() {
+    var jobId= DataObjectTools.jobId();
+    if ( !jobId ) return;
+
+    var result= getJobResult({ jobId: jobId, path: '', });
+    if ( !result ) return;
+
+    return Object.keys(result).map(function( key ) {
+        return {
+            resultId: key,
+            result: result[key],
+        }
+    });
+};
+
+$(function( $ ) {
+    $('body').on('click', '.job-subResult .collapse-icon', function() {
+        var $parent= $(this).closest('.job-subResult');
+        $parent.toggleClass('collapsed').toggleClass('expanded');
+        $(this).toggleClass('icon-plus').toggleClass('icon-minus');
+    });
+});
+
+Template.jobSubResult.keys= function() {
+    var self= this;
+    return Object.keys(self).map(function( key ) {
+        var simpleValue= DataObjectTools.valueToString(self[key]);
+        return {
+            key: key,
+            objectValue: simpleValue === '[object Object]' && self[key],
+            simpleValue: simpleValue,
+        };
+    });
+};

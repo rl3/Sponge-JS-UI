@@ -1,4 +1,16 @@
 
+<body>
+<div id="jobLog" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="jobLogLabel" aria-hidden="true" style="width: 80%; margin-left: 0; left: 10%">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="jobLogLabel">JobLog</h3>
+    </div>
+    <div class="modal-body">
+        {{> jobLogBody}}
+    </div>
+</div>
+</body>
+
 <template name="jobs">
     <table>
         <tr>
@@ -6,6 +18,9 @@
         </tr>
         <tr valign="top">
             <td nowrap>
+                <div style="text-align: center">
+                    <button class="btn btn-small btn-primary refresh" type="button">refresh</button>
+                </div>
                 {{#each jobs}}
                     <div class="jobId status {{classes}}">
                         <a href="#">{{startTime}}</a>
@@ -26,7 +41,18 @@
 <template name="job">
     <table>
         <tr valign="top">
-            <th align="right">Model:</th><td class="">{{model}}<a href="#" class="show-log">show log</a></td>
+            <td colspan="2">
+                <table width="100%">
+                    <tr>
+                        <td align="center"><button class="btn btn-small btn-primary rerun" type="button">rerun</button></td>
+                        <td align="center"><button class="btn btn-small btn-primary show-log" type="button">show log</button></td>
+                        <td align="center"><button class="btn btn-small btn-danger delete" type="button">delete job</button></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th align="right">Model:</th><td class="">{{model}}</td>
         </tr>
         <tr valign="top">
             <th align="right">Status:</th><td class="status {{statusClass}}">{{status}}</td>
@@ -51,6 +77,30 @@
                 </td>
             </tr>
         {{/if}}
+        {{#if results}}
+            <tr valign="top">
+                <th align="right">Result:</th><td class="job-result">
+                    {{#each results}}
+                        <div class="job-resultId">{{resultId}}</div>
+                        {{> jobSubResult result}}
+                    {{/each}}
+                </td>
+            </tr>
+        {{/if}}
     </table>
 </template>
 
+<template name="jobLogBody">
+    <pre><code style="width: 80%"></code></pre>
+</template>
+
+<template name="jobSubResult">
+    <div class="job-subResult collapsed">
+        <i class="collapse-icon icon-plus"></i>
+        <table>
+            {{#each keys}}
+                <tr valign="top"><th class="argName">{{key}}:</th><td class="argValue">{{#if objectValue}}{{> jobSubResult objectValue}}{{else}}{{simpleValue}}{{/if}}</td></tr>
+            {{/each}}
+        </table>
+    </div>
+</template>

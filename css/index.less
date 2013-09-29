@@ -33,6 +33,14 @@ a.active {
         }
     }
 }
+td.status {
+    max-width: 800px;
+
+    code {
+        display: block;
+        overflow-x: auto;
+    }
+}
 
 .loading {
     width: 100%;
@@ -161,8 +169,45 @@ td {
     }
 }
 
+td.job-result {
+    .job-resultId {
+        font-weight: bold;
 
-a.show-log {
-    float: right;
-    font-size: smaller;
+    }
+
+    .job-subResult {
+        &.collapsed {
+            max-height: 1.5em;
+            overflow-y: hidden;
+
+            .job-subResult {
+                margin-left: 0 !important;
+
+                i.collapse-icon {
+                    display: none;
+                }
+            }
+        }
+        &.expanded {
+            .job-subResult {
+                margin-left: 1em;
+            }
+        }
+        i.collapse-icon {
+            position: absolute;
+            margin-left: -1em;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        td, th {
+            padding-top: 0;
+
+            &.argName {
+                text-align: right;
+                vertical-align: top;
+            }
+        }
+    }
 }
+
