@@ -1,5 +1,5 @@
 
-var Debug= true;
+var Debug= false;
 
 var baseUrl= CONFIG.baseurl;
 var auth= CONFIG.auth;
