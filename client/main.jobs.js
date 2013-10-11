@@ -1,6 +1,6 @@
 
 var ItemsPerPage= 50;
-var jobUpdateTimeout= 5000; // 5s
+var jobUpdateTimeout= 10000; // 10s
 
 var injectVar= DataObjectTools.injectVar;
 
@@ -192,7 +192,7 @@ Template.job.events({
     'click button.delete': removeJob,
 });
 
-Template.job.results= function() {
+Template.jobResult.results= function() {
     var jobId= DataObjectTools.jobId();
     if ( !jobId ) return;
 

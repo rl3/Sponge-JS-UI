@@ -83,21 +83,25 @@
                 </td>
             </tr>
         {{/if}}
-        {{#if results}}
-            <tr valign="top">
-                <th align="right">Result:</th><td class="job-result">
-                    {{#each results}}
-                        <div class="job-resultId">{{resultId}}</div>
-                        {{> jobSubResult result}}
-                    {{/each}}
-                </td>
-            </tr>
-        {{/if}}
+        {{> jobResult}}
     </table>
 </template>
 
 <template name="jobLogBody">
     <pre><code style="width: 80%"></code></pre>
+</template>
+
+<template name="jobResult">
+    {{#if results}}
+        <tr valign="top">
+            <th align="right">Result:</th><td class="job-result">
+                {{#each results}}
+                    <div class="job-resultId">{{resultId}}</div>
+                    {{> jobSubResult result}}
+                {{/each}}
+            </td>
+        </tr>
+    {{/if}}
 </template>
 
 <template name="jobSubResult">
