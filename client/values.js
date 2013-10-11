@@ -62,7 +62,7 @@ var nearestToString= function( value ) {
 
 
 var valueToString= function( value ) {
-    if ( value === undefined ) return '<empty>';
+    if ( value === undefined || value === null ) return '<empty>';
 
     if ( typeof value === 'object' ) {
         if ( value instanceof Date )    return dateToString(value);
