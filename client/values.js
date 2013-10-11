@@ -25,7 +25,7 @@ var getObject= {
     'AgroObj': DataObjectTools.getCachedData('getAgroObject'),
 };
 
-var objectToString= function( value ) {
+var dataObjectToString= function( value ) {
     var collection= value.$ref;
     var id= (value.selector || {})._id;
 
@@ -60,21 +60,74 @@ var nearestToString= function( value ) {
     return result;
 };
 
+var arrayToString= function( value ) {
+    if ( !value.length ) return '<empty Array>';
 
-var valueToString= function( value ) {
+    var keys;
+    var table= true;
+    for ( var i in value ) {
+        var v= value[i];
+        if ( typeof v !== 'object' ) {
+            table= false;
+            break;
+        };
+        var _keys= Object.keys(v);
+        if ( !+i ) {
+            keys= _keys;
+            continue;
+        }
+        if ( !_.difference(keys, _keys).length ) continue;
+
+        table= false;
+        break;
+    }
+    if ( table ) {
+        return '<table class="value table">'
+            + '<tr><th>i</th>' + keys.map(function( k ) { return '<th>' + k + '</th>'; }).join('') + '</tr>'
+            + value.map(function( o, i ) {
+                return '<tr><td>' + i + '</td>' + keys.map(function( k ) { return '<td>' + valueToString(o[k]) + '</td>' }).join('') + '</tr>';
+            }).join('')
+            + '</table>'
+            ;
+    }
+
+    return '<table class="value array">'
+        + value.map(function( v, i ) { return '<tr><td class="value arrayIndex">' + i + '</td><td class="value arrayValue">' + valueToString(v) + '</td></tr>'; }).join('')
+        + '</table>';
+};
+
+var objectToString= function( value ) {
+    var keys= Object.keys(value);
+    if ( !keys.length ) return '<empty Object>';
+
+    return '<table class="value object">'
+        + keys.map(function( key ) { return '<tr><td class="value objectKey">' + key + '</td><td class="value objectValue">' + valueToString(value[key]) + '</td></tr>'; }).join('')
+        + '</table>';
+};
+
+var valueToString= function( value, options ) {
     if ( value === undefined || value === null ) return '<empty>';
 
     if ( typeof value === 'object' ) {
         if ( value instanceof Date )    return dateToString(value);
-        if ( _.isArray(value) && value.length === 2 )
-                                        return locationToString(value);
+        if ( value instanceof Meteor.Collection.ObjectID )
+                                        return 'ObjectId("' + value + '")';
+        if ( _.isArray(value) ) {
+            if ( value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number' ) return locationToString(value);
+
+            return options && 'returnOnArray' in options ? options.returnOnArray : arrayToString(value);
+        }
         if ( '$array' in value )        return arrayToString(value);
         if ( '$range' in value )        return rangeToString(value);
         if ( String(value.type).toLowerCase() === 'map' )
                                         return mapToString(value);
         if ( String(value.type).toLowerCase() === 'nearest' )
                                         return nearestToString(value);
-        if ( '$ref' in value )          return objectToString(value);
+        if ( '$ref' in value )          return dataObjectToString(value);
+
+        if ( value.constructor === Object ) {
+            return options && 'returnOnObject' in options ? options.returnOnObject : objectToString(value);
+        }
     }
 
     if ( value === '' ) return '<empty string>'

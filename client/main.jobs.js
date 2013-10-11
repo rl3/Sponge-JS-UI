@@ -218,11 +218,12 @@ $(function( $ ) {
 Template.jobSubResult.keys= function() {
     var self= this;
     return Object.keys(self).map(function( key ) {
-        var simpleValue= DataObjectTools.valueToString(self[key]);
+        var objectVal= {};
+        var simpleValue= DataObjectTools.valueToString(self[key], { returnOnObject: objectVal });
         return {
             key: key,
-            objectValue: simpleValue === '[object Object]' && self[key],
-            simpleValue: simpleValue,
+            objectValue: simpleValue === objectVal && self[key],
+            simpleValue: new Handlebars.SafeString(simpleValue),
         };
     });
 };
