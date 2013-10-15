@@ -25,6 +25,7 @@ var getJob= DataObjectTools.getCachedData('getJob', 2000);
 
 // var getJobLog= DataObjectTools.getCachedData('getJobLog', 2000);
 var getJobLog= DataObjectTools.postData('getJobLog');
+var deleteJobLog= DataObjectTools.postData('deleteJobLog');
 
 var getJobResult= DataObjectTools.getCachedData('getJobResult', 2000);
 
@@ -188,8 +189,15 @@ Template.job.events({
         });
 
     },
-    'click button.rerun': restartJob,
-    'click button.delete': removeJob,
+    'click button.delete-log': function( event ) {
+        var jobId= DataObjectTools.jobId();
+        if ( !jobId ) return;
+
+        var log= deleteJobLog(jobId, function(err, result) {});
+
+    },
+    'click button.rerun-job': restartJob,
+    'click button.delete-job': removeJob,
 });
 
 Template.jobResult.results= function() {

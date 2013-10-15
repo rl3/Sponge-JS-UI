@@ -124,7 +124,12 @@ Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
 
 
 methods.getJobLog= function( jobId ) {
-    var result= Meteor.http.get(baseUrl + 'Job/getLog/' + jobId);
+    var result= Meteor.http.get(baseUrl + 'Job/log/' + jobId);
+    return result;
+};
+
+methods.deleteJobLog= function( jobId ) {
+    var result= Meteor.http.del(baseUrl + 'Job/log/' + jobId);
     return result;
 };
 
