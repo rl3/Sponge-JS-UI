@@ -4,7 +4,7 @@ var jobUpdateTimeout= 10000; // 10s
 
 var injectVar= DataObjectTools.injectVar;
 
-var invalidateList= DataObjectTools.invalidator();
+var invalidateList= DataObjectTools.getInvalidator();
 
 var _getJobs= DataObjectTools.getCachedData('getJobs', 2000);
 var getJobs= function() {
@@ -55,7 +55,6 @@ var watchJob= function( jobId ) {
     setTimeout(updateJobs, jobUpdateTimeout);
 };
 var updateJobs= function() {
-console.log('updateJobs', watchedJobs);
     var newWatchedJobs= {};
     for ( var jobId in watchedJobs ) {
         var job= getJob(jobId);

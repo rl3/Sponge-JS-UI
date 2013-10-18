@@ -512,7 +512,6 @@ Template.valueInputModel.events({
     },
 });
 
-
 Template.valueInputModelSelector.currentLabel= function() {
     var value= getTempValue('modelVariant')();
 
@@ -613,7 +612,9 @@ Template.valueInputModelSelector.valueCount= function() {
 Template.valueInputModelSelector.selected= function() {
     if ( !singleValue.newValue ) return;
 
-    if ( (singleValue.newValue.selector || {})._id === this.id ) return 'SELECTED';
+    var id= (singleValue.newValue.selector || {})._id;
+    if ( typeof id.toHexString === 'function' ) id= id.toHexString();
+    if ( id === this.id ) return 'SELECTED';
 };
 
 

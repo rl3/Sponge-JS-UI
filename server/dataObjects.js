@@ -1,8 +1,19 @@
+Meteor.startup(function() {
+    Future = Npm.require('fibers/future');
+});
 
 var Debug= false;
 
 var baseUrl= CONFIG.baseurl;
 var auth= CONFIG.auth;
+
+var async= function( fn ) {
+    var future= new Future();
+    fn(function( err, result ) {
+        future.ret(result);
+    });
+    return future.wait();
+};
 
 var _request= function( method, url, options, callback ) {
     if ( auth ) options.auth= auth;
@@ -63,6 +74,7 @@ var methods= {};
 
 Meteor.startup(function() {
     DataObjectTools.dataCache.remove({});
+    DataObjectTools.dataCacheMeta.remove({});
 });
 
 
@@ -122,15 +134,16 @@ Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
     };
 });
 
-
 methods.getJobLog= function( jobId ) {
-    var result= Meteor.http.get(baseUrl + 'Job/log/' + jobId);
-    return result;
+    return async(function( cb ) {
+        return Meteor.http.get(baseUrl + 'Job/log/' + jobId, cb);
+    });
 };
 
 methods.deleteJobLog= function( jobId ) {
-    var result= Meteor.http.del(baseUrl + 'Job/log/' + jobId);
-    return result;
+    return async(function( cb ) {
+        return Meteor.http.del(baseUrl + 'Job/log/' + jobId, cb);
+    });
 };
 
 Meteor.methods(methods);
@@ -138,19 +151,25 @@ Meteor.methods(methods);
 var updateCache= function( id, newData, cb ) {
     if ( !cb ) cb= function() {};
 
-    var oldData= DataObjectTools.dataCache.findOne({ _id: id });
-    if ( _.isEqual(oldData, newData) ) return cb();
+    if ( newData === undefined ) newData= null;
 
-    var query= {
-        data: newData,
-        timeStamp: new Date(),
+    var afterMetaUpdate= function() {
+        // update data only if changed
+        var oldData= DataObjectTools.dataCache.findOne({ _id: id });
+        if ( oldData && _.isEqual(oldData.data, newData) ) return cb();
+
+        if ( oldData ) {
+            return DataObjectTools.dataCache.update({ _id: id }, { $set: { data: newData }, }, cb);
+        }
+        return DataObjectTools.dataCache.insert({ _id: id, data: newData }, cb);
     };
 
-    if ( oldData ) {
-        return DataObjectTools.dataCache.update({ _id: id }, { $set: query, }, cb);
+    // update meta data in every case
+    var oldMetaData= DataObjectTools.dataCacheMeta.findOne({ _id: id });
+    if ( oldMetaData ) {
+        return DataObjectTools.dataCacheMeta.update({ _id: id }, { $set: { timeStamp: new Date() }, }, afterMetaUpdate);
     }
-    query._id= id;
-    return DataObjectTools.dataCache.insert(query, cb);
+    return DataObjectTools.dataCacheMeta.insert({ _id: id, timeStamp: new Date() }, afterMetaUpdate);
 };
 
 
@@ -162,3 +181,5 @@ onAfterMethod.removeJob= function( jobId ) {
 console.log('invalidate', jobId)
     methods.getJob(jobId);
 };
+
+
