@@ -31,10 +31,7 @@ var _request= function( method, url, options, callback ) {
         if ( _cb ) return _cb.call(this, err, result);
     }
 
-    if ( callback ) {
-        return Meteor.http.call(method, baseUrl + url, options, callback);
-    }
-    return Meteor.http.call(method, baseUrl + url, options);
+    return Meteor.http.call(method, baseUrl + url, options, callback);
 }
 
 var get= function( url, data, callback ) {

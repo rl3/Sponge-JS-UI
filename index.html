@@ -1,36 +1,49 @@
 <head>
-  <title>modelUI</title>
+  <title>AgroHyd-Farmmodel</title>
 </head>
 
 <body>
-    {{> main UniqueId}}
+    <div id="main-content">
+        <div id="main-left-content">
+            {{> mainNavigation}}
+        </div>
+    </div>
 </body>
 
 <template name="loading">
     <div class="loading">
-        {{> loadingImg}}
+        <img src="skin/loading.gif" />
     </div>
 </template>
 
-<template name="loadingImg">
-    <img src="skin/loading.gif" />
+<template name="mainNavigation">
+    <div id="main-header" class="nav-row">{{> mainNavigationHeader}}</div>
+    <div class="nav-row title">Models</div>
+    {{> mainNavigationModels}}
+    <div class="nav-row title">Jobs</div>
+    {{> mainNavigationJobs}}
 </template>
 
-<template name="main">
-    <div class="tabbable tabs-left main-menu">
-        <ul class="nav nav-tabs">
-            {{#each menuItems}}
-                <li class="{{active id}}"><a data-toggle="tab" href="#">{{title}}</a></li>
-            {{/each}}
-        </ul>
-        <div class="tab-content">
-            {{#each menuItems}}
-                <div class="{{id}} {{active id}} tab-pane">
-                    {{#if enabled id}}
-                        {{menuContent id}}
-                    {{/if}}
-                </div>
-            {{/each}}
+<template name="mainNavigationHeader">
+    <a sort="date" href="#" class="date"><i class="{{sortClassDate}}"></i>Date</a><a sort="name" href="#"><i class="{{sortClassName}}"></i>Name</a>
+</template>
+
+<template name="mainNavigationModels">
+    {{#each models}}
+        <div class="nav-row">
+            <div class="date">{{date}}</div>
+            {{name}}
         </div>
+    {{/each}}
+</template>
+
+<template name="mainNavigationJobs">
+    {{#each jobs}}
+        <div class="nav-row job">
+            <div class="date">{{date}}</div>
+            <div class="jobTitle">{{title}}</div>
+            <div class="jobDescription">{{description}}</div>
+        </div>
+    {{/each}}
 </template>
 
