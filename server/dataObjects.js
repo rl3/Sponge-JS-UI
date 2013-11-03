@@ -5,7 +5,19 @@ Meteor.startup(function() {
 var Debug= false;
 
 var baseUrl= CONFIG.baseurl;
-var auth= CONFIG.auth;
+//var auth= CONFIG.auth;
+
+var getAuth= function() {
+    var user= Meteor.user();
+    if ( !user || !user.profile || !user.profile.agrohyd ) return;
+
+    var apiUser= user.profile.agrohyd.apiUser;
+    var apiPassword= user.profile.agrohyd.apiPassword;
+
+    if ( !apiUser || !apiPassword ) return;
+
+    return apiUser + ':' + apiPassword;
+};
 
 var async= function( fn ) {
     var future= new Future();
@@ -16,6 +28,7 @@ var async= function( fn ) {
 };
 
 var _request= function( method, url, options, callback ) {
+    var auth= getAuth();
     if ( auth ) options.auth= auth;
 
     options= EJSON.toJSONValue(options);
@@ -81,11 +94,12 @@ var onAfterMethod= {};
 var getInstances= {};
 
 Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
-    methods[name]= function( options ) {
-        var _urlData= DataObjectTools.cachedMethodUrl[name](options);
+    methods[name]= function( /* arguments */ ) {
+        var args= Array.prototype.slice.call(arguments);
+        var _urlData= DataObjectTools.cachedMethodUrl[name].apply(DataObjectTools.cachedMethodUrl, args);
 
         // run onBeforeMethod with options and return on false
-        if ( name in onBeforeMethod && !onBeforeMethod[name](options) ) return;
+        if ( name in onBeforeMethod && !onBeforeMethod[name].apply(null, args) ) return;
 
         var key= typeof _urlData === 'object' ? JSON.stringify(_urlData) : _urlData;
 
@@ -122,7 +136,11 @@ Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
             var data= result.data;
 
             // run onAfterMethod with options and data and set data with result
-            if ( name in onAfterMethod) data= onAfterMethod[name](options, data);
+            if ( name in onAfterMethod) {
+                var afterArgs= args.slice();
+                afterArgs.push(data);
+                data= onAfterMethod[name].apply(null, args);
+            }
 
             updateCache(key, DataObjectTools.convertToMongo(data), function( err ) {
                 delete getInstances[key];
@@ -133,13 +151,13 @@ Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
 
 methods.getJobLog= function( jobId ) {
     return async(function( cb ) {
-        return Meteor.http.get(baseUrl + 'Job/log/' + jobId, cb);
+        return Meteor.http.get(baseUrl + 'Job/log/' + jobId, { auth: getAuth(), }, cb);
     });
 };
 
 methods.deleteJobLog= function( jobId ) {
     return async(function( cb ) {
-        return Meteor.http.del(baseUrl + 'Job/log/' + jobId, cb);
+        return Meteor.http.del(baseUrl + 'Job/log/' + jobId, { auth: getAuth(), }, cb);
     });
 };
 

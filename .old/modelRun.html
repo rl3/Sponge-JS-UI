@@ -10,7 +10,7 @@
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-        <button class="btn btn-primary">Start model</button>
+        <button class="btn btn-primary">Save changes</button>
     </div>
 </div>
 </body>
@@ -20,14 +20,6 @@
 </template>
 
 <template name="modelRunBody">
-    {{> modelRunArgs}}
-    <table>
-        <tr valign="top"><td align="right">job title:</td><td><input class="span3" type="text" name="job-title" value="{{defaultJobTitle}}"></td></tr>
-        <tr valign="top"><td align="right">job description:</td><td><textarea class="span3" rows="3" name="job-description">{{defaultJobDescription}}</textarea></td></tr>
-    </table>
-</template>
-
-<template name="modelRunArgs">
     {{#with getArgs}}
         {{#if args}}
             <table>
@@ -35,8 +27,8 @@
                     <th>Argument</th><th>Value</th>
                 </tr>
                 {{#each args}}
-                    <tr valign="top">
-                        <td align="right">{{name}}:</td>
+                    <tr>
+                        <td>{{name}}</td>
                         <td><a class="editValue" href="#">{{valueText}}</a></td>
                     </tr>
                 {{/each}}

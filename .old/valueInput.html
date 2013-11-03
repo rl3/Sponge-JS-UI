@@ -1,0 +1,189 @@
+
+<body>
+    <div id="valueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="valueInputLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="valueInputLabel">{{> valueInputTitle}}</h3>
+        </div>
+        <div class="modal-body">
+            {{> valueInputBody}}
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary">Save changes</button>
+        </div>
+    </div>
+
+    <div id="singleValueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="singleValueInputLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="singleValueInputLabel">{{> singleValueInputTitle}}</h3>
+        </div>
+        <div class="modal-body">
+            {{> singleValueInputBody}}
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary">Save changes</button>
+        </div>
+    </div>
+</body>
+
+<template name="valueInputTitle">
+    {{title}}
+    <div class="description">{{description}}</div>
+</template>
+
+<template name="valueInputBody">
+    <table><tr valign="top">
+        <td>
+            {{#each inputTypes}}
+                <label class="radio">
+                    <input type="radio" name="inputTypes" value="{{value}}" {{checked}}>{{label}}
+                </label>
+            {{/each}}
+        </td>
+        <td>
+            {{inputType}}
+        </td>
+    </tr></table>
+</template>
+
+<template name="inputTypeSingle">
+    <a class="value" href="#">{{value}}</a>
+</template>
+
+<template name="inputTypeArray">
+    <table>
+        {{#each values}}
+            <tr><td><a class="value">{{value}}</a></td><td><a class="remove" href="#">remove</a></td></tr>
+        {{/each}}
+        <tr><td colspan="2"><a class="add" href="#">add</a></td></tr>
+    </table>
+</template>
+
+<template name="inputTypeRange">
+    <table>
+        <tr valign="middle"><td align="right">From:</td><td>{{#with valueFrom}}<a class="value" href="#">{{valueText}}</a>{{/with}}</td></tr>
+        <tr valign="middle"><td align="right">To:</td>  <td>{{#with valueTo}}  <a class="value" href="#">{{valueText}}</a>{{/with}}</td></tr>
+        <tr valign="middle"><td align="right">Step:</td><td>{{#with valueStep}}<a class="value" href="#">{{valueText}}</a>{{/with}}</td></tr>
+    </table>
+</template>
+
+<template name="inputTypeMap">
+    Map
+</template>
+
+<template name="inputTypeNearest">
+    <select class="typeName">
+        <option style="display: none">Please select</option>
+        {{#each typeName}}
+            <option {{selectedType}} value="{{schema.objectType}}/{{schema.version}}">{{label}}</option>
+        {{/each}}
+    </select>
+    <select class="tagName">
+        <option style="display: none">Please select</option>
+        {{#each tag}}
+            <option {{selectedTag}} value="{{this}}">{{this}}</option>
+        {{/each}}
+    </select>
+</template>
+
+
+
+
+
+
+<template name="singleValueInputTitle">
+    Value
+</template>
+
+<template name="singleValueInputBody">
+    {{input}}
+</template>
+
+<template name="valueInputDouble">
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                <input type="text" class="double" value="{{value}}" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
+</template>
+
+<template name="valueInputInteger">
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                <input type="text" class="integer" value="{{value}}" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
+</template>
+
+<template name="valueInputDate">
+    <input type="text" />
+</template>
+
+<template name="valueInputString">
+    <input type="text" />
+</template>
+
+<template name="valueInputBoolean">
+    <input type="checkbox" />
+</template>
+
+<template name="valueInputLocation">
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                Lat:
+                <input type="text" class="double span2 lat" value="{{lat}}" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="control-label">
+                Lon:
+                <input type="text" class="double span2 lon" value="{{lon}}" />
+                <span class='help-inline on-error'>Only numbers are allowed</span>
+            </label>
+        </div>
+    </div>
+</template>
+
+<template name="valueInputModel">
+    {{> valueInputModelSelector}}
+    <div>
+        <label>Name Filter: <input type="text" /></label>
+    </div>
+</template>
+
+<template name="valueInputModelSelector">
+    <div class="input-prepend input-append">
+        <div class="btn-group">
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                {{currentLabel}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                {{#each typeName}}
+                    <li class="type">{{label}}</li>
+                {{/each}}
+            </ul>
+        </div>
+        <select class="span3">
+            <option value="" class="hidden">Please Select</option>
+            {{#each values}}
+                <option value="{{id}}" {{selected}}>{{name}}</option>
+            {{/each}}
+        </select>
+        <span class="add-on">{{valueCount}}</span>
+    </div>
+</template>
+

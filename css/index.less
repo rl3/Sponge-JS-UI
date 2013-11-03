@@ -1,22 +1,59 @@
 /* CSS declarations go here */
 
 @nav-width: 250px;
+@nav-border-width: 1px;
 
-html, body, #main-content {
+@content-header-height: 3em;
+@content-header-padding: .5em;
+
+#main-content {
+    position: fixed;
+    left: 0;
+    right: 0;
+    padding: 0;
     margin: 0;
-    paddin: 0;
     width: 100%;
     height: 100%;
 }
 
-#main-left-content {
-    float: left;
-    width: @nav-width;
+#main-navigation-content {
+    position: fixed;
+    left: 0;
+    right: 0;
     height: 100%;
+    width: @nav-width;
+    background-color: white;
     overflow-y: auto;
+    overflow-x: auto;
+    border-right: @nav-border-width solid black;
 
     .nav-row {
-        margin: 3px 3px 0 3px;
+        padding: 3px;
+        clear: both;
+
+        .switch {
+            font-size: 6pt;
+        }
+
+        &.link {
+            color: #0088CC;
+            text-decoration: none;
+            cursor: pointer;
+
+            &:hover {
+                color: #005580;
+                background-color: #DDDDDD;
+            }
+
+            &.selected {
+                font-weight: bold;
+            }
+
+            &.hidden {
+                display: none;
+            }
+
+        }
 
         .date {
             float: right;
@@ -27,18 +64,72 @@ html, body, #main-content {
             text-align: center;
         }
 
-        .job {
-            font-size: smaller;
-            max-height: 2em;
+        &.job {
+            .jobTitle, .jobDescription {
+                max-height: 2em;
+                line-height: 100%;
+            }
             .jobTitle {
+                font-size: smaller;
                 font-weight: bold;
             }
             .jobDescription {
                 color: gray;
+                font-weight: normal;
+                font-size: xx-small;
             }
         }
     }
 }
+
+.right {
+    float: right;
+}
+
+#main-right-content-header, #main-right-content {
+    position: fixed;
+    left: 0;
+    right: 0;
+    padding: 10px 10px 10px (@nav-width + @nav-border-width + 10px);
+}
+
+#main-right-content-header {
+    height: (@content-header-height - 2 * @content-header-padding);
+    padding-top: @content-header-padding;
+    line-height: (@content-header-height - 2 * @content-header-padding);
+    background-color: lightgray;
+    overflow: hidden;
+
+    .header {
+        font-size: large;
+        text-align: center;
+
+        .title {
+        }
+
+        .message {
+            color: blue;
+            font-weight: normal;
+        }
+        .addition {
+            font-weight: normal;
+            font-size: x-small;
+            color: gray;
+        }
+    }
+}
+
+#main-right-content {
+    top: @content-header-height;
+    bottom: 0;
+    overflow: auto;
+}
+
+
+
+
+
+
 
 
 
@@ -90,6 +181,13 @@ td.status {
     height: 100%;
     img {
         margin: 48%;
+    }
+}
+
+.loading-small {
+    width: 100%;
+    img {
+        margin: 1em 48%;
     }
 }
 

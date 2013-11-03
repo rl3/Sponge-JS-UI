@@ -151,13 +151,15 @@ var buildValue= function( name, type, valueFn, info ) {
 };
 
 var buildValues= function( args, property, valueContext ) {
+    var info= args.info && args.info[property] || {};
+
     var injectPrefix= 'args.' + property + '.';
     return Object.keys(args[property]).map(function( name ) {
         return buildValue(
             name,
             args[property][name], // type
-            DataObjectTools.injectVar(valueContext, injectPrefix + name, undefined),
-            args.info && args.info[property] && args.info[property][name] // info
+            DataObjectTools.injectVar(valueContext, injectPrefix + name, (info[name] || {}).default),
+            info[name] // info
         );
     });
 };

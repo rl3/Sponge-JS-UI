@@ -1,9 +1,19 @@
-var getCachedData= function(name, timeout) {
+
+var getCachedData= function( name, timeout ) {
     if ( arguments.length < 2 ) timeout= 1000000;
-    return function( options ) {
+
+    return function( /* aguments */ ) {
         var now= new Date();
         var than= new Date(now - timeout);
-        var id= DataObjectTools.cachedMethodUrl[name](options);
+
+        var args= Array.prototype.slice.call(arguments);
+        var cb;
+
+        if ( args.length && typeof args[args.length - 1] === 'function' ) {
+            cb= args.pop();
+        }
+
+        var id= DataObjectTools.cachedMethodUrl[name].apply(DataObjectTools.cachedMethodUrl, args);
 
         var key= typeof id === 'object' ? JSON.stringify(id) : id;
 
@@ -15,7 +25,12 @@ var getCachedData= function(name, timeout) {
         // if cache data is valid, return current data
         if ( metaData.timeStamp > than && data ) return data.data;
 
-        Meteor.apply(name, Array.prototype.slice.call(arguments));
+        if ( cb ) {
+            Meteor.apply(name, args, cb);
+        }
+        else {
+            Meteor.apply(name, args);
+        }
 
         // return old data (if present), because we don't get informed, when only metaData is updated
         // function will be called again on data change

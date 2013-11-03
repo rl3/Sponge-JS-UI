@@ -4,9 +4,10 @@
 
 <body>
     <div id="main-content">
-        <div id="main-left-content">
-            {{> mainNavigation}}
-        </div>
+        {{> mainRightContent}}
+    </div>
+    <div id="main-navigation-content">
+        {{> mainNavigation}}
     </div>
 </body>
 
@@ -16,11 +17,15 @@
     </div>
 </template>
 
+<template name="loadingSmall">
+    <div class="loading-small">
+        <img src="skin/loading.gif" />
+    </div>
+</template>
+
 <template name="mainNavigation">
     <div id="main-header" class="nav-row">{{> mainNavigationHeader}}</div>
-    <div class="nav-row title">Models</div>
     {{> mainNavigationModels}}
-    <div class="nav-row title">Jobs</div>
     {{> mainNavigationJobs}}
 </template>
 
@@ -29,21 +34,56 @@
 </template>
 
 <template name="mainNavigationModels">
-    {{#each models}}
-        <div class="nav-row">
-            <div class="date">{{date}}</div>
-            {{name}}
-        </div>
-    {{/each}}
+    <div class="nav-row title">Models <a href="#" class="switch">{{switch}}</a></div>
+    {{#if loading}}
+        {{> loadingSmall}}
+    {{else}}
+        {{#each models}}
+            <div class="nav-row model link {{modelClasses}}">
+                <div class="date">{{date}}</div>
+                {{name}}
+            </div>
+        {{/each}}
+    {{/if}}
 </template>
 
 <template name="mainNavigationJobs">
-    {{#each jobs}}
-        <div class="nav-row job">
-            <div class="date">{{date}}</div>
-            <div class="jobTitle">{{title}}</div>
-            <div class="jobDescription">{{description}}</div>
+    <div class="nav-row title">Jobs <a href="#" class="switch">{{switch}}</a></div>
+    {{#if loading}}
+        {{> loadingSmall}}
+    {{else}}
+        {{#each jobs}}
+            <div class="nav-row job link {{jobClasses}}">
+                <div class="date">{{date}}</div>
+                <div class="jobTitle">{{title}}</div>
+                <div class="jobDescription">{{description}}</div>
+            </div>
+        {{else}}
+            <div class="nav-row">(none)</div>
+        {{/each}}
+    {{/if}}
+</template>
+
+<template name="mainRightContent">
+    <div id="main-right-content-header">
+        <div class="right login-buttons">{{loginButtons align="right"}}</div>
+        <div class="header">
+            {{#with header}}
+                {{main}}
+                {{#if title}}
+                    <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
+                {{/if}}
+                {{#if addition}}
+                    <span class="addition {{additionClass}}">({{addition}})</span>
+                {{/if}}
+                {{#if message}}
+                    <span class="message {{messageClass}}">{{message}}</span>
+                {{/if}}
+            {{/with}}
         </div>
-    {{/each}}
+    </div>
+    <div id="main-right-content">
+        {{content}}
+    </div>
 </template>
 
