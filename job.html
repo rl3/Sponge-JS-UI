@@ -20,21 +20,21 @@
 </template>
 
 <template name="job">
-    <table>
+    <table width="100%">
         <tr valign="top">
             <td colspan="2">
-                <table cellspacing="100">
+                <table cellspacing="100" width="100%">
                     <tr>
-                        <td align="center"><button class="btn btn-small btn-primary rerun-job" type="button">rerun</button></td>
-                        <td align="center"><button class="btn btn-small btn-primary show-log" type="button">show log</button></td>
-                        <td align="center"><button class="btn btn-small btn-danger delete-log" type="button">delete log</button></td>
-                        <td align="center"><button class="btn btn-small btn-danger delete-job" type="button">delete job</button></td>
+                        <td align="center"><button class="btn btn-primary span2 btn-primary rerun-job" type="button">rerun</button></td>
+                        <td align="center"><button class="btn btn-primary span2 btn-primary show-log" type="button">show log</button></td>
+                        <td align="center"><button class="btn btn-primary span2 btn-danger delete-log" type="button">delete log</button></td>
+                        <td align="center"><button class="btn btn-primary span2 btn-danger delete-job" type="button">delete job</button></td>
                     </tr>
                 </table>
             </td>
         </tr>
         <tr valign="top">
-            <th align="right">Model:</th><td class="">{{model}}</td>
+            <th align="right" width="10%">Model:</th><td class="">{{model}}</td>
         </tr>
         <tr valign="top">
             <th align="right">Status:</th><td class="status {{statusClass}}">{{status}}</td>
@@ -55,13 +55,14 @@
         </tr>
         {{#if args}}
             <tr valign="top">
-                <th align="right">Arguments:</th><td class="">
-                    <table>
-                        <tr><th>Name</th><th>Value</th></tr>
-                        {{#each args}}
-                            <tr><td>{{name}}</td><td>{{value}}</td></tr>
-                        {{/each}}
-                    </table>
+                <th align="right"><a href="#" class="show-hide-args">{{showHideArgsText}}</a> Arguments:</th><td class="">
+                    {{#if showArgs}}
+                        <table>
+                            {{#each args}}
+                                <tr valign="top"><th align="right">{{name}}:</th><td>{{value}}</td></tr>
+                            {{/each}}
+                        </table>
+                    {{/if}}
                 </td>
             </tr>
         {{/if}}
@@ -74,25 +75,36 @@
 </template>
 
 <template name="jobResult">
-    {{#if results}}
+    {{#with result}}
         <tr valign="top">
-            <th align="right">Result:</th><td class="job-result">
-                {{#each results}}
-                    <div class="job-resultId">{{resultId}}</div>
-                    {{> jobSubResult result}}
-                {{/each}}
+            <th align="right">Result:</th>
+            <td class="job-result">
+                <table width="100%">
+                    <tr valign="top">
+                        <td width="50%">
+                            {{#with resultMap}}
+                                <table width="100%">
+                                    <tr><th colspan="2">Main Values</th></tr>
+                                    {{#each this}}
+                                        <tr><th align="right">{{resultName}}:</th><td>{{resultValue}}</td></tr>
+                                    {{/each}}
+                                </table>
+                            {{/with}}
+                        </td>
+                        <td>
+                            {{#with resultTables}}
+                                <table>
+                                    <tr><th colspan="2">Tables</th></tr>
+                                    {{#each this}}
+                                        <tr><th align="right">{{index}}:</th><td>{{table}}</td></tr>
+                                    {{/each}}
+                                </table>
+                            {{/with}}
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
-    {{/if}}
+    {{/with}}
 </template>
 
-<template name="jobSubResult">
-    <div class="job-subResult collapsed">
-        <i class="collapse-icon icon-plus"></i>
-        <table>
-            {{#each keys}}
-                <tr valign="top"><th class="argName">{{key}}:</th><td class="argValue">{{#if objectValue}}{{> jobSubResult objectValue}}{{else}}{{simpleValue}}{{/if}}</td></tr>
-            {{/each}}
-        </table>
-    </div>
-</template>

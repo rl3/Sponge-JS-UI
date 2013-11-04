@@ -38,12 +38,14 @@
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
-        {{#each models}}
-            <div class="nav-row model link {{modelClasses}}">
-                <div class="date">{{date}}</div>
-                {{name}}
-            </div>
-        {{/each}}
+        <div class="nav-list {{listClass}}">
+            {{#each models}}
+                <div class="nav-row model link {{rowClass}}">
+                    <div class="date">{{date}}</div>
+                    {{name}}
+                </div>
+            {{/each}}
+        </div>
     {{/if}}
 </template>
 
@@ -52,16 +54,24 @@
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
-        {{#each jobs}}
-            <div class="nav-row job link {{jobClasses}}">
-                <div class="date">{{date}}</div>
-                <div class="jobTitle">{{title}}</div>
-                <div class="jobDescription">{{description}}</div>
-            </div>
-        {{else}}
-            <div class="nav-row">(none)</div>
-        {{/each}}
+        <div class="nav-list {{listClass}}">
+            {{#each jobs}}
+                {{> mainNavigationJobDetails}}
+            {{else}}
+                <div class="nav-row">(none)</div>
+            {{/each}}
+        </div>
     {{/if}}
+</template>
+
+<template name="mainNavigationJobDetails">
+    {{#with details}}
+        <div class="nav-row job link {{rowClass}}">
+            <div class="date">{{date}}</div>
+            <div class="jobTitle">{{title}}</div>
+            <div class="jobDescription">{{description}}</div>
+        </div>
+    {{/with}}
 </template>
 
 <template name="mainRightContent">

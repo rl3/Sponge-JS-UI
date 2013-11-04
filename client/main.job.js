@@ -6,7 +6,12 @@ var injectVar= DataObjectTools.injectVar;
 
 var invalidateList= DataObjectTools.getInvalidator();
 
-var getJob= DataObjectTools.getCachedData('getJob', 2000);
+var jobId= DataObjectTools.jobId;
+
+var _getJob= DataObjectTools.getCachedData('getJob', 2000);
+var getJob= function( _jobId ) {
+    return _getJob(_jobId || jobId());
+};
 
 // var getJobLog= DataObjectTools.getCachedData('getJobLog', 2000);
 var getJobLog= DataObjectTools.postData('getJobLog');
@@ -16,51 +21,24 @@ var getJobResult= DataObjectTools.getCachedData('getJobResult', 2000);
 
 var _restartJob= DataObjectTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
-    _restartJob(DataObjectTools.jobId());
+    _restartJob(jobId());
 };
 
 var _removeJob= DataObjectTools.getCachedData('removeJob', 2000);
 var removeJob= function() {
-    _removeJob(DataObjectTools.jobId());
-    DataObjectTools.jobId(undefined);
+    _removeJob(jobId());
+    jobId(undefined);
 };
 
 var _getModel= DataObjectTools.getCachedData('getModel');
 var getModel= function() {
-    return _getModel(DataObjectTools.modelId());
+    var job= getJob();
+    if ( !job ) return;
+
+    return DataObjectTools.cleanObject(_getModel(job.modelId));
 };
 
 var T= DataObjectTools.Template;
-
-
-T.select('jobStatus');
-
-T.helper('status', function() {
-    var jobId= this.jobId;
-    var realJob= getJob(jobId) || this;
-    if ( !realJob.status.finished ) watchJob(jobId);
-    return {
-        id: jobId,
-        job: realJob,
-        startTime: realJob.status.started.toLocaleString(),
-        classes: function() {
-            var classes= [];
-            if ( DataObjectTools.jobId() === jobId ) classes.push('active');
-            if ( realJob.status.error )              classes.push('error');
-            if ( realJob.status.success )            classes.push('success');
-            if ( !realJob.status.finished )          classes.push('running');
-
-            return classes.join(' ');
-        },
-    };
-});
-
-T.events({
-    'click .jobId a': function( event ) {
-        DataObjectTools.jobId(this.id);
-    },
-});
-
 
 /**
  * Template job
@@ -108,6 +86,16 @@ T.helper('args', function() {
     });
 });
 
+var showArgs= injectVar({}, 'showHide', false);
+
+T.helper('showHideArgsText', function() {
+    return new Handlebars.SafeString('<i class="' + (showArgs() ? 'icon-chevron-down' : 'icon-chevron-right') + '"></i>');
+});
+
+T.helper('showArgs', function() {
+    return showArgs();
+});
+
 var setLogResult= function( content ) {
     $('#jobLog pre').html(content);
 };
@@ -135,24 +123,72 @@ T.events({
     },
     'click button.rerun-job': restartJob,
     'click button.delete-job': removeJob,
+    'click a.show-hide-args': function( event ) {
+        showArgs(!showArgs());
+    },
 });
 
 
 T.select('jobResult');
 
-T.helper('results', function() {
+// FIXME: build simple result structure
+var _getResultLevel= function( results ) {
+    for ( var key in results ) {
+        var result= results[key];
+
+        if ( typeof result !== 'object' ) continue;
+
+        if ( 'tables' in result ) return result;
+
+        var r= _getResultLevel(result);
+        if ( r ) return r;
+    }
+};
+
+var getResult= function() {
     var jobId= DataObjectTools.jobId();
     if ( !jobId ) return;
 
-    var result= getJobResult({ jobId: jobId, path: '', });
-    if ( !result ) return;
+    return _getResultLevel(getJobResult({ jobId: jobId, path: '', }));
+};
 
-    return Object.keys(result).map(function( key ) {
+T.helper('result', getResult);
+
+T.helper('resultMap', function() {
+    var result= this;
+    return Object.keys(result).filter(function( key ) {
+        return key !== 'tables';
+    }).map(function( key ) {
+        var value= DataObjectTools.valueToString(
+            result[key],
+            {
+                returnOnObject: null,
+                returnOnArray: null,
+            }
+        );
+        if ( ! value ) return;
+
         return {
-            resultId: key,
-            result: result[key],
+            resultName: key,
+            resultValue: new Handlebars.SafeString(value),
         }
+    }).filter(function( result ) {
+        return result;
     });
+});
+
+T.helper('resultTables', function() {
+    var tables= this.tables;
+    if (! tables ) return;
+
+    var result= [];
+    for ( var id in tables ) {
+        result.push({
+            index: id,
+            table: 'link to table download',
+        });
+    }
+    return result;
 });
 
 $(function( $ ) {

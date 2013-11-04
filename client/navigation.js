@@ -6,6 +6,7 @@ var jobId= DataObjectTools.jobId;
 var str2Oid= DataObjectTools.str2Oid;
 var oid2Str= DataObjectTools.oid2Str;
 var cleanObject= DataObjectTools.cleanObject;
+var getInvalidator= DataObjectTools.getInvalidator;
 
 var T= DataObjectTools.Template;
 
@@ -150,22 +151,22 @@ T.helper('date', function() {
     if ( this.date ) return DataObjectTools.valueToString(this.date);
 });
 
-var commonClasses= function( getter, normalize ) {
-    if ( !normalize ) normalize= function( v ) { return v; };
-
+var commonListClass= function( getter ) {
     return function() {
-        var classes= [];
-        var id= getter();
-        if ( normalize(id) === normalize(this.id) ) {
-            classes.push('selected');
-        }
-        else if ( id ) classes.push('hidden');
-
-        return classes.join(' ');
+        return getter() ? 'show-selected' : 'show-all';
     };
 };
 
-T.helper('modelClasses', commonClasses(modelId, oid2Str));
+var commonRowClass= function( getter, normalize ) {
+    if ( !normalize ) normalize= function( v ) { return v; };
+
+    return ;
+};
+
+T.helper('listClass', commonListClass(modelId));
+T.helper('rowClass', function() {
+    if ( oid2Str(modelId()) === oid2Str(this.id) ) return 'selected';
+});
 
 T.events({
     'click a.switch': function( event ) {
@@ -194,23 +195,90 @@ T.helper('loading', function() {
     return jobs === undefined;
 });
 
+var jobsToWatch= {};
+
+var jobWatchTimer= null;
+
+var addJobWatchTimer= function( job ) {
+    if ( !job.invalidator ) job.invalidator= getInvalidator();
+
+    job.invalidator();
+
+    jobsToWatch[job.jobId]= job.invalidator;
+
+    if ( !jobWatchTimer ) jobWatchTimer= setTimeout(jobTimer, 2000);
+};
+
+var jobTimer= function() {
+    jobWatchTimer= null;
+
+    for ( var jobId in jobsToWatch ) {
+        jobsToWatch[jobId](true);
+    }
+};
+
 T.helper('jobs', function() {
     var jobs= getJobs({ modelId: modelId() });
     if ( !jobs ) return;
 
+    jobsToWatch= {};
+    if ( jobWatchTimer ) {
+        clearTimeout(jobWatchTimer);
+        jobWatchTimer= null;
+    }
+
     var result= jobs.map(function( job ) {
         return {
-            id: job.jobId,
+            jobId: job.jobId,
             name: (job.title || '') + (job.description || ''),
             title: job.title || '',
             description: job.description || '',
             date: job.timeStamp,
+            status: job.status,
         }
     });
 
     result.sort(sortFn());
 
     return result;
+});
+
+T.helper('listClass', commonListClass(jobId));
+
+T.events({
+    'click a.switch': function( event ) {
+        if ( jobId() ) return jobId(null);
+    },
+});
+
+T.select('mainNavigationJobDetails');
+
+var getStatusClasses= function( job ) {
+    var classes= [];
+
+    if ( !job.status ) return '';
+
+    if ( job.jobId in jobsToWatch ) delete jobsToWatch[job.jobId];
+
+    if ( job.status.error )              classes.push('error');
+    if ( job.status.success )            classes.push('success');
+    if ( !job.status.finished ) {
+        classes.push('running');
+        addJobWatchTimer(job);
+    }
+
+    return classes.join(' ');
+};
+
+T.helper('details', function() {
+    var job= getJob(this.jobId);
+
+    if ( !job ) return this;
+
+    job.name= (job.title || '') + (job.description || '');
+    job.date= job.timeStamp;
+    job._context= this;
+    return job;
 });
 
 T.helper('date', function() {
@@ -225,14 +293,17 @@ T.helper('description', function() {
     if ( this.description ) return this.description.text;
 });
 
-T.helper('jobClasses', commonClasses(jobId));
+T.helper('rowClass', function() {
+    var _class= getStatusClasses(this);
+
+    if ( jobId() === this.jobId ) _class+= ' selected';
+
+    return _class;
+});
 
 T.events({
-    'click a.switch': function( event ) {
-        if ( jobId() ) return jobId(null);
-    },
     'click .link': function( event ) {
-        jobId(this.id);
+        jobId(this.jobId);
         session('view', 'job');
     },
 });

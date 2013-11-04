@@ -2,6 +2,7 @@
 
 @nav-width: 250px;
 @nav-border-width: 1px;
+@nav-row-padding: 3px;
 
 @content-header-height: 3em;
 @content-header-padding: .5em;
@@ -28,8 +29,10 @@
     border-right: @nav-border-width solid black;
 
     .nav-row {
-        padding: 3px;
+        padding: @nav-row-padding;
         clear: both;
+        width: (@nav-width - @nav-border-width - 2 * @nav-row-padding);
+        overflow: hidden;
 
         .switch {
             font-size: 6pt;
@@ -44,15 +47,6 @@
                 color: #005580;
                 background-color: #DDDDDD;
             }
-
-            &.selected {
-                font-weight: bold;
-            }
-
-            &.hidden {
-                display: none;
-            }
-
         }
 
         .date {
@@ -79,6 +73,25 @@
             }
         }
     }
+
+    .nav-list {
+        margin: 0;
+        padding: 0;
+        max-height: 40%;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        &.show-selected {
+            .nav-row {
+                display: none;
+
+                &.selected {
+                    display: block;
+                }
+            }
+        }
+    }
+
 }
 
 .right {
