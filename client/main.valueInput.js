@@ -540,19 +540,23 @@ var getCompatibleTypes= function() {
 var buildTypeNames= function() {
     var compatibleTypes= getCompatibleTypes();
 
-    var typeNames= compatibleTypes.schemas.map(function( schema ) {
-        return {
-            label: schema.objectType + '/' + schema.version,
-            schema: schema,
-        }
-    });
+    var typeNames= {};
+
     if ( compatibleTypes.models.length ) {
-        typeNames.unshift({
-            label: 'Model',
-            schema: undefined,
-        });
+        typeNames.Model= undefined;
     }
-    return typeNames;
+
+    compatibleTypes.schemas.forEach(function( schema ) {
+        if ( !(schema.objectType in typeNames) ) typeNames[schema.objectType]= [];
+        typeNames[schema.objectType].push(schema);
+    });
+
+    return Object.keys(typeNames).map(function( name ) {
+        return {
+            label: name,
+            schemas: typeNames[name],
+        };
+    });
 };
 
 Template.valueInputModelSelector.typeName= buildTypeNames;
@@ -567,7 +571,7 @@ Template.valueInputModelSelector.events({
         if ( !selectedType ) return;
 
         singleValue.newValue= {
-            $ref: selectedType.schema ? 'AgroObj' : 'Model',
+            $ref: selectedType.schemas ? 'AgroObj' : 'Model',
             selector: {
                 _id: new ObjectId(event.currentTarget.value),
             },
@@ -580,16 +584,18 @@ var getCompatibleObjects= function() {
 
     if ( !selectedType ) return [];
 
-    if ( selectedType.schema === undefined ) {
+    // Model
+    if ( selectedType.schemas === undefined ) {
         var compatibleTypes= getCompatibleTypes();
         return compatibleTypes.models.map(function( model ){
             return { id: model._id.toHexString(), name: model.name };
         });
     }
 
+    // Schemas
     return getMatchingObjects({
-        objectType: selectedType.schema.objectType,
-        version: selectedType.schema.version,
+        objectType: selectedType.schemas[0].objectType,
+        versions: selectedType.schemas.map(function( schema ) { return schema.version }),
         name: getTempValue('modelName', '')(),
         limit: limitAgroObjs + 1,
     }) || [];
@@ -613,6 +619,8 @@ Template.valueInputModelSelector.selected= function() {
     if ( !singleValue.newValue ) return;
 
     var id= (singleValue.newValue.selector || {})._id;
+    if ( !id ) return;
+
     if ( typeof id.toHexString === 'function' ) id= id.toHexString();
     if ( id === this.id ) return 'SELECTED';
 };

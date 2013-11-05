@@ -1,5 +1,6 @@
 <head>
   <title>AgroHyd-Farmmodel</title>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 </head>
 
 <body>
@@ -9,7 +10,9 @@
     <div id="main-navigation-content">
         {{> mainNavigation}}
     </div>
+    <div id="google-maps-container" style="width: 100%; height: 100%; z-index: 2000;"><div id="google-maps-canvas"></div></div>
 </body>
+
 
 <template name="loading">
     <div class="loading">
@@ -30,7 +33,7 @@
 </template>
 
 <template name="mainNavigationHeader">
-    <a sort="date" href="#" class="date"><i class="{{sortClassDate}}"></i>Date</a><a sort="name" href="#"><i class="{{sortClassName}}"></i>Name</a>
+    <a sort="date" href="#" class="date-time"><i class="{{sortClassDate}}"></i>Date</a><a sort="name" href="#"><i class="{{sortClassName}}"></i>Name</a>
 </template>
 
 <template name="mainNavigationModels">
@@ -41,7 +44,10 @@
         <div class="nav-list {{listClass}}">
             {{#each models}}
                 <div class="nav-row model link {{rowClass}}">
-                    <div class="date">{{date}}</div>
+                    <div class="date-time">
+                        <div class="date">{{date}}</div>
+                        <div class="time">{{time}}</div>
+                    </div>
                     {{name}}
                 </div>
             {{/each}}
@@ -67,7 +73,10 @@
 <template name="mainNavigationJobDetails">
     {{#with details}}
         <div class="nav-row job link {{rowClass}}">
-            <div class="date">{{date}}</div>
+            <div class="date-time">
+                <div class="date">{{date}}</div>
+                <div class="time">{{time}}</div>
+            </div>
             <div class="jobTitle">{{title}}</div>
             <div class="jobDescription">{{description}}</div>
         </div>
@@ -76,7 +85,6 @@
 
 <template name="mainRightContent">
     <div id="main-right-content-header">
-        <div class="right login-buttons">{{loginButtons align="right"}}</div>
         <div class="header">
             {{#with header}}
                 {{main}}
@@ -92,6 +100,7 @@
             {{/with}}
         </div>
     </div>
+    <div class="right login-buttons">{{loginButtons align="right"}}</div>
     <div id="main-right-content">
         {{content}}
     </div>

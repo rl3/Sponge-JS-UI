@@ -148,7 +148,11 @@ T.helper('loading', function() {
 T.helper('models', modelHelper);
 
 T.helper('date', function() {
-    if ( this.date ) return DataObjectTools.valueToString(this.date);
+    if ( this.date ) return DataObjectTools.dateToString(this.date);
+});
+
+T.helper('time', function() {
+    if ( this.date ) return DataObjectTools.timeToString(this.date);
 });
 
 var commonListClass= function( getter ) {
@@ -282,7 +286,11 @@ T.helper('details', function() {
 });
 
 T.helper('date', function() {
-    if ( this.date ) return DataObjectTools.valueToString(this.date);
+    if ( this.date ) return DataObjectTools.dateToString(this.date);
+});
+
+T.helper('time', function() {
+    if ( this.date ) return DataObjectTools.timeToString(this.date);
 });
 
 T.helper('title', function() {

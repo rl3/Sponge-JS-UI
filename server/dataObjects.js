@@ -5,6 +5,7 @@ Meteor.startup(function() {
 var Debug= false;
 
 var baseUrl= CONFIG.baseurl;
+var authUrl= CONFIG.authurl;
 //var auth= CONFIG.auth;
 
 var getAuth= function() {
@@ -27,25 +28,77 @@ var async= function( fn ) {
     return future.wait();
 };
 
-var _request= function( method, url, options, callback ) {
+var authTokens= {};
+
+var authenticationQueue= [];
+
+var authenticate= function( runFn ) {
     var auth= getAuth();
-    if ( auth ) options.auth= auth;
+    if ( !auth ) return;
+
+    authenticationQueue.push(runFn);
+    if ( authenticationQueue.length === 1 ) return;
+
+    console.log('authenticate...');
+    return Meteor.http.call('GET', baseUrl + authUrl, { auth: auth }, function( err, result ) {
+
+        if ( !err ) authTokens[Meteor.userId()]= result.data.token;
+
+        while( authenticationQueue.length ) authenticationQueue.shift()(err);
+    });
+};
+
+var setCookie= function( options, name, value ) {
+    if ( !options.headers ) options.headers= {};
+    if ( !('Cookie' in options.headers) ) options.headers.Cookie= '';
+    options.headers.Cookie+= name + '=' + value + ';';
+};
+
+/*
+ *  try to use authentication token. If failed, authenticate and save new token
+ */
+var _authenticatedRequest= function( method, url, options, callback ) {
+    if ( !options ) options= {};
+
+    var authCounter= 2;
+    var cb= function( err, result ) {
+        if ( err && err.response && err.response.statusCode ) {
+            var auth= getAuth();
+            if ( auth && err.response.statusCode == 401 && authCounter-- ) {
+                return authenticate(runCall);
+            }
+        }
+        if ( callback ) return callback.call(this, err, result);
+    };
+
+    var runCall= function( err ) {
+        if ( err ) return callback(err);
+
+        var authToken= authTokens[Meteor.userId()];
+
+        if ( authToken ) setCookie(options, 'RestSessionId', authToken);
+
+        return Meteor.http.call(method, baseUrl + url, options, cb);
+    };
+    runCall();
+};
+
+var _request= function( method, url, options, callback ) {
 
     options= EJSON.toJSONValue(options);
 
-    var _cb= callback;
-    callback= function( err, result ) {
+    var cb= function( err, result ) {
         console.log(method + ' result', url, JSON.stringify(options));
         result= EJSON.fromJSONValue(result || {});
         if ( Debug ) {
 //            console.log('headers', d.headers);
             console.log('data', url, result.data);
         }
-        if ( _cb ) return _cb.call(this, err, result);
-    }
+        if ( callback ) return callback.call(this, err, result);
+    };
 
-    return Meteor.http.call(method, baseUrl + url, options, callback);
-}
+    return _authenticatedRequest(method, url, options, cb);
+};
 
 var get= function( url, data, callback ) {
     return _request('GET', url, {}, callback);
@@ -151,13 +204,19 @@ Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
 
 methods.getJobLog= function( jobId ) {
     return async(function( cb ) {
-        return Meteor.http.get(baseUrl + 'Job/log/' + jobId, { auth: getAuth(), }, cb);
+        return _authenticatedRequest('GET', 'Job/log/' + jobId, {}, cb);
     });
 };
 
 methods.deleteJobLog= function( jobId ) {
     return async(function( cb ) {
-        return Meteor.http.del(baseUrl + 'Job/log/' + jobId, { auth: getAuth(), }, cb);
+        return _authenticatedRequest('DEL', 'Job/log/' + jobId, {}, cb);
+    });
+};
+
+methods.getResultTable= function( jobId, tablePath, format ) {
+    return async(function( cb ) {
+        return _authenticatedRequest('GET', 'Job/getResultTable/' + jobId + '/' + tablePath + '?format=' + (format || 'xml'), {}, cb);
     });
 };
 

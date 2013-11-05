@@ -81,7 +81,7 @@ T.helper('args', function() {
     return Object.keys(args).map(function( argName ) {
         return {
             name: argName,
-            value: DataObjectTools.valueToString(args[argName]),
+            value: new Handlebars.SafeString(DataObjectTools.valueToString(args[argName], { locationFn: true, })),
         };
     });
 });
@@ -126,21 +126,30 @@ T.events({
     'click a.show-hide-args': function( event ) {
         showArgs(!showArgs());
     },
+    'click a.location': function( event ) {
+        var $a= $(event.currentTarget);
+        var lat= +$a.attr('lat');
+        var lon= +$a.attr('lon');
+        DataObjectTools.showMap();
+        DataObjectTools.addMapMarker(lon, lat);
+    },
 });
 
 
 T.select('jobResult');
 
 // FIXME: build simple result structure
-var _getResultLevel= function( results ) {
+var _getResultLevel= function( results, path ) {
     for ( var key in results ) {
         var result= results[key];
 
         if ( typeof result !== 'object' ) continue;
 
-        if ( 'tables' in result ) return result;
+        var newPath= path ? ( path + '.' + key ) : key;
 
-        var r= _getResultLevel(result);
+        if ( 'tables' in result ) return { result: result, path: newPath };
+
+        var r= _getResultLevel(result, newPath);
         if ( r ) return r;
     }
 };
@@ -155,7 +164,8 @@ var getResult= function() {
 T.helper('result', getResult);
 
 T.helper('resultMap', function() {
-    var result= this;
+    var result= this.result || {};
+
     return Object.keys(result).filter(function( key ) {
         return key !== 'tables';
     }).map(function( key ) {
@@ -164,6 +174,7 @@ T.helper('resultMap', function() {
             {
                 returnOnObject: null,
                 returnOnArray: null,
+                locationFn: true,
             }
         );
         if ( ! value ) return;
@@ -178,25 +189,19 @@ T.helper('resultMap', function() {
 });
 
 T.helper('resultTables', function() {
-    var tables= this.tables;
+    var tables= (this.result || {}).tables;
+    var path= this.path;
+
     if (! tables ) return;
 
     var result= [];
     for ( var id in tables ) {
         result.push({
             index: id,
-            table: 'link to table download',
+            tablePath: path + '.' + id,
         });
     }
     return result;
-});
-
-$(function( $ ) {
-    $('body').on('click', '.job-subResult .collapse-icon', function() {
-        var $parent= $(this).closest('.job-subResult');
-        $parent.toggleClass('collapsed').toggleClass('expanded');
-        $(this).toggleClass('icon-plus').toggleClass('icon-minus');
-    });
 });
 
 T.helper('keys', function() {
@@ -211,3 +216,13 @@ T.helper('keys', function() {
         };
     });
 });
+
+T.events({
+    'click a.resultTable': function( event ) {
+        var $a= $(event.currentTarget);
+        var path= $a.attr('path');
+        var format= $a.attr('format');
+        console.log('getResultTable', jobId(), path, format);
+    },
+});
+

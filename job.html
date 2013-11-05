@@ -96,7 +96,10 @@
                                 <table>
                                     <tr><th colspan="2">Tables</th></tr>
                                     {{#each this}}
-                                        <tr><th align="right">{{index}}:</th><td>{{table}}</td></tr>
+                                        <tr><th align="right">{{index}}:</th><td>
+                                            <a class="resultTable" href="#" path="{{tablePath}}" format="xml">XML</a>
+                                            <a class="resultTable" href="#" path="{{tablePath}}" format="csv">CSV</a>
+                                        </td></tr>
                                     {{/each}}
                                 </table>
                             {{/with}}
