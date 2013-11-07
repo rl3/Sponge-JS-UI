@@ -10,7 +10,7 @@ bootstrap
 less
 http
 underscore
-ace
 ejson
 accounts-ui
 accounts-password
+standard-app-packages

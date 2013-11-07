@@ -1,5 +1,6 @@
 Meteor.startup(function() {
     Future = Npm.require('fibers/future');
+    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 });
 
 var Debug= false;
@@ -40,8 +41,8 @@ var authenticate= function( runFn ) {
     if ( authenticationQueue.length > 1 ) return;
 
     console.log('authenticate...', auth);
-    return Meteor.http.call('GET', baseUrl + authUrl, { auth: auth }, function( err, result ) {
-console.log('authenticateing done', result)
+    return HTTP.call('GET', baseUrl + authUrl, { auth: auth, }, function( err, result ) {
+        console.log('authenticateing done', result)
 
         if ( !err ) authTokens[Meteor.userId()]= result.data.token;
 
@@ -79,7 +80,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
 
         if ( authToken ) setCookie(options, 'RestSessionId', authToken);
 
-        return Meteor.http.call(method, baseUrl + url, options, cb);
+        return HTTP.call(method, baseUrl + url, options, cb);
     };
     runCall();
 };
@@ -92,7 +93,8 @@ var _request= function( method, url, options, callback ) {
         console.log(method + ' result', url, JSON.stringify(options));
         result= EJSON.fromJSONValue(result || {});
         if ( Debug ) {
-//            console.log('headers', d.headers);
+//            console.log('error', err);
+//            console.log('result', result);
             console.log('data', url, result.data);
         }
         if ( callback ) return callback.call(this, err, result);
