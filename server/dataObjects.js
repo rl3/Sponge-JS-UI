@@ -39,8 +39,9 @@ var authenticate= function( runFn ) {
     authenticationQueue.push(runFn);
     if ( authenticationQueue.length > 1 ) return;
 
-    console.log('authenticate...');
+    console.log('authenticate...', auth);
     return Meteor.http.call('GET', baseUrl + authUrl, { auth: auth }, function( err, result ) {
+console.log('authenticateing done', result)
 
         if ( !err ) authTokens[Meteor.userId()]= result.data.token;
 
