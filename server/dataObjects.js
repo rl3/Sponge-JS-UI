@@ -37,7 +37,7 @@ var authenticate= function( runFn ) {
     if ( !auth ) return;
 
     authenticationQueue.push(runFn);
-    if ( authenticationQueue.length === 1 ) return;
+    if ( authenticationQueue.length > 1 ) return;
 
     console.log('authenticate...');
     return Meteor.http.call('GET', baseUrl + authUrl, { auth: auth }, function( err, result ) {

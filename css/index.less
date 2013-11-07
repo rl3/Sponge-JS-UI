@@ -1,11 +1,26 @@
 /* CSS declarations go here */
 
 @nav-width: 250px;
-@nav-border-width: 1px;
-@nav-row-padding: 3px;
 
-@content-header-height: 3em;
-@content-header-padding: .5em;
+@content-header-height: 46px;
+@content-header-color: #EECC00;// #DDCC55;
+
+/* apply a natural box layout model to all elements */
+*, *:before, *:after {
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+
+#logo {
+    top: 0;
+    left: 0;
+    height: @content-header-height;
+    width: @nav-width;
+    background-color: @content-header-color;
+
+    img {
+        margin: 5px;
+    }
+}
 
 #main-content {
     position: fixed;
@@ -26,12 +41,12 @@
     background-color: white;
     overflow-y: auto;
     overflow-x: auto;
-    border-right: @nav-border-width solid black;
+//    border-right: 1px solid black;
 
     .nav-row {
-        padding: @nav-row-padding;
+        padding: 3px;
         clear: both;
-        width: (@nav-width - @nav-border-width - 2 * @nav-row-padding);
+        width: @nav-width;
         overflow: hidden;
 
         .switch {
@@ -118,17 +133,20 @@
     position: fixed;
     left: 0;
     right: 0;
-    padding: 10px 10px 10px (@nav-width + @nav-border-width + 10px);
+    padding: 0 0 0 @nav-width;
 }
 
 #main-right-content-header {
-    height: (@content-header-height - 2 * @content-header-padding);
-    padding-top: @content-header-padding;
-    line-height: (@content-header-height - 2 * @content-header-padding);
-    background-color: lightgray;
+    height: @content-header-height;
+    background-color: @content-header-color;
     overflow: hidden;
 
+    img.logo {
+        float: left;
+    }
+
     .header {
+        padding: 10px;
         font-size: large;
         text-align: center;
 
@@ -147,24 +165,36 @@
     }
 }
 
+.login-buttons {
+    margin: 10px;
+}
+
 #main-right-content {
     top: @content-header-height;
     bottom: 0;
     overflow: auto;
+    padding: 10px 10px 10px (@nav-width + 10px);
 }
 
 
 #google-maps-container {
     display: none;
     position: absolute;
-    top: 0;
-    left: 0;
-//    right: 0;
-//    bottom: 0;
-    width: 100%;
-    height: 100%;
+//    top: 0;
+//    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 200px;
+    height: 200px;
 //    z-index: 1000;
     background-color: red;
+
+    #google-maps-canvas {
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+    }
 }
 
 

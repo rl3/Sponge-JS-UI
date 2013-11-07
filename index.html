@@ -10,7 +10,6 @@
     <div id="main-navigation-content">
         {{> mainNavigation}}
     </div>
-    <div id="google-maps-container" style="width: 100%; height: 100%; z-index: 2000;"><div id="google-maps-canvas"></div></div>
 </body>
 
 
@@ -27,6 +26,9 @@
 </template>
 
 <template name="mainNavigation">
+    <div id="logo">
+        <img src="images/logo.png" />
+    </div>
     <div id="main-header" class="nav-row">{{> mainNavigationHeader}}</div>
     {{> mainNavigationModels}}
     {{> mainNavigationJobs}}
@@ -84,25 +86,31 @@
 </template>
 
 <template name="mainRightContent">
-    <div id="main-right-content-header">
-        <div class="header">
-            {{#with header}}
-                {{main}}
-                {{#if title}}
-                    <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
-                {{/if}}
-                {{#if addition}}
-                    <span class="addition {{additionClass}}">({{addition}})</span>
-                {{/if}}
-                {{#if message}}
-                    <span class="message {{messageClass}}">{{message}}</span>
-                {{/if}}
-            {{/with}}
+    <div id="main-right">
+        <div id="main-right-content-header">
+            <img class="logo" src="logo.png" />
+            <div class="header">
+                {{#with header}}
+                    {{main}}
+                    {{#if title}}
+                        <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
+                    {{/if}}
+                    {{#if addition}}
+                        <span class="addition {{additionClass}}">({{addition}})</span>
+                    {{/if}}
+                    {{#if message}}
+                        <span class="message {{messageClass}}">{{message}}</span>
+                    {{/if}}
+                {{/with}}
+            </div>
         </div>
-    </div>
-    <div class="right login-buttons">{{loginButtons align="right"}}</div>
-    <div id="main-right-content">
-        {{content}}
+        <div class="right login-buttons">{{loginButtons align="right"}}</div>
+        <div id="main-right-content">
+            {{content}}
+            {{#constant}}
+                <div id="google-maps-container"><div id="google-maps-canvas"></div></div>
+            {{/constant}}
+        </div>
     </div>
 </template>
 

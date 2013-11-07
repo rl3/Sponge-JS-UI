@@ -234,9 +234,9 @@ T.helper('jobs', function() {
     var result= jobs.map(function( job ) {
         return {
             jobId: job.jobId,
-            name: (job.title || '') + (job.description || ''),
-            title: job.title || '',
-            description: job.description || '',
+            name: (job.description.title || '') + (job.description.text || ''),
+            title: job.description.title || '',
+            description: job.description.text || '',
             date: job.timeStamp,
             status: job.status,
         }
