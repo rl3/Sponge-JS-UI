@@ -588,7 +588,7 @@ var getCompatibleObjects= function() {
     if ( selectedType.schemas === undefined ) {
         var compatibleTypes= getCompatibleTypes();
         return compatibleTypes.models.map(function( model ){
-            return { id: model._id.toHexString(), name: model.name };
+            return { _id: model._id, name: model.name };
         });
     }
 

@@ -24,7 +24,7 @@ var getAuth= function() {
 var async= function( fn ) {
     var future= new Future();
     fn(function( err, result ) {
-        future.ret(result);
+        future.return(result);
     });
     return future.wait();
 };
@@ -213,7 +213,7 @@ methods.getJobLog= function( jobId ) {
 
 methods.deleteJobLog= function( jobId ) {
     return async(function( cb ) {
-        return _authenticatedRequest('DEL', 'Job/log/' + jobId, {}, cb);
+        return _authenticatedRequest('DELETE', 'Job/log/' + jobId, {}, cb);
     });
 };
 
