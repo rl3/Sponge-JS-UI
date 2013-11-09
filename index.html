@@ -74,7 +74,7 @@
 
 <template name="mainNavigationJobDetails">
     {{#with details}}
-        <div class="nav-row my-box-model job link {{rowClass}}">
+        <div class="nav-row my-box-model job link status {{rowClass}}">
             <div class="date-time">
                 <div class="date">{{date}}</div>
                 <div class="time">{{time}}</div>
@@ -88,7 +88,6 @@
 <template name="mainRightContent">
     <div id="main-right" class="my-box-model">
         <div id="main-right-content-header" class="my-box-model">
-            <img class="logo" src="logo.png" />
             <div class="header my-box-model">
                 {{#with header}}
                     {{main}}

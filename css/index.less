@@ -5,6 +5,11 @@
 @content-header-height: 46px;
 @content-header-color: #EECC00;// #DDCC55;
 
+@job-state-success: #99DD99;
+@job-state-error: #FFDDDD;
+@job-state-running: #DDDDFF;
+
+
 /* apply a natural box layout model to all elements */
 .my-box-model, .my-box-model:before, .my-box-model:after {
     -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
@@ -209,9 +214,6 @@
 }
 
 @active: #DDDDDD;
-@success: #99DD99;
-@error: #FFDDDD;
-@running: #DDDDFF;
 
 a.active {
     background-color: @active;
@@ -219,21 +221,21 @@ a.active {
 
 .status {
     &.error {
-        background-color: @error;
-        &.active {
-            background-color: darken(@error, 20%);
+        background-color: @job-state-error;
+        &.active, &:hover {
+            background-color: darken(@job-state-error, 20%);
         }
     }
     &.success {
-        background-color: @success;
-        &.active {
-            background-color: darken(@success, 20%);
+        background-color: @job-state-success;
+        &.active, &:hover {
+            background-color: darken(@job-state-success, 20%);
         }
     }
     &.running {
-        background-color: @running;
-        &.active {
-            background-color: darken(@running, 20%);
+        background-color: @job-state-running;
+        &.active, &:hover {
+            background-color: darken(@job-state-running, 20%);
         }
     }
 }
