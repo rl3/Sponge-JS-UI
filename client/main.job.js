@@ -8,6 +8,10 @@ var jobId= DataObjectTools.jobId;
 
 var invalidateJob= DataObjectTools.invalidateJob;
 
+var editor= DataObjectTools.editor(function( context ) {
+    injectVar(context, 'changed')(true);
+});
+
 var _getJob= DataObjectTools.getCachedData('getJob', 2000);
 var getJob= function( _jobId ) {
     if ( !_jobId ) _jobId= jobId();
@@ -81,6 +85,14 @@ T.helper('model', function() {
     if ( !model ) return DataObjectTools.valueToString(DataObjectTools.modelId());
 
     return model.name;
+});
+
+T.helper('descriptionTitle', function() {
+    return editor(this.description, 'title');
+});
+
+T.helper('descriptionText', function() {
+    return editor(this.description, 'text');
 });
 
 T.helper('args', function() {

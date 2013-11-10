@@ -76,3 +76,4 @@ Template.editEditType.types= function( currentType ) {
 GuiTools= {
     Edit: Edit,
 };
+

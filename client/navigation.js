@@ -24,7 +24,7 @@ var buildHeader= function( title, object, property ) {
 
     if ( typeof object === 'object' ) {
         if ( object ) {
-            if ( object._id ) result.addition= 'ObjectID(' + oid2Str(object._id)  + ')';
+            if ( object._id ) result.addition= DataObjectTools.valueToString(str2Oid(object._id));
             var title= DataObjectTools.getProperty(object, property);
             if ( title ) result.title= title;
         }
@@ -175,7 +175,7 @@ var modelHelper= function() {
         var model= getModel(modelId);
         return {
             id: modelId,
-            name: model && model.name ? model.name : modelId,
+            name: model && model.name ? model.name : DataObjectTools.valueToString(str2Oid(modelId)),
             date: models[modelId],
         }
     });

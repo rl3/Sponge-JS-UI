@@ -3,10 +3,10 @@
     <table>
         {{> modelChangedRow}}
         <tr>
-            <th align="right">Name:</th><td>{{> edit Name}} <span class="id">({{_id}})</span></td>
+            <th align="right">Name:</th><td>{{name}} <span class="id">({{id}})</span></td>
         </tr>
         <tr>
-            <th align="right">Description:</th><td>{{> edit Description}}</td>
+            <th align="right">Description:</th><td>{{description}}</td>
         </tr>
         <tr>
             <th align="right">Last Changed:</th><td>{{timeStamp}}</td>
@@ -19,12 +19,12 @@
                         <tr valign="top">
                             <td><table>
                                 {{#each args}}
-                                    {{> edit this}}
+                                    {{this}}
                                 {{/each}}
                             </table></td>
                             <td><table>
                                 {{#each result}}
-                                    {{> edit this}}
+                                    {{this}}
                                 {{/each}}
                             </table></td>
                         </tr>
@@ -100,14 +100,14 @@
                 <td>
                     <table>
                         {{#each args}}
-                            {{> edit this}}
+                            {{this}}
                         {{/each}}
                     </table>
                 </td>
                 <td>
                     <table>
                         {{#each result}}
-                            {{> edit this}}
+                            {{this}}
                         {{/each}}
                     </table>
                 </td>

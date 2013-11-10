@@ -11,26 +11,26 @@ var saveModel= function( model ) {
 };
 
 var injectVar= DataObjectTools.injectVar;
+var valueToString= DataObjectTools.valueToString;
+var str2Oid= DataObjectTools.str2Oid;
 
 var T= DataObjectTools.Template;
 
-var editor= function( context, property ) {
-    return new GuiTools.Edit({
-        get: function() { return context[property]; },
-        set: function( newValue ) {
-            context[property]= newValue;
-            injectVar(context, 'changed')(true);
-        },
-    });
-}
+var editor= DataObjectTools.editor(function( context ) {
+    injectVar(context, 'changed')(true);
+});
 
 T.select('model');
 
-T.helper('Name', function() {
+T.helper('name', function() {
     return editor(this, 'name');
 });
 
-T.helper('Description', function() {
+T.helper('id', function() {
+    return valueToString(str2Oid(this._id));
+});
+
+T.helper('description', function() {
     return editor(this, 'description');
 });
 

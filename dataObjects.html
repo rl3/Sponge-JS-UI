@@ -58,7 +58,7 @@
     {{#with dataObject this}}
         <table>
             <tr><td>Type/Version:</td><td>{{objectType}} Version {{version}}</td></tr>
-            <tr><td>Description:</td><td>{{> edit description}}</td></tr>
+            <tr><td>Description:</td><td>{{description}}</td></tr>
             <tr><td>Tags:</td><td>{{#each tags}}{{this}}{{/each}}</td></tr>
             <tr><td>Range:</td><td>
                 from ({{#each args start}}{{#if index}}, {{/if}}{{name}}={{value}}{{unit}}{{else}}{{> loadingImg}}{{/each}})
@@ -76,12 +76,12 @@
 
 <template name="source">
     <table>
-        <tr><td>Name:</td><td>{{> edit Name}}</td></tr>
-        <tr><td>Description:</td><td>{{> edit Description}}</td></tr>
-        <tr><td>Organisation:</td><td>{{> edit Organisation}}</td></tr>
-        <tr><td>Address:</td><td>{{> edit Address}}</td></tr>
-        <tr><td>Mail:</td><td><a href="mailto:{{source.Mail}}">{{> edit MailEdit}}</a></td></tr>
-        <tr><td>www:</td><td><a target="_blank" href="{{source.www}}">{{> edit wwwEdit}}</a></td></tr>
+        <tr><td>Name:</td><td>{{Name}}</td></tr>
+        <tr><td>Description:</td><td>{{Description}}</td></tr>
+        <tr><td>Organisation:</td><td>{{Organisation}}</td></tr>
+        <tr><td>Address:</td><td>{{Address}}</td></tr>
+        <tr><td>Mail:</td><td><a href="mailto:{{source.Mail}}">{{MailEdit}}</a></td></tr>
+        <tr><td>www:</td><td><a target="_blank" href="{{source.www}}">{{wwwEdit}}</a></td></tr>
     </table>
 </template>
 
