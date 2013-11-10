@@ -4,14 +4,19 @@
 </head>
 
 <body>
-    <div id="main-content" class="my-box-model">
-        {{> mainRightContent}}
+    <div id="main-header">
+        {{> mainHeader}}
     </div>
-    <div id="main-navigation-content" class="my-box-model">
-        {{> mainNavigation}}
+    <div id="main-content">
+        <div id="main-left-content">
+            {{> mainNavigation}}
+        </div>
+        <div id="main-right-content">
+            {{> mainRightContent}}
+        </div>
     </div>
+    <div class="right login-buttons my-box-model">{{loginButtons align="right"}}</div>
 </body>
-
 
 <template name="loading">
     <div class="loading">
@@ -25,11 +30,26 @@
     </div>
 </template>
 
-<template name="mainNavigation">
-    <div id="logo" class="my-box-model">
-        <img src="images/logo.png" />
+<template name="mainHeader">
+    <img class="logo" src="images/logo.png" />
+    <div class="header my-box-model">
+        {{#with header}}
+            {{main}}
+            {{#if title}}
+                <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
+            {{/if}}
+            {{#if addition}}
+                <span class="addition {{additionClass}}">({{addition}})</span>
+            {{/if}}
+            {{#if message}}
+                <span class="message {{messageClass}}">{{message}}</span>
+            {{/if}}
+        {{/with}}
     </div>
-    <div id="main-header" class="nav-row my-box-model">{{> mainNavigationHeader}}</div>
+</template>
+
+<template name="mainNavigation">
+    <div id="main-naivigation-header" class="nav-row">{{> mainNavigationHeader}}</div>
     {{> mainNavigationModels}}
     {{> mainNavigationJobs}}
 </template>
@@ -39,13 +59,13 @@
 </template>
 
 <template name="mainNavigationModels">
-    <div class="nav-row my-box-model title">Models <a href="#" class="switch">{{switch}}</a></div>
+    <div class="nav-row title">Models <a href="#" class="switch">{{switch}}</a></div>
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
-        <div class="nav-list my-box-model {{listClass}}">
+        <div class="nav-list {{listClass}}">
             {{#each models}}
-                <div class="nav-row my-box-model model link {{rowClass}}">
+                <div class="nav-row model link {{rowClass}}">
                     <div class="date-time">
                         <div class="date">{{date}}</div>
                         <div class="time">{{time}}</div>
@@ -58,15 +78,15 @@
 </template>
 
 <template name="mainNavigationJobs">
-    <div class="nav-row my-box-model title">Jobs <a href="#" class="switch">{{switch}}</a></div>
+    <div class="nav-row title">Jobs <a href="#" class="switch">{{switch}}</a></div>
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
-        <div class="nav-list my-box-model {{listClass}}">
+        <div class="nav-list {{listClass}}">
             {{#each jobs}}
                 {{> mainNavigationJobDetails}}
             {{else}}
-                <div class="nav-row my-box-model">(none)</div>
+                <div class="nav-row">(none)</div>
             {{/each}}
         </div>
     {{/if}}
@@ -74,7 +94,7 @@
 
 <template name="mainNavigationJobDetails">
     {{#with details}}
-        <div class="nav-row my-box-model job link status {{rowClass}}">
+        <div class="nav-row job link status {{rowClass}}">
             <div class="date-time">
                 <div class="date">{{date}}</div>
                 <div class="time">{{time}}</div>
@@ -86,30 +106,9 @@
 </template>
 
 <template name="mainRightContent">
-    <div id="main-right" class="my-box-model">
-        <div id="main-right-content-header" class="my-box-model">
-            <div class="header my-box-model">
-                {{#with header}}
-                    {{main}}
-                    {{#if title}}
-                        <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
-                    {{/if}}
-                    {{#if addition}}
-                        <span class="addition {{additionClass}}">({{addition}})</span>
-                    {{/if}}
-                    {{#if message}}
-                        <span class="message {{messageClass}}">{{message}}</span>
-                    {{/if}}
-                {{/with}}
-            </div>
-        </div>
-        <div class="right login-buttons my-box-model">{{loginButtons align="right"}}</div>
-        <div id="main-right-content" class="my-box-model">
-            {{content}}
-            {{#constant}}
-                <div id="google-maps-container" class="my-box-model"><div id="google-maps-canvas"></div></div>
-            {{/constant}}
-        </div>
-    </div>
+    {{content}}
+    {{#constant}}
+        <div id="google-maps-container"><div id="google-maps-border"><div id="google-maps-canvas"></div></div></div>
+    {{/constant}}
 </template>
 

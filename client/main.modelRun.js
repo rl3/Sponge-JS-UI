@@ -107,7 +107,7 @@ T.helper('getArgs', function() {
     };
 
     onClose= function() {
-        return runModel({
+        runModel({
             args: parseArgs(result.args),
 //            input: parseArgs(result.inputs),
         },

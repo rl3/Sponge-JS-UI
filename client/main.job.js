@@ -4,12 +4,13 @@ var jobUpdateTimeout= 10000; // 10s
 
 var injectVar= DataObjectTools.injectVar;
 
-var invalidateList= DataObjectTools.getInvalidator();
-
 var jobId= DataObjectTools.jobId;
+
+var invalidateJob= DataObjectTools.getInvalidator('current job')
 
 var _getJob= DataObjectTools.getCachedData('getJob', 2000);
 var getJob= function( _jobId ) {
+    invalidateJob();
     return _getJob(_jobId || jobId());
 };
 
@@ -21,12 +22,16 @@ var getJobResult= DataObjectTools.getCachedData('getJobResult', 2000);
 
 var _restartJob= DataObjectTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
-    _restartJob(jobId());
+    _restartJob(jobId(), function() {
+        DataObjectTools.invalidateJobList(true);
+        invalidateJob(true);
+    });
 };
 
 var _removeJob= DataObjectTools.getCachedData('removeJob', 2000);
 var removeJob= function() {
     _removeJob(jobId());
+    DataObjectTools.invalidateJobList(true);
     jobId(undefined);
 };
 
@@ -131,7 +136,7 @@ T.events({
         var lat= +$a.attr('lat');
         var lon= +$a.attr('lon');
         DataObjectTools.showMap();
-        DataObjectTools.addMapMarker(lon, lat);
+        DataObjectTools.addMapMarker(lon, lat, { infotext: '<div><div><b>Job-Titel</b></div><div>Hier kommt die Job-Beschreibung hin.</div></div>' });
     },
 });
 

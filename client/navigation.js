@@ -10,6 +10,39 @@ var getInvalidator= DataObjectTools.getInvalidator;
 
 var T= DataObjectTools.Template;
 
+T.select('mainHeader');
+
+var buildHeader= function( title, object, property ) {
+
+    var result= {
+        main: title,
+    };
+
+    object= cleanObject(object);
+
+    if ( typeof object === 'object' ) {
+        if ( object ) {
+            if ( object._id ) result.addition= 'ObjectID(' + oid2Str(object._id)  + ')';
+            var title= DataObjectTools.getProperty(object, property);
+            if ( title ) result.title= title;
+        }
+        else {
+            result.message= 'please select left';
+        }
+    }
+
+    if ( object === undefined ) result.message= 'please wait...';
+
+    return result;
+};
+
+T.helper('header', function() {
+    switch ( session('view') ) {
+        case 'model': return buildHeader('Model', getModel(modelId()), 'name');
+        case 'job': return buildHeader('Job', getJob(jobId()), 'description.title');
+    }
+});
+
 /**
  * TEMPLATE mainNavigationHeader
  */
@@ -57,7 +90,8 @@ var getJobs= function( options ) {
     if ( !options ) options= {};
     if ( !session('allUsers') ) options.userId= getApiUserName();
 
-    return _getJobs(options);
+    var jobs= _getJobs(options);
+    return jobs;
 };
 
 var _getAllModels= DataObjectTools.getCachedData('getModels');
@@ -67,7 +101,7 @@ var getAllModels= function() {
 };
 
 var getModel= DataObjectTools.getCachedData('getModel');
-var getJob= DataObjectTools.getCachedData('getJob');
+var getJob= DataObjectTools.getCachedData('getJob', 2000);
 
 var getApiUserName= function() {
     var user= Meteor.user();
@@ -280,7 +314,7 @@ T.helper('details', function() {
     if ( !job ) return this;
 
     job.name= (job.title || '') + (job.description || '');
-    job.date= job.timeStamp;
+    job.date= job.status ? job.status.started : undefined;
     job._context= this;
     return job;
 });
@@ -321,37 +355,6 @@ T.events({
  * TEMPLATE mainRightContent
  */
 T.select('mainRightContent');
-
-var buildHeader= function( title, object, property ) {
-
-    var result= {
-        main: title,
-    };
-
-    object= cleanObject(object);
-
-    if ( typeof object === 'object' ) {
-        if ( object ) {
-            if ( object._id ) result.addition= 'ObjectID(' + oid2Str(object._id)  + ')';
-            var title= DataObjectTools.getProperty(object, property);
-            if ( title ) result.title= title;
-        }
-        else {
-            result.message= 'please select left';
-        }
-    }
-
-    if ( object === undefined ) result.message= 'please wait...';
-
-    return result;
-};
-
-T.helper('header', function() {
-    switch ( session('view') ) {
-        case 'model': return buildHeader('Model', getModel(modelId()), 'name');
-        case 'job': return buildHeader('Job', getJob(jobId()), 'description.title');
-    }
-});
 
 T.helper('content', function() {
     var template;

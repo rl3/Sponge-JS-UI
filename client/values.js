@@ -176,8 +176,6 @@ var buildValues= function( args, property, valueContext ) {
 
 var defaultLocationFn= function( text, location ) {
     return '<a href="#" class="location" lon="' + location[0] + '" lat="' + location[1] + '">' + text + '</a>';
-
-    return '<a target="googlemaps" href="https://www.google.de/maps?q=' + location[1] + ',' + location[0] + '">' + text + '</a>';
 };
 
 DataObjectTools.valueToString= valueToString;

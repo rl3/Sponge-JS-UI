@@ -53,7 +53,20 @@ var authenticate= function( runFn ) {
 var setCookie= function( options, name, value ) {
     if ( !options.headers ) options.headers= {};
     if ( !('Cookie' in options.headers) ) options.headers.Cookie= '';
-    options.headers.Cookie+= name + '=' + value + ';';
+
+    var cookies= {};
+    options.headers.Cookie.split(';').forEach(function( cookie ) {
+        if ( !cookie ) return;
+
+        var parts= cookie.split('=', 1);
+        cookies[parts[0]]= parts[1];
+    });
+
+    cookies[name]= value;
+
+    options.headers.Cookie= Object.keys(cookies).map(function( name ) {
+        return name + '=' + cookies[name]
+    }).join(';');
 };
 
 /*
@@ -78,9 +91,11 @@ var _authenticatedRequest= function( method, url, options, callback ) {
 
         var authToken= authTokens[Meteor.userId()];
 
-        if ( authToken ) setCookie(options, 'RestSessionId', authToken);
+        var _options= DataObjectTools.clone(options);
 
-        return HTTP.call(method, baseUrl + url, options, cb);
+        if ( authToken ) setCookie(_options, 'RestSessionId', authToken);
+
+        return HTTP.call(method, baseUrl + url, _options, cb);
     };
     runCall();
 };
