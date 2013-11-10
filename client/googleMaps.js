@@ -113,8 +113,3 @@ DataObjectTools.addMapMarker= addMarker;
 DataObjectTools.showMap= showMap;
 DataObjectTools.hideMap= hideMap;
 
-setTimeout(function() {
-    var $map= get$map();
-    initialize($map[0]);
-    addMarker(11.2, 53.6);
-}, 5000);

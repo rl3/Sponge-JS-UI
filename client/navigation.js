@@ -7,6 +7,8 @@ var str2Oid= DataObjectTools.str2Oid;
 var oid2Str= DataObjectTools.oid2Str;
 var cleanObject= DataObjectTools.cleanObject;
 var getInvalidator= DataObjectTools.getInvalidator;
+var invalidateJob= DataObjectTools.invalidateJob;
+var invalidateModel= DataObjectTools.invalidateModel;
 
 var T= DataObjectTools.Template;
 
@@ -100,8 +102,17 @@ var getAllModels= function() {
     return _getAllModels({});
 };
 
-var getModel= DataObjectTools.getCachedData('getModel');
-var getJob= DataObjectTools.getCachedData('getJob', 2000);
+var _getModel= DataObjectTools.getCachedData('getModel');
+var getModel= function( modelId ) {
+    invalidateModel(modelId);
+    return _getModel.apply(null, arguments);
+};
+
+var _getJob= DataObjectTools.getCachedData('getJob', 2000);
+var getJob= function( jobId ) {
+    invalidateJob(jobId);
+    return _getJob.apply(null, arguments);
+};
 
 var getApiUserName= function() {
     var user= Meteor.user();

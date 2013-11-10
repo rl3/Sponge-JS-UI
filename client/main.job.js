@@ -6,12 +6,13 @@ var injectVar= DataObjectTools.injectVar;
 
 var jobId= DataObjectTools.jobId;
 
-var invalidateJob= DataObjectTools.getInvalidator('current job')
+var invalidateJob= DataObjectTools.invalidateJob;
 
 var _getJob= DataObjectTools.getCachedData('getJob', 2000);
 var getJob= function( _jobId ) {
-    invalidateJob();
-    return _getJob(_jobId || jobId());
+    if ( !_jobId ) _jobId= jobId();
+    invalidateJob(_jobId);
+    return _getJob(_jobId);
 };
 
 // var getJobLog= DataObjectTools.getCachedData('getJobLog', 2000);
@@ -24,14 +25,17 @@ var _restartJob= DataObjectTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
     _restartJob(jobId(), function() {
         DataObjectTools.invalidateJobList(true);
-        invalidateJob(true);
+        invalidateJob(jobId(), true);
     });
 };
 
 var _removeJob= DataObjectTools.getCachedData('removeJob', 2000);
 var removeJob= function() {
-    _removeJob(jobId());
-    DataObjectTools.invalidateJobList(true);
+    var _jobId= jobId();
+    _removeJob(_jobId, function() {
+        DataObjectTools.invalidateJobList(true);
+        invalidateJob(_jobId, true);
+    });
     jobId(undefined);
 };
 
