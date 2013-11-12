@@ -70,21 +70,32 @@
     </table>
 </template>
 
-<template name="inputTypeMap">
-    Map
-</template>
-
 <template name="inputTypeNearest">
     <select class="typeName">
         <option style="display: none">Please select</option>
         {{#each typeName}}
-            <option {{selectedType}} value="{{schema.objectType}}/{{schema.version}}">{{label}}</option>
+            <option {{selectedType}} value="{{id}}">{{label}}</option>
         {{/each}}
     </select>
     <select class="tagName">
         <option style="display: none">Please select</option>
         {{#each tag}}
             <option {{selectedTag}} value="{{this}}">{{this}}</option>
+        {{/each}}
+    </select>
+</template>
+
+<template name="inputTypeMap">
+    <select class="typeName">
+        <option style="display: none">Please select</option>
+        {{#each typeName}}
+            <option {{selectedType}} value="{{id}}">{{label}}</option>
+        {{/each}}
+    </select>
+    <select class="mapName">
+        <option style="display: none">Please select</option>
+        {{#each map}}
+            <option {{selectedMap}} value="{{this}}">{{this}}</option>
         {{/each}}
     </select>
 </template>

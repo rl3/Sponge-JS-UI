@@ -4,6 +4,7 @@ Meteor.startup(function() {
 });
 
 var Debug= false;
+// Debug= true;
 
 var baseUrl= CONFIG.baseurl;
 var authUrl= CONFIG.authurl;

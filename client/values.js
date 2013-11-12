@@ -44,6 +44,9 @@ var dataObjectToString= function( value, options ) {
         var object= getObject[collection](id);
         if ( object ) name= object.name;
     }
+
+    if ( collection === 'AgroObj' ) return name;
+
     return collection + ' ' + name;
 };
 
@@ -56,7 +59,11 @@ var nearestToString= function( value, options ) {
     var result= 'Nearest ';
     var sel= value.selector;
     if ( sel ) {
-        result+= sel.objectType + '/' + sel.version;
+        var version= sel.version;
+        if ( typeof version === 'object' && '$in' in version ) {
+            version= '[' + version.$in.join(',') + ']';
+        }
+        result+= sel.objectType + '/' + version;
         var args= [];
         for ( var prop in sel ) {
             if ( prop === 'objectType' || prop === 'version' ) continue;

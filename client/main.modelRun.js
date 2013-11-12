@@ -74,6 +74,7 @@ var parseArgs= function( args ) {
     return result;
 };
 
+
 var validateArgs= function( args ) {
     if ( !args ) return true;
 
@@ -102,6 +103,14 @@ T.helper('getArgs', function() {
 
     verifyArgs= function() {
         var args= parseArgs(result.args);
+
+        if ( result.info && result.info.args ) {
+            Object.keys(result.info.args).forEach(function( name ) {
+                if ( result.info.args[name] && result.info.args[name].optional ) {
+                    delete args[name];
+                }
+            });
+        }
 
         return validateArgs(args);// && validateArgs(inputs);
     };

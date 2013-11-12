@@ -2,6 +2,7 @@
 var getMatchingTypes= DataObjectTools.getCachedData('getMatchingTypes');
 var getMatchingObjects= DataObjectTools.getCachedData('getMatchingObjects');
 var getTags= DataObjectTools.getCachedData('getTagsByTypeVersion');
+var getMapnames= DataObjectTools.getCachedData('getMapnamesByTypeVersion');
 
 var ObjectId= DataObjectTools.ObjectId;
 
@@ -16,6 +17,8 @@ var invalidData= {};
 var limitAgroObjs= 30;
 
 var dateFormat= 'dd.mm.yyyy';
+
+var T= DataObjectTools.Template;
 
 /*
  * generic local temporary value
@@ -92,19 +95,22 @@ var getType= function() {
  * TEMPLATE valueInputTitle
  * shows title and description of value to change/inspect
  */
-Template.valueInputTitle.title= function() {
+
+T.select('valueInputTitle');
+
+T.helper('title', function() {
     var value= getValue();
     if ( ! value ) return;
 
     return value.name;
-};
+});
 
-Template.valueInputTitle.description= function() {
+T.helper('description', function() {
     var value= getValue();
     if ( ! value ) return;
 
     return (value.info || {}).description;
-};
+});
 
 var typeMapper= function( type ) {
     if ( typeof type === 'object' ) return 'object';
@@ -117,11 +123,16 @@ var typeMapper= function( type ) {
     return 'value';
 };
 
+
+
 /*
  * TEMPLATE valueInputBody
  * show current value and allows to change value type (single, array, range...)
  */
-Template.valueInputBody.inputTypes= function() {
+
+T.select('valueInputBody');
+
+T.helper('inputTypes', function() {
     var value= getValue();
 
     if ( !value ) return;
@@ -152,7 +163,7 @@ Template.valueInputBody.inputTypes= function() {
 
     var result= [
         { value: 'single', label: 'single ' + type },
-        { value: 'array',  label: 'array of ' + type + 's' },
+//        { value: 'array',  label: 'array of ' + type + 's' },
     ];
 
     if ( type === 'object' ) {
@@ -160,7 +171,7 @@ Template.valueInputBody.inputTypes= function() {
         result.push({ value: 'nearest',  label: 'nearest object by tag' });
     }
     else {
-        result.push({ value: 'range',  label: 'range of ' + type + 's' });
+//        result.push({ value: 'range',  label: 'range of ' + type + 's' });
     }
 
     result.forEach(function( type ) {
@@ -168,21 +179,21 @@ Template.valueInputBody.inputTypes= function() {
     });
 
     return result;
-};
+});
 
-Template.valueInputBody.events({
+T.events({
     'change input[name="inputTypes"]': function( event ) {
         inputType(this.value);
         return false;
     },
 });
 
-Template.valueInputBody.inputType= function() {
+T.helper('inputType', function() {
     var type= inputType();
     if ( !type ) return;
 
     return new Handlebars.SafeString(Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)]());
-};
+});
 
 $(function() {
     $('body').delegate('#valueInput button.btn-primary', 'click', function() {
@@ -196,11 +207,14 @@ $(function() {
  * TEMPLATE inputTypeSingle
  * shows a single value to edit
  */
-Template.inputTypeSingle.value= function() {
-    return DataObjectTools.valueToString(newValue());
-};
 
-Template.inputTypeSingle.events({
+T.select('inputTypeSingle');
+
+T.helper('value', function() {
+    return DataObjectTools.valueToString(newValue());
+});
+
+T.events({
     'click a.value': function() {
         singleValue= {
             get: function() { return newValue(); },
@@ -210,13 +224,16 @@ Template.inputTypeSingle.events({
         invalidate('singlevalue');
         DataObjectTools.showModal($('#singleValueInput'));
     }
-})
+});
 
 /*
  * TEMPLATE inputTypeArray
  * shows an array of values to edit
  */
-Template.inputTypeArray.values= function() {
+
+T.select('inputTypeArray');
+
+T.helper('values', function() {
     isInvalid('arraylist');
 
     var currentValue= getNewValueInit({ $array: [] });
@@ -233,13 +250,13 @@ Template.inputTypeArray.values= function() {
             },
         };
     });
-};
+});
 
-Template.inputTypeArray.value= function() {
+T.helper('value', function() {
     return DataObjectTools.valueToString(this.value && this.value());
-}
+});
 
-Template.inputTypeArray.events({
+T.events({
     'click a.remove': function( event ) {
         getNewValueInit({ $array: [] }).$array.splice(this.index, 1);
         invalidate('arraylist');
@@ -279,6 +296,9 @@ Template.inputTypeArray.events({
  * TEMPLATE inputTypeRange
  * shows a range of values
  */
+
+T.select('inputTypeRange');
+
 var buildRangeValue= function( name ) {
     var $range= getNewValueInit({ $range: {} }).$range;
     return function( newValue ) {
@@ -290,25 +310,25 @@ var buildRangeValue= function( name ) {
     };
 };
 
-Template.inputTypeRange.valueFrom= function() {
+T.helper('valueFrom', function() {
     isInvalid('rangeview.from');
     var value= buildRangeValue('from')
     return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
-};
+});
 
-Template.inputTypeRange.valueTo= function() {
+T.helper('valueTo', function() {
     isInvalid('rangeview.to');
     var value= buildRangeValue('to')
     return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
-};
+});
 
-Template.inputTypeRange.valueStep= function() {
+T.helper('valueStep', function() {
     isInvalid('rangeview.step');
     var value= buildRangeValue('step')
     return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
-};
+});
 
-Template.inputTypeRange.events({
+T.events({
     'click a.value': function() {
         var self= this;
         var v= self.value || function() {};
@@ -328,7 +348,10 @@ Template.inputTypeRange.events({
  * shows input for a single value.
  * selects template by type
  */
-Template.singleValueInputBody.input= function() {
+
+T.select('singleValueInputBody');
+
+T.helper('input', function() {
     isInvalid('singlevalue');
 
     if ( !singleValue ) return;
@@ -357,7 +380,7 @@ Template.singleValueInputBody.input= function() {
 
     Template[templateName].init();
     return new Handlebars.SafeString(Template[templateName]());
-};
+});
 
 
 
@@ -427,30 +450,32 @@ $(function() {
     });
 });
 
+
 ['Double', 'Integer', 'String'].forEach(function( type ) {
     var templateName= 'valueInput' + type;
 
-    if ( !(templateName in Template) ) return;
+    T.select(templateName);
 
-    Template[templateName].value= simpleValueGet;
-    Template[templateName].events(simpleValueEvents);
+    T.helper('value', simpleValueGet);
+    T.events(simpleValueEvents);
 });
 ['Double', 'Integer', 'String', 'Boolean', 'Model', 'Date', 'Location'].forEach(function( type ) {
     var templateName= 'valueInput' + type;
 
-    if ( !(templateName in Template) ) return;
+    T.select(templateName);
 
-    Template[templateName].init= function() {
+    T.change('init', function() {
         singleValue.newValue= singleValue.get();
-    };
-    Template[templateName].rendered= function() {
+    });
+    T.change('rendered', function() {
         this.find('input').focus();
-    }
+    });
 });
 
 
+T.select('valueInputDate');
 //FIXME: convert local date to UTC and vice versa
-Template.valueInputDate.rendered= function() {
+T.change('rendered', function() {
     var self= this;
     var $modal= $('#singleValueInput');
     var $input= $(this.find('input'));
@@ -469,21 +494,22 @@ Template.valueInputDate.rendered= function() {
         $input.datepicker('setValue', startValue);
     }
     singleValueCleanup.push($input.data().datepicker.picker);
-};
+});
 
-Template.valueInputLocation.lat= function() {
+T.select('valueInputLocation');
+T.helper('lat', function() {
     return (singleValue.newValue || [])[1];
-};
-Template.valueInputLocation.lon= function() {
+});
+T.helper('lon', function() {
     return (singleValue.newValue || [])[0];
-};
+});
 var _genSetLocation= function( index ) {
     return function( event ) {
         if ( !_.isArray(singleValue.newValue) ) singleValue.newValue= [];
         singleValue.newValue[index]= parseFloat(event.currentTarget.value);
     };
 };
-Template.valueInputLocation.events({
+T.events({
     'change input.lat': _genSetLocation(1),
     'change input.lon': _genSetLocation(0),
 });
@@ -496,11 +522,13 @@ Template.valueInputLocation.events({
 
 
 
+T.select('valueInputModel');
+
 /*
  * delay key press for name filter
  */
 var modelNameTimer= null;
-Template.valueInputModel.events({
+T.events({
     'keypress input': function( event ) {
         var target= event.currentTarget;
         if ( modelNameTimer ) clearTimeout(modelNameTimer);
@@ -512,13 +540,13 @@ Template.valueInputModel.events({
     },
 });
 
-Template.valueInputModelSelector.currentLabel= function() {
+T.helper('currentLabel', function() {
     var value= getTempValue('modelVariant')();
 
     if ( !value ) getTempValue('modelVariant')(buildTypeNames()[0]);
 
     return value && value.label;
-};
+});
 
 var getCompatibleTypes= function() {
     var value= getValue();
@@ -559,9 +587,11 @@ var buildTypeNames= function() {
     });
 };
 
-Template.valueInputModelSelector.typeName= buildTypeNames;
+T.select('valueInputModelSelector');
 
-Template.valueInputModelSelector.events({
+T.helper('typeName', buildTypeNames);
+
+T.events({
     'click li.type': function( event ) {
         getTempValue('modelVariant')(this);
     },
@@ -601,21 +631,21 @@ var getCompatibleObjects= function() {
     }) || [];
 };
 
-Template.valueInputModelSelector.values= function() {
+T.helper('values', function() {
     var objects= getCompatibleObjects();
 
     return objects.map(function( agroObj ) {
         return { id: agroObj._id.toHexString(), name: agroObj.name };
     });
-};
+});
 
-Template.valueInputModelSelector.valueCount= function() {
+T.helper('valueCount', function() {
     var count= getCompatibleObjects().length;
 
     return count == 0 ? '' : count > limitAgroObjs ? limitAgroObjs + '+' : count;
-};
+});
 
-Template.valueInputModelSelector.selected= function() {
+T.helper('selected', function() {
     if ( !singleValue.newValue ) return;
 
     var id= (singleValue.newValue.selector || {})._id;
@@ -623,11 +653,50 @@ Template.valueInputModelSelector.selected= function() {
 
     if ( typeof id.toHexString === 'function' ) id= id.toHexString();
     if ( id === this.id ) return 'SELECTED';
+});
+
+
+
+
+
+var commonNearestMapTypeMap= function() {
+    return buildTypeNames().filter(function( typeName ) { return typeName.schemas && typeName.schemas.length; }).map(function( typeName ) {
+        var objectType= typeName.schemas[0].objectType;
+        var versions= typeName.schemas.map(function( schema ) { return schema.version; });
+        return {
+            label: typeName.label,
+            id: objectType + '|' + versions.join(','),
+        }
+    });
 };
 
+var commonNearestMapSelectedType= function( valueGetter ) {
+    return function() {
+        if ( !this.id ) return;
 
+        var sel= valueGetter().selector;
+        if ( !sel.version || !sel.version.$in ) return;
 
+        var selectorId= sel.objectType + '|' + sel.version.$in.join(',');
 
+        if ( this.id === selectorId ) return 'SELECTED';
+    };
+};
+
+var commonNearestMapEvents= function( valueSetter ) {
+    return {
+        'change select.typeName': function( event ) {
+            var id= $(event.target).val();
+            var parts= id.split(/\|/, 2);
+            var type= parts[0];
+            var versions= (parts[1] || '').split(/,/).map(function( v ) { return +v; });
+
+            valueSetter({ objectType: type, version: { $in: versions }, });
+        },
+    };
+};
+
+T.select('inputTypeNearest');
 
 var getNearestValue= function() {
     return getNewValueInit({ type: 'Nearest', selector: { objectType: undefined, version: undefined, tags: undefined, }, });
@@ -639,40 +708,88 @@ var setNearestSelector= function( newSelector ) {
     return newValue(value);
 };
 
-Template.inputTypeNearest.typeName= buildTypeNames;
+T.helper('typeName', commonNearestMapTypeMap);
 
-Template.inputTypeNearest.selectedType= function() {
-    if ( !this.schema ) return;
+T.helper('selectedType', commonNearestMapSelectedType(getNearestValue));
 
+T.events(commonNearestMapEvents(setNearestSelector));
+
+T.helper('tag', function() {
     var sel= getNearestValue().selector;
 
-    if ( this.schema.objectType === sel.objectType && this.schema.version === sel.version ) return 'SELECTED';
-};
+    var version;
+    if ( typeof sel.version === 'object' && sel.version.$in ) {
+        version= sel.version.$in;
+    }
+    else {
+        version= [sel.version];
+    }
 
-Template.inputTypeNearest.tag= function() {
-    var sel= getNearestValue().selector;
-
-    var tags= getTags(sel);
+    var tags= getTags(sel.objectType, version);
     if ( !tags || tags.length === 0 ) return;
 
     return tags;
-};
+});
 
-Template.inputTypeNearest.selectedTag= function() {
+T.helper('selectedTag', function() {
     if ( getNearestValue().selector.tags === String(this) ) return 'SELECTED';
-};
+});
 
-Template.inputTypeNearest.events({
-    'change select.typeName': function( event ) {
-        var typeVersion= $(event.target).val().split('/');
-        var type= typeVersion[0];
-        var version= +typeVersion[1];
-
-        setNearestSelector({ objectType: type, version: version, });
-    },
+T.events({
     'change select.tagName': function( event ) {
         var tag= $(event.target).val();
 
         setNearestSelector({ tags: tag, });
     },
 });
+
+
+
+
+T.select('inputTypeMap');
+
+var getMapValue= function() {
+    return getNewValueInit({ type: 'Map', selector: { objectType: undefined, version: undefined, mapname: undefined, }, });
+};
+
+var setMapSelector= function( newSelector ) {
+    var value= _.clone(getMapValue());
+    value.selector= _.extend(_.clone(value.selector), newSelector);
+    return newValue(value);
+};
+
+T.helper('typeName', commonNearestMapTypeMap);
+
+T.helper('selectedType', commonNearestMapSelectedType(getMapValue));
+
+T.events(commonNearestMapEvents(setMapSelector));
+
+T.helper('map', function() {
+    var sel= getMapValue().selector;
+
+    var version;
+    if ( typeof sel.version === 'object' && sel.version.$in ) {
+        version= sel.version.$in;
+    }
+    else {
+        version= [sel.version];
+    }
+
+    var maps= getMapnames(sel.objectType, version);
+    if ( !maps || maps.length === 0 ) return;
+
+    return maps;
+});
+
+T.helper('selectedMap', function() {
+    if ( getMapValue().selector.mapname === String(this) ) return 'SELECTED';
+});
+
+T.events({
+    'change select.mapName': function( event ) {
+        var mapname= $(event.target).val();
+
+        setMapSelector({ mapname: mapname, });
+    },
+});
+
