@@ -217,9 +217,12 @@ T.helper('resultTables', function() {
 
     var result= [];
     for ( var id in tables ) {
+        var tablePath= path + '.tables.' + id;
         result.push({
             index: id,
-            tablePath: path + '.' + id,
+            tablePath: tablePath,
+            hrefXml: DataObjectTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
+            hrefCsv: DataObjectTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
         });
     }
     return result;
@@ -238,6 +241,7 @@ T.helper('keys', function() {
     });
 });
 
+/*
 T.events({
     'click a.resultTable': function( event ) {
         var $a= $(event.currentTarget);
@@ -246,4 +250,4 @@ T.events({
         console.log('getResultTable', jobId(), path, format);
     },
 });
-
+*/

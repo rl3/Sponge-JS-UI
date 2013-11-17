@@ -1,4 +1,10 @@
 
+Meteor.subscribe('client-cache');
+
+var dataCache= new Meteor.Collection('Cache');
+var dataCacheMeta= new Meteor.Collection('CacheMeta');
+var sessionData= new Meteor.Collection('SessionData')
+
 var getCachedData= function( name, timeout ) {
     if ( arguments.length < 2 ) timeout= 1000000;
 
@@ -17,10 +23,10 @@ var getCachedData= function( name, timeout ) {
 
         var key= typeof id === 'object' ? JSON.stringify(id) : id;
 
-        var query= { _id: key, };
+        var query= { key: key, };
 
-        var metaData= DataObjectTools.dataCacheMeta.findOne(query, { reactive: false }) || {};
-        var data= DataObjectTools.convertFromMongo(DataObjectTools.dataCache.findOne(query));
+        var metaData= dataCacheMeta.findOne(query, { reactive: false }) || {};
+        var data= DataObjectTools.convertFromMongo(dataCache.findOne(query));
 
         // if cache data is valid, return current data
         if ( metaData.timeStamp > than && data ) return data.data;
@@ -51,5 +57,15 @@ var postData= function( id, timeout ) {
     };
 };
 
+var buildApiUrl= function( url ) {
+    var sd= sessionData.findOne();
+    if ( !sd ) return '#';
+
+    var append= url.match(/\?/) ? '&' : '?';
+    return sd.baseUrl + url + append + 'SessionId=' + sd.token;
+};
+
 DataObjectTools.getCachedData= getCachedData;
 DataObjectTools.postData= postData;
+
+DataObjectTools.buildApiUrl= buildApiUrl;

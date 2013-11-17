@@ -1,6 +1,32 @@
+
+var dataCache= new Meteor.Collection('Cache');
+var dataCacheMeta= new Meteor.Collection('CacheMeta');
+var sessionData= new Meteor.Collection('SessionData')
+
 Meteor.startup(function() {
     Future = Npm.require('fibers/future');
     process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
+    dataCache.remove({});
+    dataCacheMeta.remove({});
+
+    var deny= {
+        insert: function() { return true; },
+        update: function() { return true; },
+        remove: function() { return true; },
+    };
+    dataCache.deny(deny);
+    dataCacheMeta.deny(deny);
+    sessionData.deny(deny);
+});
+
+Meteor.publish('client-cache', function() {
+    var query= { userId: this.userId };
+    return [
+        dataCache.find(query),
+        dataCacheMeta.find(query),
+        sessionData.find(query),
+    ];
 });
 
 var Debug= false;
@@ -30,8 +56,6 @@ var async= function( fn ) {
     return future.wait();
 };
 
-var authTokens= {};
-
 var authenticationQueue= [];
 
 var authenticate= function( runFn ) {
@@ -45,9 +69,9 @@ var authenticate= function( runFn ) {
     return HTTP.call('GET', baseUrl + authUrl, { auth: auth, }, function( err, result ) {
         console.log('authenticateing done', result)
 
-        if ( !err ) authTokens[Meteor.userId()]= result.data.token;
-
-        while( authenticationQueue.length ) authenticationQueue.shift()(err);
+        sessionData.upsert({ userId: Meteor.userId() }, { userId: Meteor.userId(), baseUrl: baseUrl, token: err ? null : result.data.token }, function() {
+            while( authenticationQueue.length ) authenticationQueue.shift()(err);
+        });
     });
 };
 
@@ -90,11 +114,11 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     var runCall= function( err ) {
         if ( err ) return callback(err);
 
-        var authToken= authTokens[Meteor.userId()];
+        var sd= sessionData.findOne({ userId: Meteor.userId() });
 
         var _options= DataObjectTools.clone(options);
 
-        if ( authToken ) setCookie(_options, 'RestSessionId', authToken);
+        if ( sd && sd.token ) setCookie(_options, 'RestSessionId', sd.token);
 
         return HTTP.call(method, baseUrl + url, _options, cb);
     };
@@ -152,11 +176,6 @@ var methods= {};
             updateCache(url, model);
         });
     };
-});
-
-Meteor.startup(function() {
-    DataObjectTools.dataCache.remove({});
-    DataObjectTools.dataCacheMeta.remove({});
 });
 
 
@@ -241,28 +260,22 @@ methods.getResultTable= function( jobId, tablePath, format ) {
 
 Meteor.methods(methods);
 
-var updateCache= function( id, newData, cb ) {
+var updateCache= function( key, newData, cb ) {
     if ( !cb ) cb= function() {};
 
     if ( newData === undefined ) newData= null;
 
-    var afterMetaUpdate= function() {
+    var userId= Meteor.userId();
+
+    var query= { key: key, userId: userId, };
+
+    return dataCacheMeta.upsert(query, _.extend({ timeStamp: new Date(), }, query), function() {
         // update data only if changed
-        var oldData= DataObjectTools.dataCache.findOne({ _id: id });
+        var oldData= dataCache.findOne(query);
         if ( oldData && _.isEqual(oldData.data, newData) ) return cb();
 
-        if ( oldData ) {
-            return DataObjectTools.dataCache.update({ _id: id }, { $set: { data: newData }, }, cb);
-        }
-        return DataObjectTools.dataCache.insert({ _id: id, data: newData }, cb);
-    };
-
-    // update meta data in every case
-    var oldMetaData= DataObjectTools.dataCacheMeta.findOne({ _id: id });
-    if ( oldMetaData ) {
-        return DataObjectTools.dataCacheMeta.update({ _id: id }, { $set: { timeStamp: new Date() }, }, afterMetaUpdate);
-    }
-    return DataObjectTools.dataCacheMeta.insert({ _id: id, timeStamp: new Date() }, afterMetaUpdate);
+        return dataCache.upsert(query, _.extend({ data: newData, }, query), cb);
+    });
 };
 
 
