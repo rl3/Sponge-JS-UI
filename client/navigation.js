@@ -10,6 +10,8 @@ var getInvalidator= DataObjectTools.getInvalidator;
 var invalidateJob= DataObjectTools.invalidateJob;
 var invalidateModel= DataObjectTools.invalidateModel;
 
+var userName= DataObjectTools.injectVar({}, 'username', null);
+
 var T= DataObjectTools.Template;
 
 T.select('mainHeader');
@@ -20,20 +22,27 @@ var buildHeader= function( title, object, property ) {
         main: title,
     };
 
-    object= cleanObject(object);
+    switch ( typeof object ) {
+        case 'object':
+            object= cleanObject(object);
 
-    if ( typeof object === 'object' ) {
-        if ( object ) {
-            if ( object._id ) result.addition= DataObjectTools.valueToString(str2Oid(object._id));
-            var title= DataObjectTools.getProperty(object, property);
-            if ( title ) result.title= title;
-        }
-        else {
-            result.message= 'please select left';
-        }
+            if ( object ) {
+                if ( object._id ) result.addition= DataObjectTools.valueToString(str2Oid(object._id));
+                var title= DataObjectTools.getProperty(object, property);
+                if ( title ) result.title= title;
+            }
+            else {
+                result.message= 'please select left';
+            }
+            break;
+
+        case 'undefined':
+            result.message= 'please wait...';
+            break;
+
+        default:
+            result.message= String(object);
     }
-
-    if ( object === undefined ) result.message= 'please wait...';
 
     return result;
 };
@@ -42,6 +51,7 @@ T.helper('header', function() {
     switch ( session('view') ) {
         case 'model': return buildHeader('Model', getModel(modelId()), 'name');
         case 'job': return buildHeader('Job', getJob(jobId()), 'description.title');
+        case 'user': return buildHeader('User Management', userName());
     }
 });
 
@@ -363,6 +373,41 @@ T.events({
 
 
 /**
+ * TEMPLATE mainNavigationUsers
+ */
+T.select('mainNavigationUsers');
+
+T.helper('switch', function() {
+    if ( userName() ) return 'unselect';
+});
+
+T.helper('users', function() {
+    return Meteor.users.find({}, { sort: [[ 'username', 'asc' ]] });
+});
+
+T.helper('rowClass', function() {
+    var _class= getStatusClasses(this);
+
+    if ( userName() === this.username ) _class+= ' selected';
+
+    return _class;
+});
+
+T.helper('isAdmin', DataObjectTools.isAdmin);
+
+T.events({
+    'click .link': function( event ) {
+        userName(this.username);
+        session('view', 'user');
+    },
+    'click a.switch': function( event ) {
+        if ( userName() ) return userName(null);
+    },
+});
+
+
+
+/**
  * TEMPLATE mainRightContent
  */
 T.select('mainRightContent');
@@ -377,6 +422,10 @@ T.helper('content', function() {
         case 'job':
             template= Template.job;
             context= cleanObject(getJob(jobId()));
+            break;
+        case 'user':
+            template= Template.userEdit;
+            context= cleanObject(Meteor.users.findOne({ username: userName() }))
             break;
     }
 

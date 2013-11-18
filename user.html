@@ -1,0 +1,55 @@
+
+<template name="loginPanel">
+    <div id="login-panel">
+        <form>
+            <table>
+                <tr><th colspan="2" align="center">Login</th></tr>
+                {{#if error}}
+                    <tr><td colspan="2" align="center" class="alert alert-error">{{error}}</td></tr>
+                {{/if}}
+                <tr><th align="right">User Name:</th><td><input type="text" name="username" /></td></tr>
+                <tr><th align="right">Password:</th><td><input type="password" name="password" /></td></tr>
+                <tr><td></td><td><button class="btn btn-primary btn-block" type="submit">Login</button></td></tr>
+            </table>
+        </form>
+    </div>
+</template>
+
+<template name="userEdit">
+    <div id="user-profile-panel">
+        <form>
+            <table>
+                <tr><th colspan="2" align="center">{{username}}'s Profile</th></tr>
+                {{#if error}}
+                    <tr><td colspan="2" align="center" class="alert alert-error">{{error}}</td></tr>
+                {{/if}}
+                {{#if success}}
+                    <tr><td colspan="2" align="center" class="alert alert-success">{{success}}</td></tr>
+                {{/if}}
+                <tr><th align="right">User Name:</th><td>{{username}}</td></tr>
+                <tr><th align="right">Full Name:</th><td><input type="text" name="full-name" value="{{profile.fullName}}" /></td></tr>
+                {{#if needOldPassword}}
+                    <tr><th align="right">Old Password:</th><td><input type="password" name="old-password" value="" autocomplete="off" /></td></tr>
+                {{/if}}
+                <tr><th align="right">New Password:</th><td><input type="password" name="new-password" value="" autocomplete="off" /></td></tr>
+                <tr><th align="right">New Password:<div class="comment">repeated</div></th><td><input type="password" name="new-password2" value="" autocomplete="off" /></td></tr>
+                <tr><th colspan="2" align="center">Agrohyd API Credentials</th></tr>
+                <tr><th align="right">API User Name:</th><td><input type="text" name="api-user-name" value="{{profile.agrohyd.apiUser}}" /></td></tr>
+                <tr><th align="right">API Password:</th><td><input type="password" name="api-password" value="" autocomplete="off" /></td></tr>
+                <tr><th align="right">API Password:<div class="comment">repeated</div></th><td><input type="password" name="api-password2" value="" autocomplete="off" /></td></tr>
+                <tr><td></td><td><button class="btn btn-primary btn-block" type="submit">Save Profile</button></td></tr>
+            </table>
+        </form>
+    </div>
+</template>
+
+<template name="userPanel">
+    {{#if currentUser}}
+        <div class="login-buttons my-box-model">
+            <a href="#">{{currentUser.username}} &#x25BC;</a>
+            <div class="sign-out-panel">
+                <button class="btn btn-info btn-block">Sign Out</button>
+            </div>
+        </div>
+    {{/if}}
+</template>

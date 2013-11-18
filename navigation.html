@@ -19,9 +19,7 @@
             {{> loginPanel}}
         {{/if}}
     </div>
-    {{#if currentUser}}
-        <div class="right login-buttons my-box-model">{{loginButtons align="right"}}</div>
-    {{/if}}
+    {{> userPanel}}
 </body>
 
 <template name="loading">
@@ -58,6 +56,7 @@
     <div id="main-naivigation-header" class="nav-row">{{> mainNavigationHeader}}</div>
     {{> mainNavigationModels}}
     {{> mainNavigationJobs}}
+    {{> mainNavigationUsers}}
 </template>
 
 <template name="mainNavigationHeader">
@@ -109,6 +108,21 @@
             <div class="jobDescription">{{description}}</div>
         </div>
     {{/with}}
+</template>
+
+<template name="mainNavigationUsers">
+    <div class="nav-row title">Users <a href="#" class="switch">{{switch}}</a></div>
+    <div class="nav-list {{listClass}}">
+        {{#each users}}
+            <div class="nav-row user link {{rowClass}}">
+                <div class="user-name">{{username}}</div>
+                <div class="full-name">{{profile.fullName}}</div>
+            </div>
+        {{/each}}
+    </div>
+    {{#if isAdmin}}
+        <div class="nav-row user link new">create new</div>
+    {{/if}}
 </template>
 
 <template name="mainRightContent">

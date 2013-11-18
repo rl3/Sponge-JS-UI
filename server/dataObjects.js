@@ -18,14 +18,39 @@ Meteor.startup(function() {
     dataCache.deny(deny);
     dataCacheMeta.deny(deny);
     sessionData.deny(deny);
+
+    var isAdmin= DataObjectTools.isAdmin;
+
+    Meteor.users.allow({
+        insert: isAdmin,
+        update: function( userId, doc, fieldNames, modifier ) {
+            if ( isAdmin() ) return true;
+
+            if ( userId !== doc._id ) return false;
+
+            return true;
+        },
+        remove: isAdmin,
+    });
+
+    // deny all changes except in user's profile
+    Meteor.users.deny({
+        update: function( userId, doc, fieldNames, modifier ) {
+            return fieldNames.filter(function( name ) { return name !== 'profile' }).length;
+        }
+    });
 });
 
 Meteor.publish('client-cache', function() {
     var query= { userId: this.userId };
+
+    var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
+
     return [
         dataCache.find(query),
         dataCacheMeta.find(query),
         sessionData.find(query),
+        Meteor.users.find(admin ? {} : { _id: this.userId }, { fields: { username: true, roles: true, profile: true, } }),
     ];
 });
 

@@ -149,6 +149,21 @@
                 font-size: xx-small;
             }
         }
+
+        &.user {
+            .full-name, .user-name {
+                max-height: 2em;
+                line-height: 100%;
+            }
+            .user-name {
+                font-size: smaller;
+            }
+            .full-name {
+                color: gray;
+                font-weight: normal;
+                font-size: xx-small;
+            }
+        }
     }
 
     .nav-list {
@@ -169,7 +184,15 @@
             }
         }
     }
+}
 
+#user-profile-panel {
+    .comment {
+        color: gray;
+        font-size: xx-small;
+        padding-right: 5px;
+        line-height: 100%;
+    }
 }
 
 .right {
@@ -177,7 +200,16 @@
 }
 
 .login-buttons {
-    margin: 10px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+
+    .sign-out-panel {
+        display: none;
+        background-color: white;
+        border: 1px solid black;
+        padding: 5px;
+    }
 }
 
 #main-right-content {
