@@ -8,14 +8,20 @@
         {{> mainHeader}}
     </div>
     <div id="main-content">
-        <div id="main-left-content">
-            {{> mainNavigation}}
-        </div>
-        <div id="main-right-content">
-            {{> mainRightContent}}
-        </div>
+        {{#if currentUser}}
+            <div id="main-left-content">
+                {{> mainNavigation}}
+            </div>
+            <div id="main-right-content">
+                {{> mainRightContent}}
+            </div>
+        {{else}}
+            {{> loginPanel}}
+        {{/if}}
     </div>
-    <div class="right login-buttons my-box-model">{{loginButtons align="right"}}</div>
+    {{#if currentUser}}
+        <div class="right login-buttons my-box-model">{{loginButtons align="right"}}</div>
+    {{/if}}
 </body>
 
 <template name="loading">
