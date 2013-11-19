@@ -58,6 +58,7 @@ var Debug= false;
 // Debug= true;
 
 var baseUrl= CONFIG.baseurl;
+var baseUrlExt= CONFIG.baseurlExternal;
 var authUrl= CONFIG.authurl;
 //var auth= CONFIG.auth;
 
@@ -94,7 +95,7 @@ var authenticate= function( runFn ) {
     return HTTP.call('GET', baseUrl + authUrl, { auth: auth, }, function( err, result ) {
         console.log('authenticateing done', result)
 
-        sessionData.upsert({ userId: Meteor.userId() }, { userId: Meteor.userId(), baseUrl: baseUrl, token: err ? null : result.data.token }, function() {
+        sessionData.upsert({ userId: Meteor.userId() }, { userId: Meteor.userId(), baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token }, function() {
             while( authenticationQueue.length ) authenticationQueue.shift()(err);
         });
     });

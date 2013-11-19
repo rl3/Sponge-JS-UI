@@ -10,7 +10,10 @@ var getInvalidator= DataObjectTools.getInvalidator;
 var invalidateJob= DataObjectTools.invalidateJob;
 var invalidateModel= DataObjectTools.invalidateModel;
 
-var userName= DataObjectTools.injectVar({}, 'username', null);
+var userName= function( username ) {
+    if ( arguments.length ) return session('username', username);
+    return session('username');
+};
 
 var T= DataObjectTools.Template;
 
@@ -385,6 +388,8 @@ T.helper('users', function() {
     return Meteor.users.find({}, { sort: [[ 'username', 'asc' ]] });
 });
 
+T.helper('listClass', commonListClass(userName));
+
 T.helper('rowClass', function() {
     var _class= getStatusClasses(this);
 
@@ -393,11 +398,13 @@ T.helper('rowClass', function() {
     return _class;
 });
 
-T.helper('isAdmin', DataObjectTools.isAdmin);
-
 T.events({
-    'click .link': function( event ) {
+    'click .link.edit': function( event ) {
         userName(this.username);
+        session('view', 'user');
+    },
+    'click .link.new': function( event ) {
+        userName(' new user');
         session('view', 'user');
     },
     'click a.switch': function( event ) {
@@ -425,7 +432,11 @@ T.helper('content', function() {
             break;
         case 'user':
             template= Template.userEdit;
-            context= cleanObject(Meteor.users.findOne({ username: userName() }))
+            var username= userName();
+            if ( !username ) return;
+
+            var user= Meteor.users.findOne({ username: username }) || { username: username, profile: {} };
+            context= cleanObject(user);
             break;
     }
 

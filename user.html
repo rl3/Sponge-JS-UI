@@ -26,8 +26,8 @@
                 {{#if success}}
                     <tr><td colspan="2" align="center" class="alert alert-success">{{success}}</td></tr>
                 {{/if}}
-                <tr><th align="right">User Name:</th><td>{{username}}</td></tr>
-                <tr><th align="right">Full Name:</th><td><input type="text" name="full-name" value="{{profile.fullName}}" /></td></tr>
+                <tr><th align="right">User Name:</th><td>{{#if newUser}}<input type="text" name="user-name" value="" />{{else}}{{username}}{{/if}}</td></tr>
+                <tr><th align="right">Full Name:</th><td><input type="text" name="full-name" value="{{profile.name}}" /></td></tr>
                 {{#if needOldPassword}}
                     <tr><th align="right">Old Password:</th><td><input type="password" name="old-password" value="" autocomplete="off" /></td></tr>
                 {{/if}}
@@ -48,7 +48,8 @@
         <div class="login-buttons my-box-model">
             <a href="#">{{currentUser.username}} &#x25BC;</a>
             <div class="sign-out-panel">
-                <button class="btn btn-info btn-block">Sign Out</button>
+                <button class="btn btn-info btn-block sign-out">Sign Out</button>
+                <button class="btn btn-info btn-block edit-profile">Edit Profile</button>
             </div>
         </div>
     {{/if}}

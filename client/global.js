@@ -5,6 +5,8 @@ Handlebars.registerHelper('advancedView', function() {
     return DataObjectTools.advancedView();
 });
 
+Handlebars.registerHelper('isAdmin', DataObjectTools.isAdmin);
+
 DataObjectTools.advancedView= function( value ) {
     if ( arguments.length ) session('advancedView', value);
     return session('advancedView');

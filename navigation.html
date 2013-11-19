@@ -56,7 +56,9 @@
     <div id="main-naivigation-header" class="nav-row">{{> mainNavigationHeader}}</div>
     {{> mainNavigationModels}}
     {{> mainNavigationJobs}}
-    {{> mainNavigationUsers}}
+    {{#if isAdmin}}
+        {{> mainNavigationUsers}}
+    {{/if}}
 </template>
 
 <template name="mainNavigationHeader">
@@ -114,15 +116,13 @@
     <div class="nav-row title">Users <a href="#" class="switch">{{switch}}</a></div>
     <div class="nav-list {{listClass}}">
         {{#each users}}
-            <div class="nav-row user link {{rowClass}}">
+            <div class="nav-row user link edit {{rowClass}}">
                 <div class="user-name">{{username}}</div>
-                <div class="full-name">{{profile.fullName}}</div>
+                <div class="full-name">{{profile.name}}</div>
             </div>
         {{/each}}
     </div>
-    {{#if isAdmin}}
-        <div class="nav-row user link new">create new</div>
-    {{/if}}
+    <div class="nav-row user link new">create new</div>
 </template>
 
 <template name="mainRightContent">
