@@ -39,11 +39,12 @@ var dataObjectToString= function( value, options ) {
     var collection= value.$ref;
     var id= (value.selector || {})._id;
 
-    var name= '';
+    var name;
     if ( collection in getObject && id ) {
         var object= getObject[collection](id);
         if ( object ) name= object.name;
     }
+    if ( !name ) name= valueToString(id);
 
     if ( collection === 'AgroObj' ) return name;
 
