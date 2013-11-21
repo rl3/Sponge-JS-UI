@@ -588,7 +588,6 @@ T.helper('currentLabel', function() {
 
     if ( !value ) getTempValue('modelVariant')(buildTypeNames()[0]);
 
-console.log('currentLabel', value)
     return value && value.label;
 });
 

@@ -55,7 +55,7 @@ Meteor.publish('client-cache', function() {
 });
 
 var Debug= false;
-// Debug= true;
+Debug= true;
 
 var baseUrl= CONFIG.baseurl;
 var baseUrlExt= CONFIG.baseurlExternal;
@@ -158,6 +158,7 @@ var _request= function( method, url, options, callback ) {
     var cb= function( err, result ) {
         console.log(method + ' result', url, JSON.stringify(options));
         result= EJSON.fromJSONValue(result || {});
+if (url.match(/Mapname/))
         if ( Debug ) {
 //            console.log('error', err);
 //            console.log('result', result);
