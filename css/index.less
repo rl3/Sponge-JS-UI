@@ -10,6 +10,8 @@
 @job-state-running: #DDDDFF;
 
 
+@highlight-background: #DDDDDD;
+
 /* apply a natural box layout model */
 .box-model {
     &, &:before, &:after {
@@ -106,7 +108,7 @@
 
             &:hover {
                 color: #005580;
-                background-color: #DDDDDD;
+                background-color: @highlight-background;
             }
         }
 
@@ -232,7 +234,7 @@
     bottom: 0;
     background-color: white;
     padding: 1px;
-    border: 1px solid #DDDDDD;
+    border: 1px solid @highlight-background;
 
     #google-maps-border {
         .box-model;
@@ -264,6 +266,15 @@
 }
 
 
+.dropdown-menu li {
+    padding-left: 12px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: @highlight-background;
+    }
+}
+
 
 
 
@@ -273,7 +284,7 @@
     height: 100%;
 }
 
-@active: #DDDDDD;
+@active: @highlight-background;
 
 a.active {
     background-color: @active;

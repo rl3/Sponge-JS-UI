@@ -540,14 +540,6 @@ T.events({
     },
 });
 
-T.helper('currentLabel', function() {
-    var value= getTempValue('modelVariant')();
-
-    if ( !value ) getTempValue('modelVariant')(buildTypeNames()[0]);
-
-    return value && value.label;
-});
-
 var getCompatibleTypes= function() {
     var value= getValue();
     if ( !value ) {
@@ -590,6 +582,15 @@ var buildTypeNames= function() {
 T.select('valueInputModelSelector');
 
 T.helper('typeName', buildTypeNames);
+
+T.helper('currentLabel', function() {
+    var value= getTempValue('modelVariant')();
+
+    if ( !value ) getTempValue('modelVariant')(buildTypeNames()[0]);
+
+console.log('currentLabel', value)
+    return value && value.label;
+});
 
 T.events({
     'click li.type': function( event ) {
