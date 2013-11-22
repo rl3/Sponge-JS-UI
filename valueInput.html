@@ -71,33 +71,57 @@
 </template>
 
 <template name="inputTypeNearest">
-    <select class="typeName">
-        <option style="display: none">Please select</option>
-        {{#each typeName}}
-            <option {{selectedType}} value="{{id}}">{{label}}</option>
-        {{/each}}
-    </select>
-    <select class="tagName">
-        <option style="display: none">Please select</option>
-        {{#each tag}}
-            <option {{selectedTag}} value="{{this}}">{{this}}</option>
-        {{/each}}
-    </select>
+    {{#if loadingTypeName}}
+        {{> loadingSmall}}
+    {{else}}
+        <select class="typeName">
+            <option style="display: none">Please select</option>
+            {{#each typeName}}
+                <option {{selectedType}} value="{{id}}">{{label}}</option>
+            {{/each}}
+        </select>
+    {{/if}}
+    {{#if showTags}}
+        {{#if loadingTags}}
+            {{> loadingSmall}}
+        {{else}}
+            <select class="tagName">
+                <option style="display: none">Please select</option>
+                {{#each tag}}
+                    <option {{selectedTag}} value="{{this}}">{{this}}</option>
+                {{/each}}
+            </select>
+        {{/if}}
+    {{else}}
+        <select disabled></select>
+    {{/if}}
 </template>
 
 <template name="inputTypeMap">
-    <select class="typeName">
-        <option style="display: none">Please select</option>
-        {{#each typeName}}
-            <option {{selectedType}} value="{{id}}">{{label}}</option>
-        {{/each}}
-    </select>
-    <select class="mapName">
-        <option style="display: none">Please select</option>
-        {{#each map}}
-            <option {{selectedMap}} value="{{this}}">{{this}}</option>
-        {{/each}}
-    </select>
+    {{#if loadingTypeName}}
+        {{> loadingSmall}}
+    {{else}}
+        <select class="typeName">
+            <option style="display: none">Please select</option>
+            {{#each typeName}}
+                <option {{selectedType}} value="{{id}}">{{label}}</option>
+            {{/each}}
+        </select>
+    {{/if}}
+    {{#if showMaps}}
+        {{#if loadingMaps}}
+            {{> loadingSmall}}
+        {{else}}
+            <select class="mapName">
+                <option style="display: none">Please select</option>
+                {{#each map}}
+                        <option {{selectedMap}} value="{{this}}">{{this}}</option>
+                {{/each}}
+            </select>
+        {{/if}}
+    {{else}}
+        <select disabled></select>
+    {{/if}}
 </template>
 
 
@@ -177,24 +201,33 @@
 
 <template name="valueInputModelSelector">
     <div class="input-prepend input-append">
-        <div class="btn-group">
-            <button class="btn dropdown-toggle" data-toggle="dropdown">
-                {{currentLabel}}
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                {{#each typeName}}
-                    <li class="type">{{label}}</li>
-                {{/each}}
-            </ul>
-        </div>
-        <select class="span3">
-            <option value="" class="hidden">Please Select</option>
-            {{#each values}}
-                <option value="{{id}}" {{selected}}>{{name}}</option>
-            {{/each}}
-        </select>
-        <span class="add-on">{{valueCount}}</span>
+        {{#if loading}}
+            {{> loadingSmall}}
+        {{else}}
+            <div class="btn-group">
+                <button class="btn dropdown-toggle" data-toggle="dropdown">
+                    {{currentLabel}}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    {{#each typeName}}
+                        <li class="type">{{label}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{#if loadingValues}}
+                <select class="span3" disabled></select>
+                <span class="add-on"><img src="skin/loading.gif" /></span>
+            {{else}}
+                <select class="span3">
+                    <option value="" class="hidden">Please Select</option>
+                    {{#each values}}
+                        <option value="{{id}}" {{selected}}>{{name}}</option>
+                    {{/each}}
+                </select>
+                <span class="add-on">{{valueCount}}</span>
+            {{/if}}
+        {{/if}}
     </div>
 </template>
 

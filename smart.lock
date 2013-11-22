@@ -1,0 +1,15 @@
+{
+  "meteor": {},
+  "dependencies": {
+    "basePackages": {
+      "define": {}
+    },
+    "packages": {
+      "define": {
+        "git": "https://github.com/apendua/require.git",
+        "tag": "v0.9.0.2",
+        "commit": "5c3bdfdf7c747dc7297e7697d5f1a28ef86772f2"
+      }
+    }
+  }
+}

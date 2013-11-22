@@ -55,12 +55,11 @@ Meteor.publish('client-cache', function() {
 });
 
 var Debug= false;
-Debug= true;
+// Debug= true;
 
-var baseUrl= CONFIG.baseurl;
-var baseUrlExt= CONFIG.baseurlExternal;
-var authUrl= CONFIG.authurl;
-//var auth= CONFIG.auth;
+var baseUrl= SpongeTools.Config.baseurl;
+var baseUrlExt= SpongeTools.Config.baseurlExternal;
+var authUrl= SpongeTools.Config.authurl;
 
 var getAuth= function() {
     var user= Meteor.user();
@@ -157,10 +156,10 @@ var _request= function( method, url, options, callback ) {
 
     var cb= function( err, result ) {
         console.log(method + ' result', url, JSON.stringify(options));
+        if ( err ) console.log('error', err);
+
         result= EJSON.fromJSONValue(result || {});
-if (url.match(/Mapname/))
         if ( Debug ) {
-//            console.log('error', err);
 //            console.log('result', result);
             console.log('data', url, result.data);
         }

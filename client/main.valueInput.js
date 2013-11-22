@@ -549,7 +549,11 @@ var getCompatibleTypes= function() {
         };
     }
 
-    var compatibleTypes= getMatchingTypes( value.type ) || {};
+    var compatibleTypes= getMatchingTypes( value.type );
+
+    if ( compatibleTypes === undefined ) return;
+
+    if ( !compatibleTypes ) compatibleTypes= {};
 
     if ( !compatibleTypes.schemas ) compatibleTypes.schemas= [];
     if ( !compatibleTypes.models )  compatibleTypes.models= [];
@@ -559,6 +563,8 @@ var getCompatibleTypes= function() {
 
 var buildTypeNames= function() {
     var compatibleTypes= getCompatibleTypes();
+
+    if ( !compatibleTypes ) return [];
 
     var typeNames= {};
 
@@ -580,6 +586,10 @@ var buildTypeNames= function() {
 };
 
 T.select('valueInputModelSelector');
+
+T.helper('loading', function() {
+    return !getCompatibleTypes();
+});
 
 T.helper('typeName', buildTypeNames);
 
@@ -612,7 +622,7 @@ T.events({
 var getCompatibleObjects= function() {
     var selectedType= getTempValue('modelVariant')();
 
-    if ( !selectedType ) return [];
+    if ( !selectedType ) return;
 
     // Model
     if ( selectedType.schemas === undefined ) {
@@ -628,11 +638,15 @@ var getCompatibleObjects= function() {
         versions: selectedType.schemas.map(function( schema ) { return schema.version }),
         name: getTempValue('modelName', '')(),
         limit: limitAgroObjs + 1,
-    }) || [];
+    });
 };
 
+T.helper('loadingValues', function() {
+    return getCompatibleObjects() === undefined;
+});
+
 T.helper('values', function() {
-    var objects= getCompatibleObjects();
+    var objects= getCompatibleObjects() || [];
 
     return objects.map(function( agroObj ) {
         return { id: agroObj._id.toHexString(), name: agroObj.name };
@@ -640,9 +654,9 @@ T.helper('values', function() {
 });
 
 T.helper('valueCount', function() {
-    var count= getCompatibleObjects().length;
+    var count= (getCompatibleObjects() || []).length;
 
-    return count == 0 ? '' : count > limitAgroObjs ? limitAgroObjs + '+' : count;
+    return count > limitAgroObjs ? limitAgroObjs + '+' : count;
 });
 
 T.helper('selected', function() {
@@ -660,7 +674,9 @@ T.helper('selected', function() {
 
 
 var commonNearestMapTypeMap= function() {
-    return buildTypeNames().filter(function( typeName ) { return typeName.schemas && typeName.schemas.length; }).map(function( typeName ) {
+    var typeNames= buildTypeNames();
+
+    return typeNames.filter(function( typeName ) { return typeName.schemas && typeName.schemas.length; }).map(function( typeName ) {
         var objectType= typeName.schemas[0].objectType;
         var versions= typeName.schemas.map(function( schema ) { return schema.version; });
         return {
@@ -708,13 +724,17 @@ var setNearestSelector= function( newSelector ) {
     return newValue(value);
 };
 
+T.helper('loadingTypeName', function() {
+    return !getCompatibleTypes();
+});
+
 T.helper('typeName', commonNearestMapTypeMap);
 
 T.helper('selectedType', commonNearestMapSelectedType(getNearestValue));
 
 T.events(commonNearestMapEvents(setNearestSelector));
 
-T.helper('tag', function() {
+var _getTags= function() {
     var sel= getNearestValue().selector;
 
     var version;
@@ -729,7 +749,18 @@ T.helper('tag', function() {
     if ( !tags || tags.length === 0 ) return;
 
     return tags;
+};
+
+T.helper('showTags', function() {
+    var sel= getNearestValue().selector;
+    return sel.objectType && sel.version;
 });
+
+T.helper('loadingTags', function() {
+    return _getTags() === undefined;
+});
+
+T.helper('tag', _getTags);
 
 T.helper('selectedTag', function() {
     if ( getNearestValue().selector.tags === String(this) ) return 'SELECTED';
@@ -758,13 +789,17 @@ var setMapSelector= function( newSelector ) {
     return newValue(value);
 };
 
+T.helper('loadingTypeName', function() {
+    return !getCompatibleTypes();
+});
+
 T.helper('typeName', commonNearestMapTypeMap);
 
 T.helper('selectedType', commonNearestMapSelectedType(getMapValue));
 
 T.events(commonNearestMapEvents(setMapSelector));
 
-T.helper('map', function() {
+var getMaps= function() {
     var sel= getMapValue().selector;
 
     var version;
@@ -779,7 +814,18 @@ T.helper('map', function() {
     if ( !maps || maps.length === 0 ) return;
 
     return maps;
+};
+
+T.helper('showMaps', function() {
+    var sel= getMapValue().selector;
+    return sel.objectType && sel.version;
 });
+
+T.helper('loadingMaps', function() {
+    return getMaps() === undefined;
+});
+
+T.helper('map', getMaps);
 
 T.helper('selectedMap', function() {
     if ( getMapValue().selector.mapname === String(this) ) return 'SELECTED';

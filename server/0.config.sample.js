@@ -4,7 +4,7 @@
  */
 
 /*
-CONFIG= {
+SpongeTools.Config= {
 
     // url the server uses fpr api calls
     baseurl:  'https://url.of.your.server',
