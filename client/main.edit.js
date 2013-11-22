@@ -8,7 +8,7 @@ var Edit= function( options ) {
     this.editTemplateName= options.editTemplateName || 'editEditText';
     this.asTr= options.asTr || false;
 
-    this.editMode= DataObjectTools.ReactiveValue(false);
+    this.editMode= SpongeTools.ReactiveValue(false);
 };
 Edit.prototype.get= function() {
     return this.options.context[this.options.property];

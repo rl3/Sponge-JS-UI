@@ -1,13 +1,13 @@
 
-var getMatchingTypes= DataObjectTools.getCachedData('getMatchingTypes');
-var getMatchingObjects= DataObjectTools.getCachedData('getMatchingObjects');
-var getTags= DataObjectTools.getCachedData('getTagsByTypeVersion');
-var getMapnames= DataObjectTools.getCachedData('getMapnamesByTypeVersion');
+var getMatchingTypes= SpongeTools.getCachedData('getMatchingTypes');
+var getMatchingObjects= SpongeTools.getCachedData('getMatchingObjects');
+var getTags= SpongeTools.getCachedData('getTagsByTypeVersion');
+var getMapnames= SpongeTools.getCachedData('getMapnamesByTypeVersion');
 
-var ObjectId= DataObjectTools.ObjectId;
+var ObjectId= SpongeTools.ObjectId;
 
-var injectVar= DataObjectTools.injectVar;
-var injectGlobalVar= DataObjectTools.injectGlobalVar;
+var injectVar= SpongeTools.injectVar;
+var injectGlobalVar= SpongeTools.injectGlobalVar;
 
 var currentValue;
 var tempValue= {};
@@ -18,7 +18,7 @@ var limitAgroObjs= 30;
 
 var dateFormat= 'dd.mm.yyyy';
 
-var T= DataObjectTools.Template;
+var T= SpongeTools.Template;
 
 /*
  * generic local temporary value
@@ -146,7 +146,7 @@ T.helper('inputTypes', function() {
         var currentValue= value.getValue();
 
         // clone object
-        currentValue= DataObjectTools.clone(currentValue);
+        currentValue= SpongeTools.clone(currentValue);
 
         currentInputType= 'single';
         if ( currentValue && typeof currentValue === 'object' ) {
@@ -211,7 +211,7 @@ $(function() {
 T.select('inputTypeSingle');
 
 T.helper('value', function() {
-    return DataObjectTools.valueToString(newValue());
+    return SpongeTools.valueToString(newValue());
 });
 
 T.events({
@@ -222,7 +222,7 @@ T.events({
             type: getType(),
         }
         invalidate('singlevalue');
-        DataObjectTools.showModal($('#singleValueInput'));
+        SpongeTools.showModal($('#singleValueInput'));
     }
 });
 
@@ -253,7 +253,7 @@ T.helper('values', function() {
 });
 
 T.helper('value', function() {
-    return DataObjectTools.valueToString(this.value && this.value());
+    return SpongeTools.valueToString(this.value && this.value());
 });
 
 T.events({
@@ -277,7 +277,7 @@ T.events({
             type: getType(),
         }
         invalidate('singlevalue');
-        DataObjectTools.showModal($('#singleValueInput'));
+        SpongeTools.showModal($('#singleValueInput'));
     },
     'click a.value': function() {
         var self= this;
@@ -288,7 +288,7 @@ T.events({
             type: getType(),
         }
         invalidate('singlevalue');
-        DataObjectTools.showModal($('#singleValueInput'));
+        SpongeTools.showModal($('#singleValueInput'));
     }
 });
 
@@ -313,19 +313,19 @@ var buildRangeValue= function( name ) {
 T.helper('valueFrom', function() {
     isInvalid('rangeview.from');
     var value= buildRangeValue('from')
-    return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
+    return { value: value, valueText: function() { return SpongeTools.valueToString(value()); } };
 });
 
 T.helper('valueTo', function() {
     isInvalid('rangeview.to');
     var value= buildRangeValue('to')
-    return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
+    return { value: value, valueText: function() { return SpongeTools.valueToString(value()); } };
 });
 
 T.helper('valueStep', function() {
     isInvalid('rangeview.step');
     var value= buildRangeValue('step')
-    return { value: value, valueText: function() { return DataObjectTools.valueToString(value()); } };
+    return { value: value, valueText: function() { return SpongeTools.valueToString(value()); } };
 });
 
 T.events({
@@ -338,7 +338,7 @@ T.events({
             type: getType(),
         }
         invalidate('singlevalue');
-        DataObjectTools.showModal($('#singleValueInput'));
+        SpongeTools.showModal($('#singleValueInput'));
     }
 });
 

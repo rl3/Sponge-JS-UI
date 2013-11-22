@@ -1,18 +1,18 @@
 
-var session= DataObjectTools.localSession('global');
+var session= SpongeTools.localSession('global');
 
 Handlebars.registerHelper('advancedView', function() {
-    return DataObjectTools.advancedView();
+    return SpongeTools.advancedView();
 });
 
-Handlebars.registerHelper('isAdmin', DataObjectTools.isAdmin);
+Handlebars.registerHelper('isAdmin', SpongeTools.isAdmin);
 
-DataObjectTools.advancedView= function( value ) {
+SpongeTools.advancedView= function( value ) {
     if ( arguments.length ) session('advancedView', value);
     return session('advancedView');
 };
 
-DataObjectTools.editor= function( onChange ) {
+SpongeTools.editor= function( onChange ) {
     return function( context, property ) {
         return new Handlebars.SafeString(Template.edit(
             new GuiTools.Edit({

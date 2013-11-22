@@ -1,5 +1,5 @@
 
-var injectVar= DataObjectTools.injectVar;
+var injectVar= SpongeTools.injectVar;
 
 Template.jsEditor.rendered= function() {
     var data= this.data;

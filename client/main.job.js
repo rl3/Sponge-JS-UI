@@ -2,56 +2,56 @@
 var ItemsPerPage= 50;
 var jobUpdateTimeout= 10000; // 10s
 
-var injectVar= DataObjectTools.injectVar;
+var injectVar= SpongeTools.injectVar;
 
-var jobId= DataObjectTools.jobId;
+var jobId= SpongeTools.jobId;
 
-var invalidateJob= DataObjectTools.invalidateJob;
+var invalidateJob= SpongeTools.invalidateJob;
 
-var editor= DataObjectTools.editor(function( context ) {
+var editor= SpongeTools.editor(function( context ) {
     injectVar(context, 'changed')(true);
 });
 
-var _getJob= DataObjectTools.getCachedData('getJob', 2000);
+var _getJob= SpongeTools.getCachedData('getJob', 2000);
 var getJob= function( _jobId ) {
     if ( !_jobId ) _jobId= jobId();
     invalidateJob(_jobId);
     return _getJob(_jobId);
 };
 
-// var getJobLog= DataObjectTools.getCachedData('getJobLog', 2000);
-var getJobLog= DataObjectTools.postData('getJobLog');
-var deleteJobLog= DataObjectTools.postData('deleteJobLog');
+// var getJobLog= SpongeTools.getCachedData('getJobLog', 2000);
+var getJobLog= SpongeTools.postData('getJobLog');
+var deleteJobLog= SpongeTools.postData('deleteJobLog');
 
-var getJobResult= DataObjectTools.getCachedData('getJobResult', 2000);
+var getJobResult= SpongeTools.getCachedData('getJobResult', 2000);
 
-var _restartJob= DataObjectTools.getCachedData('restartJob', 2000);
+var _restartJob= SpongeTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
     _restartJob(jobId(), function() {
-        DataObjectTools.invalidateJobList(true);
+        SpongeTools.invalidateJobList(true);
         invalidateJob(jobId(), true);
     });
 };
 
-var _removeJob= DataObjectTools.getCachedData('removeJob', 2000);
+var _removeJob= SpongeTools.getCachedData('removeJob', 2000);
 var removeJob= function() {
     var _jobId= jobId();
     _removeJob(_jobId, function() {
-        DataObjectTools.invalidateJobList(true);
+        SpongeTools.invalidateJobList(true);
         invalidateJob(_jobId, true);
     });
     jobId(undefined);
 };
 
-var _getModel= DataObjectTools.getCachedData('getModel');
+var _getModel= SpongeTools.getCachedData('getModel');
 var getModel= function() {
     var job= getJob();
     if ( !job ) return;
 
-    return DataObjectTools.cleanObject(_getModel(job.modelId));
+    return SpongeTools.cleanObject(_getModel(job.modelId));
 };
 
-var T= DataObjectTools.Template;
+var T= SpongeTools.Template;
 
 /**
  * Template job
@@ -82,7 +82,7 @@ T.helper('finishTime', function() {
 
 T.helper('model', function() {
     var model= getModel();
-    if ( !model ) return DataObjectTools.valueToString(DataObjectTools.modelId());
+    if ( !model ) return SpongeTools.valueToString(SpongeTools.modelId());
 
     return model.name;
 });
@@ -102,7 +102,7 @@ T.helper('args', function() {
     return Object.keys(args).map(function( argName ) {
         return {
             name: argName,
-            value: new Handlebars.SafeString(DataObjectTools.valueToString(args[argName], { locationFn: true, })),
+            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName], { locationFn: true, })),
         };
     });
 });
@@ -124,9 +124,9 @@ var setLogResult= function( content ) {
 T.events({
     'click button.show-log': function( event ) {
         setLogResult('');
-        DataObjectTools.showModal($('#jobLog'));
+        SpongeTools.showModal($('#jobLog'));
 
-        var jobId= DataObjectTools.jobId();
+        var jobId= SpongeTools.jobId();
         if ( !jobId ) return;
 
         var log= getJobLog(jobId, function(err, result) {
@@ -136,7 +136,7 @@ T.events({
 
     },
     'click button.delete-log': function( event ) {
-        var jobId= DataObjectTools.jobId();
+        var jobId= SpongeTools.jobId();
         if ( !jobId ) return;
 
         var log= deleteJobLog(jobId, function(err, result) {});
@@ -151,8 +151,8 @@ T.events({
         var $a= $(event.currentTarget);
         var lat= +$a.attr('lat');
         var lon= +$a.attr('lon');
-        DataObjectTools.showMap();
-        DataObjectTools.addMapMarker(lon, lat, { infotext: '<div><div><b>Job-Titel</b></div><div>Hier kommt die Job-Beschreibung hin.</div></div>' });
+        SpongeTools.showMap();
+        SpongeTools.addMapMarker(lon, lat, { infotext: '<div><div><b>Job-Titel</b></div><div>Hier kommt die Job-Beschreibung hin.</div></div>' });
     },
 });
 
@@ -176,7 +176,7 @@ var _getResultLevel= function( results, path ) {
 };
 
 var getResult= function() {
-    var jobId= DataObjectTools.jobId();
+    var jobId= SpongeTools.jobId();
     if ( !jobId ) return;
 
     return _getResultLevel(getJobResult({ jobId: jobId, path: '', }));
@@ -190,7 +190,7 @@ T.helper('resultMap', function() {
     return Object.keys(result).filter(function( key ) {
         return key !== 'tables';
     }).map(function( key ) {
-        var value= DataObjectTools.valueToString(
+        var value= SpongeTools.valueToString(
             result[key],
             {
                 returnOnObject: null,
@@ -221,8 +221,8 @@ T.helper('resultTables', function() {
         result.push({
             index: id,
             tablePath: tablePath,
-            hrefXml: DataObjectTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
-            hrefCsv: DataObjectTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
+            hrefXml: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
+            hrefCsv: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
         });
     }
     return result;
@@ -232,7 +232,7 @@ T.helper('keys', function() {
     var self= this;
     return Object.keys(self).map(function( key ) {
         var objectVal= {};
-        var simpleValue= DataObjectTools.valueToString(self[key], { returnOnObject: objectVal });
+        var simpleValue= SpongeTools.valueToString(self[key], { returnOnObject: objectVal });
         return {
             key: key,
             objectValue: simpleValue === objectVal && self[key],

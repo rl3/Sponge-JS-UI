@@ -19,14 +19,14 @@ var getCachedData= function( name, timeout ) {
             cb= args.pop();
         }
 
-        var id= DataObjectTools.cachedMethodUrl[name].apply(DataObjectTools.cachedMethodUrl, args);
+        var id= SpongeTools.cachedMethodUrl[name].apply(SpongeTools.cachedMethodUrl, args);
 
         var key= typeof id === 'object' ? JSON.stringify(id) : id;
 
         var query= { key: key, };
 
         var metaData= dataCacheMeta.findOne(query, { reactive: false }) || {};
-        var data= DataObjectTools.convertFromMongo(dataCache.findOne(query));
+        var data= SpongeTools.convertFromMongo(dataCache.findOne(query));
 
         // if cache data is valid, return current data
         if ( metaData.timeStamp > than && data ) return data.data;
@@ -65,7 +65,7 @@ var buildApiUrl= function( url ) {
     return sd.baseUrl + url + append + 'SessionId=' + sd.token;
 };
 
-DataObjectTools.getCachedData= getCachedData;
-DataObjectTools.postData= postData;
+SpongeTools.getCachedData= getCachedData;
+SpongeTools.postData= postData;
 
-DataObjectTools.buildApiUrl= buildApiUrl;
+SpongeTools.buildApiUrl= buildApiUrl;

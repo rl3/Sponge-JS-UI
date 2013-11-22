@@ -19,7 +19,7 @@ Meteor.startup(function() {
     dataCacheMeta.deny(deny);
     sessionData.deny(deny);
 
-    var isAdmin= DataObjectTools.isAdmin;
+    var isAdmin= SpongeTools.isAdmin;
 
     Meteor.users.allow({
         insert: isAdmin,
@@ -142,7 +142,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
 
         var sd= sessionData.findOne({ userId: Meteor.userId() });
 
-        var _options= DataObjectTools.clone(options);
+        var _options= SpongeTools.clone(options);
 
         if ( sd && sd.token ) setCookie(_options, 'RestSessionId', sd.token);
 
@@ -196,7 +196,7 @@ var methods= {};
             var id= model._id;
             if ( !id ) return;
 
-            var url= DataObjectTools.cachedMethodUrl['get' + type](id);
+            var url= SpongeTools.cachedMethodUrl['get' + type](id);
 
             if ( typeof url === 'object' ) url= JSON.stringify(url);
 
@@ -211,10 +211,10 @@ var onAfterMethod= {};
 
 var getInstances= {};
 
-Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
+Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
     methods[name]= function( /* arguments */ ) {
         var args= Array.prototype.slice.call(arguments);
-        var _urlData= DataObjectTools.cachedMethodUrl[name].apply(DataObjectTools.cachedMethodUrl, args);
+        var _urlData= SpongeTools.cachedMethodUrl[name].apply(SpongeTools.cachedMethodUrl, args);
 
         // run onBeforeMethod with options and return on false
         if ( name in onBeforeMethod && !onBeforeMethod[name].apply(null, args) ) return;
@@ -260,7 +260,7 @@ Object.keys(DataObjectTools.cachedMethodUrl).forEach(function( name ) {
                 data= onAfterMethod[name].apply(null, args);
             }
 
-            updateCache(key, DataObjectTools.convertToMongo(data), function( err ) {
+            updateCache(key, SpongeTools.convertToMongo(data), function( err ) {
                 delete getInstances[key];
             });
         });

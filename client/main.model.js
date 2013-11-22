@@ -1,7 +1,7 @@
 
 var _saveModel= {
-    'Model': DataObjectTools.postData('saveModel'),
-    'ModelTemplate': DataObjectTools.postData('saveModelTemplate'),
+    'Model': SpongeTools.postData('saveModel'),
+    'ModelTemplate': SpongeTools.postData('saveModelTemplate'),
 }
 
 var saveModel= function( model ) {
@@ -10,13 +10,13 @@ var saveModel= function( model ) {
     _saveModel[type](model);
 };
 
-var injectVar= DataObjectTools.injectVar;
-var valueToString= DataObjectTools.valueToString;
-var str2Oid= DataObjectTools.str2Oid;
+var injectVar= SpongeTools.injectVar;
+var valueToString= SpongeTools.valueToString;
+var str2Oid= SpongeTools.str2Oid;
 
-var T= DataObjectTools.Template;
+var T= SpongeTools.Template;
 
-var editor= DataObjectTools.editor(function( context ) {
+var editor= SpongeTools.editor(function( context ) {
     injectVar(context, 'changed')(true);
 });
 
@@ -35,11 +35,11 @@ T.helper('description', function() {
 });
 
 T.helper('args', function() {
-    return DataObjectTools.editableTypeMap(this.definition, 'args', injectVar(this, 'changed'));
+    return SpongeTools.editableTypeMap(this.definition, 'args', injectVar(this, 'changed'));
 });
 
 T.helper('result', function() {
-    return DataObjectTools.editableTypeMap(this.definition, 'result', injectVar(this, 'changed'));
+    return SpongeTools.editableTypeMap(this.definition, 'result', injectVar(this, 'changed'));
 });
 
 T.helper('functionCode', function() {
@@ -54,7 +54,7 @@ T.helper('functionCode', function() {
     result.setValue= function( newBody ) {
         if ( self.functionBody.code === newBody ) return;
 
-        self.functionBody= new DataObjectTools.Types.Code(newBody);
+        self.functionBody= new SpongeTools.Types.Code(newBody);
         injectVar(self, 'changed')(true);
     };
     result.hasButtonBar= true;
@@ -80,7 +80,7 @@ T.helper('isTemplate', function() {
 });
 
 T.helper('timeStamp', function() {
-    return DataObjectTools.formatValue(this.timeStamp, true);
+    return SpongeTools.formatValue(this.timeStamp, true);
 });
 
 T.helper('inputDefinitions', function() {
@@ -113,7 +113,7 @@ T.helper('inputs', function() {
 
             return inputs[name];
         }
-        return DataObjectTools.buildValue(name, inputDefs[name], varFn, null);
+        return SpongeTools.buildValue(name, inputDefs[name], varFn, null);
     });
     return result;
 });
@@ -127,7 +127,7 @@ T.events({
         injectVar(this, 'changed')(false);
     },
     'click a.modelRun': function() {
-        DataObjectTools.showModal($('#modelRun'));
+        SpongeTools.showModal($('#modelRun'));
     },
 });
 
@@ -156,18 +156,18 @@ T.helper('isModel', function() {
 T.select('objectType');
 
 T.helper('schema', function() {
-    var schema= DataObjectTools.findThisSchema(this.args, this.result);
+    var schema= SpongeTools.findThisSchema(this.args, this.result);
     return schema;
 });
 
 T.helper('args', function() {
 return;
-    return DataObjectTools.editableTypeMap(this, 'args', this.onChange);
+    return SpongeTools.editableTypeMap(this, 'args', this.onChange);
 });
 
 T.helper('result', function() {
 return;
-    return DataObjectTools.editableTypeMap(this, 'result', this.onChange);
+    return SpongeTools.editableTypeMap(this, 'result', this.onChange);
 });
 
 

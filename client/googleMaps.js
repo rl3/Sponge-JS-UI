@@ -108,8 +108,8 @@ var hideMap= function() {
     get$container().hide();
 };
 
-DataObjectTools.removeMapMarkers= removeMarkers;
-DataObjectTools.addMapMarker= addMarker;
-DataObjectTools.showMap= showMap;
-DataObjectTools.hideMap= hideMap;
+SpongeTools.removeMapMarkers= removeMarkers;
+SpongeTools.addMapMarker= addMarker;
+SpongeTools.showMap= showMap;
+SpongeTools.hideMap= hideMap;
 

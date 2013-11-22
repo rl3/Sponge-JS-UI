@@ -23,4 +23,4 @@ var showModal = function ( $dialog ) {
     }).modal('hide');
 };
 
-DataObjectTools.showModal= showModal;
+SpongeTools.showModal= showModal;

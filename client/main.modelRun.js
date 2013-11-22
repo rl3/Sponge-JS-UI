@@ -1,31 +1,31 @@
 
-var T= DataObjectTools.Template;
+var T= SpongeTools.Template;
 
-var _getModel= DataObjectTools.getCachedData('getModel');
+var _getModel= SpongeTools.getCachedData('getModel');
 var getModel= function() {
-    var modelId= DataObjectTools.modelId();
+    var modelId= SpongeTools.modelId();
     if ( !modelId ) return;
 
     return _getModel(modelId);
 };
 
-var _getModelArgs= DataObjectTools.getCachedData('getModelArgs');
+var _getModelArgs= SpongeTools.getCachedData('getModelArgs');
 var getModelArgs= function() {
-    var modelId= DataObjectTools.modelId();
+    var modelId= SpongeTools.modelId();
     if ( !modelId ) return;
 
     return _getModelArgs(modelId);
 };
 
-var _runModel= DataObjectTools.getCachedData('startJob');
+var _runModel= SpongeTools.getCachedData('startJob');
 var runModel= function( args, details ) {
-    return _runModel(DataObjectTools.modelId(), args, details, function() {
-        DataObjectTools.invalidateJobList(true);
+    return _runModel(SpongeTools.modelId(), args, details, function() {
+        SpongeTools.invalidateJobList(true);
     });
 };
 
-var injectVar= DataObjectTools.injectVar;
-var injectGlobalVar= DataObjectTools.injectGlobalVar;
+var injectVar= SpongeTools.injectVar;
+var injectGlobalVar= SpongeTools.injectGlobalVar;
 
 T.select('modelRunTitle');
 
@@ -98,7 +98,7 @@ T.helper('getArgs', function() {
     [ 'args', 'inputs' ].forEach(function( property ) {
         if ( !args[property] ) return;
 
-        result[property]= DataObjectTools.buildValues(args, property, self);
+        result[property]= SpongeTools.buildValues(args, property, self);
     });
 
     verifyArgs= function() {
@@ -131,7 +131,7 @@ T.helper('getArgs', function() {
 T.events({
     'click a.editValue': function( event ) {
         injectGlobalVar('valueInput')(this);
-        DataObjectTools.showModal($('#valueInput'));
+        SpongeTools.showModal($('#valueInput'));
     },
 });
 

@@ -31,8 +31,8 @@ var locationToString= function( value, options ) {
 };
 
 var getObject= {
-    'Model': DataObjectTools.getCachedData('getModel'),
-    'AgroObj': DataObjectTools.getCachedData('getAgroObject'),
+    'Model': SpongeTools.getCachedData('getModel'),
+    'AgroObj': SpongeTools.getCachedData('getAgroObject'),
 };
 
 var dataObjectToString= function( value, options ) {
@@ -158,7 +158,7 @@ var buildValue= function( name, type, valueFn, info ) {
         name: name,
         type: type,
         valueText: function() {
-            return DataObjectTools.valueToString(valueFn());
+            return SpongeTools.valueToString(valueFn());
         },
         getValue: function() { return valueFn(); },
         setValue: function( newValue ) { valueFn(newValue); }
@@ -176,7 +176,7 @@ var buildValues= function( args, property, valueContext ) {
         return buildValue(
             name,
             args[property][name], // type
-            DataObjectTools.injectVar(valueContext, injectPrefix + name, (info[name] || {}).default),
+            SpongeTools.injectVar(valueContext, injectPrefix + name, (info[name] || {}).default),
             info[name] // info
         );
     });
@@ -186,11 +186,11 @@ var defaultLocationFn= function( text, location ) {
     return '<a href="#" class="location" lon="' + location[0] + '" lat="' + location[1] + '">' + text + '</a>';
 };
 
-DataObjectTools.valueToString= valueToString;
-DataObjectTools.buildValues= buildValues;
-DataObjectTools.buildValue= buildValue;
+SpongeTools.valueToString= valueToString;
+SpongeTools.buildValues= buildValues;
+SpongeTools.buildValue= buildValue;
 
-DataObjectTools.dateToString= dateToString;
-DataObjectTools.timeToString= timeToString;
+SpongeTools.dateToString= dateToString;
+SpongeTools.timeToString= timeToString;
 
-DataObjectTools.defaultLocationFn= defaultLocationFn;
+SpongeTools.defaultLocationFn= defaultLocationFn;

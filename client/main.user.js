@@ -1,9 +1,9 @@
 
-var T= DataObjectTools.Template;
+var T= SpongeTools.Template;
 
 T.select('loginPanel');
 
-var loginError= DataObjectTools.injectVar({}, 'error');
+var loginError= SpongeTools.injectVar({}, 'error');
 
 T.helper('error', function() {
     return loginError();
@@ -28,8 +28,8 @@ T.events({
 
 T.select('userEdit');
 
-var userError= DataObjectTools.injectVar({}, 'error');
-var userSuccess= DataObjectTools.injectVar({}, 'success');
+var userError= SpongeTools.injectVar({}, 'error');
+var userSuccess= SpongeTools.injectVar({}, 'success');
 
 T.change('created', function() {
     userError(undefined);
@@ -50,7 +50,7 @@ var needOldPassword= function( templateData ) {
     if ( user.username === templateData.username ) return true;
 
     // only admins may change password without old password
-    return DataObjectTools.isAdmin();
+    return SpongeTools.isAdmin();
 };
 
 T.helper('error', function() {
@@ -183,7 +183,7 @@ T.events({
         Meteor.logout();
     },
     'click button.edit-profile': function( event, template ) {
-        var session= DataObjectTools.localSession('main-navigation');
+        var session= SpongeTools.localSession('main-navigation');
         session('username', Meteor.user().username);
         session('view', 'user');
         $(template.find('.sign-out-panel')).hide();

@@ -69,4 +69,4 @@ var editableTypeMap= function( context, prop, changedFn ) {
 };
 
 
-DataObjectTools.editableTypeMap= editableTypeMap;
+SpongeTools.editableTypeMap= editableTypeMap;
