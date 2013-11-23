@@ -95,28 +95,6 @@ T.helper('descriptionText', function() {
     return editor(this.description, 'text');
 });
 
-T.helper('args', function() {
-    if ( !this.inArgs || !this.inArgs.args ) return;
-
-    var args= this.inArgs.args;
-    return Object.keys(args).map(function( argName ) {
-        return {
-            name: argName,
-            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName], { locationFn: true, })),
-        };
-    });
-});
-
-var showArgs= injectVar({}, 'showHide', false);
-
-T.helper('showHideArgsText', function() {
-    return new Handlebars.SafeString('<i class="' + (showArgs() ? 'icon-chevron-down' : 'icon-chevron-right') + '"></i>');
-});
-
-T.helper('showArgs', function() {
-    return showArgs();
-});
-
 var setLogResult= function( content ) {
     $('#jobLog pre').html(content);
 };
@@ -144,9 +122,6 @@ T.events({
     },
     'click button.rerun-job': restartJob,
     'click button.delete-job': removeJob,
-    'click a.show-hide-args': function( event ) {
-        showArgs(!showArgs());
-    },
     'click a.location': function( event ) {
         var $a= $(event.currentTarget);
         var lat= +$a.attr('lat');
@@ -156,33 +131,57 @@ T.events({
     },
 });
 
+T.select('jobArgs');
+
+T.helper('args', function() {
+    var args= this.args;
+
+    if ( !args ) return;
+
+    return Object.keys(args).map(function( argName ) {
+        return {
+            name: argName,
+            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName], { locationFn: true, })),
+        };
+    });
+});
+
+var showArgs= function( context ) {
+    return injectVar(context, 'showHide', false);
+};
+
+T.helper('showHideArgsText', function() {
+    return new Handlebars.SafeString('<i class="' + (showArgs(this)() ? 'icon-chevron-down' : 'icon-chevron-right') + '"></i>');
+});
+
+T.helper('showArgs', function() {
+    return showArgs(this)();
+});
+
+T.events({
+    'click a.show-hide-args': function( event ) {
+        showArgs(this)(!showArgs(this)());
+    },
+});
 
 T.select('jobResult');
 
-// FIXME: build simple result structure
-var _getResultLevel= function( results, path ) {
-    for ( var key in results ) {
-        var result= results[key];
-
-        if ( typeof result !== 'object' ) continue;
-
-        var newPath= path ? ( path + '.' + key ) : key;
-
-        if ( 'tables' in result ) return { result: result, path: newPath };
-
-        var r= _getResultLevel(result, newPath);
-        if ( r ) return r;
-    }
-};
-
-var getResult= function() {
+T.helper('result', function() {
     var jobId= SpongeTools.jobId();
     if ( !jobId ) return;
 
-    return _getResultLevel(getJobResult({ jobId: jobId, path: '', }));
-};
+    var jobResult= getJobResult({ jobId: jobId, path: '', });
 
-T.helper('result', getResult);
+    if ( !jobResult ) return;
+
+    return Object.keys(jobResult).map(function( id ) {
+        return {
+            id: id,
+            args: jobResult[id].args.args,
+            result: jobResult[id].result,
+        };
+    });
+});
 
 T.helper('resultMap', function() {
     var result= this.result || {};
@@ -193,8 +192,8 @@ T.helper('resultMap', function() {
         var value= SpongeTools.valueToString(
             result[key],
             {
-                returnOnObject: null,
-                returnOnArray: null,
+//                returnOnObject: null,
+//                returnOnArray: null,
                 locationFn: true,
             }
         );

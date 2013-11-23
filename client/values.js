@@ -138,7 +138,7 @@ var objectToString= function( value, options ) {
     if ( !keys.length ) return '<empty Object>';
 
     return '<table class="value object">'
-        + keys.map(function( key ) { return '<tr><td class="value objectKey">' + key + '</td><td class="value objectValue">' + valueToString(value[key], options) + '</td></tr>'; }).join('')
+        + keys.map(function( key ) { return '<tr valign="top"><td class="value objectKey">' + key + '</td><td class="value objectValue">' + valueToString(value[key], options) + '</td></tr>'; }).join('')
         + '</table>';
 };
 

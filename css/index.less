@@ -453,43 +453,45 @@ td {
     }
 }
 
-td.job-result {
-    .job-resultId {
-        font-weight: bold;
+@table-border-color: #CCCCCC;
 
-    }
+.result-title {
+    font-weight: bold;
+    background-color: @highlight-background;
+}
 
-    .job-subResult {
-        &.collapsed {
-            max-height: 1.5em;
-            overflow-y: hidden;
+table.value {
+    &.table, &.array, &.object {
+        border-style: solid;
+        border-color: @table-border-color;
+        border-width: 1px;
 
-            .job-subResult {
-                margin-left: 0 !important;
+        table.value {
+            border: none;
+        }
 
-                i.collapse-icon {
-                    display: none;
+        tr {
+            vertical-align: top;
+            border-style: solid;
+            border-color: @table-border-color;
+            border-width: 0 0 0 1px;
+
+            & + tr {
+                border-width: 1px 0 0 1px;
+            }
+
+            td {
+                padding: 0 1px;
+                border-collapse: collapse;
+
+                &.arrayIndex, &.objectKey {
+                    text-align: right;
+                    font-weight: bold;
+
+                    &:after {
+                        content: ":";
+                    }
                 }
-            }
-        }
-        &.expanded {
-            .job-subResult {
-                margin-left: 1em;
-            }
-        }
-        i.collapse-icon {
-            position: absolute;
-            margin-left: -1em;
-            margin-top: 2px;
-            cursor: pointer;
-        }
-
-        td, th {
-            padding-top: 0;
-
-            &.argName {
-                text-align: right;
-                vertical-align: top;
             }
         }
     }

@@ -45,21 +45,25 @@
         <tr valign="top">
             <th align="right">Description:</th><td class="">{{descriptionText}}</td>
         </tr>
-        {{#if args}}
-            <tr valign="top">
-                <th align="right"><a href="#" class="show-hide-args">{{showHideArgsText}}</a> Arguments:</th><td class="">
-                    {{#if showArgs}}
-                        <table>
-                            {{#each args}}
-                                <tr valign="top"><th align="right">{{name}}:</th><td>{{value}}</td></tr>
-                            {{/each}}
-                        </table>
-                    {{/if}}
-                </td>
-            </tr>
-        {{/if}}
+        {{> jobArgs inArgs}}
         {{> jobResult}}
     </table>
+</template>
+
+<template name="jobArgs">
+    {{#if args}}
+        <tr valign="top">
+            <th align="right"><a href="#" class="show-hide-args">{{showHideArgsText}}</a> Arguments:</th><td class="">
+                {{#if showArgs}}
+                    <table>
+                        {{#each args}}
+                            <tr valign="top"><th align="right">{{name}}:</th><td>{{value}}</td></tr>
+                        {{/each}}
+                    </table>
+                {{/if}}
+            </td>
+        </tr>
+    {{/if}}
 </template>
 
 <template name="jobLogBody">
@@ -67,7 +71,11 @@
 </template>
 
 <template name="jobResult">
-    {{#with result}}
+    {{#each result}}
+        <tr valign="top">
+            <td align="center" colspan="2" class="result-title">Result "{{id}}"</td>
+        </tr>
+        {{> jobArgs}}
         <tr valign="top">
             <th align="right">Result:</th>
             <td class="job-result">
@@ -78,7 +86,7 @@
                                 <table width="100%">
                                     <tr><th colspan="2">Main Values</th></tr>
                                     {{#each this}}
-                                        <tr><th align="right">{{resultName}}:</th><td>{{resultValue}}</td></tr>
+                                        <tr valign="top"><th align="right">{{resultName}}:</th><td>{{resultValue}}</td></tr>
                                     {{/each}}
                                 </table>
                             {{/with}}
@@ -100,6 +108,6 @@
                 </table>
             </td>
         </tr>
-    {{/with}}
+    {{/each}}
 </template>
 

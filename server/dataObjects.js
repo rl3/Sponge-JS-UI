@@ -55,7 +55,9 @@ Meteor.publish('client-cache', function() {
 });
 
 var Debug= false;
-// Debug= true;
+Debug= true;
+var debugFilter;
+debugFilter= /getResult/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;
@@ -160,8 +162,10 @@ var _request= function( method, url, options, callback ) {
 
         result= EJSON.fromJSONValue(result || {});
         if ( Debug ) {
+            if ( !debugFilter || url.match(debugFilter) ) {
 //            console.log('result', result);
-            console.log('data', url, result.data);
+                console.log('data', url, result.data);
+            }
         }
         if ( callback ) return callback.call(this, err, result);
     };
