@@ -52,7 +52,7 @@ var dataObjectToString= function( value, options ) {
 };
 
 var selectorToString= function( sel, nameProperty ) {
-    if ( !sel ) return '';
+    if ( !sel ) return '<empty>';
 
     var result= [];
 
