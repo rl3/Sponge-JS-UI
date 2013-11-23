@@ -474,7 +474,7 @@ $(function() {
 
 
 T.select('valueInputDate');
-//FIXME: convert local date to UTC and vice versa
+
 T.change('rendered', function() {
     var self= this;
     var $modal= $('#singleValueInput');
@@ -488,6 +488,11 @@ T.change('rendered', function() {
         $('.datepicker').css('z-index', zindex + 1);
     }).on('changeDate', function( event ) {
         singleValue.newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
+    }).on('change', function( event ) {
+        var $this= $(this);
+        $this.datepicker('setValue', $this.val());
+        var date= $input.data('datepicker').date;
+        singleValue.newValue= new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     });
     var startValue= singleValue.get();
     if ( startValue ) {
