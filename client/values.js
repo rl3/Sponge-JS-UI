@@ -1,9 +1,11 @@
 
 var $arrayToString= function( value, options ) {
+    options= _.extend({ quoteStrings: true }, options);
     return '[ ' + value.$array.map(function(v) { return valueToString(v, options); } ).join(', ') + ' ]';
 };
 
 var $rangeToString= function( value, options ) {
+    options= _.extend({ quoteStrings: true }, options);
     return 'From: ' + valueToString(value.$range.from, options)
         + ' To: '   + valueToString(value.$range.to, options)
         + ' Step: ' + valueToString(value.$range.step, options);
@@ -54,35 +56,33 @@ var dataObjectToString= function( value, options ) {
 var selectorToString= function( sel, nameProperty ) {
     if ( !sel ) return '<empty>';
 
+    sel= _.clone(sel);
+
     var result= [];
 
-    var hasName= nameProperty && nameProperty in sel;
-    if ( hasName ) {
+    if ( nameProperty && nameProperty in sel ) {
         result.push(valueToString(sel[nameProperty], { quoteStrings: true }));
+        delete sel[nameProperty];
     }
 
-    var hasTypeVersion= 'objectType' in sel && 'version' in sel;
-    if ( hasTypeVersion ) {
+    if ( 'objectType' in sel && 'version' in sel ) {
         var version= sel.version;
         if ( typeof version === 'object' && '$in' in version ) {
             version= '[' + version.$in.join(',') + ']';
         }
         result.push(sel.objectType + '/' + version);
+        delete sel.objectType;
+        delete sel.version;
     }
-    var args= [];
-    for ( var prop in sel ) {
-        if ( hasName && prop === nameProperty ) continue;
 
-        if ( hasTypeVersion && (prop === 'objectType' || prop === 'version') ) continue;
-
+    var args= Object.keys(sel).map(function( prop ) {
         var value= sel[prop];
         if ( value && typeof value === 'object' && '$in' in value ) {
-            args.push(prop + '=' + $arrayToString({ $array: value.$in }));
-            continue;
+            value= { $array: value.$in };
         }
 
-        args.push(prop + '=' + valueToString(value, { quoteStrings: true }));
-    }
+        return prop + '=' + valueToString(value, { quoteStrings: true });
+    });
     if ( args.length ) {
         result.push('(' + args.join(', ') + ')');
     }
