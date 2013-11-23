@@ -51,36 +51,50 @@ var dataObjectToString= function( value, options ) {
     return collection + ' ' + name;
 };
 
-var selectorToString= function( sel ) {
+var selectorToString= function( sel, nameProperty ) {
     if ( !sel ) return '';
 
-    var result= '';
-    var simpleVersion= 'objectType' in sel && 'version' in sel;
-    if ( simpleVersion ) {
+    var result= [];
+
+    var hasName= nameProperty && nameProperty in sel;
+    if ( hasName ) {
+        result.push(valueToString(sel[nameProperty], { quoteStrings: true }));
+    }
+
+    var hasTypeVersion= 'objectType' in sel && 'version' in sel;
+    if ( hasTypeVersion ) {
         var version= sel.version;
         if ( typeof version === 'object' && '$in' in version ) {
             version= '[' + version.$in.join(',') + ']';
         }
-        result+= sel.objectType + '/' + version;
+        result.push(sel.objectType + '/' + version);
     }
     var args= [];
     for ( var prop in sel ) {
-        if ( simpleVersion && (prop === 'objectType' || prop === 'version') ) continue;
+        if ( hasName && prop === nameProperty ) continue;
 
-        args.push(prop + '="' + valueToString(sel[prop]) + '"');
+        if ( hasTypeVersion && (prop === 'objectType' || prop === 'version') ) continue;
+
+        var value= sel[prop];
+        if ( value && typeof value === 'object' && '$in' in value ) {
+            args.push(prop + '=' + $arrayToString({ $array: value.$in }));
+            continue;
+        }
+
+        args.push(prop + '=' + valueToString(value, { quoteStrings: true }));
     }
     if ( args.length ) {
-        result+= ' (' + args.join(', ') + ')';
+        result.push('(' + args.join(', ') + ')');
     }
-    return result;
+    return result.join(' ');
 };
 
 var mapToString= function( value, options ) {
-    return 'Map ' + selectorToString(value.selector);
+    return 'Map ' + selectorToString(value.selector, 'mapname');
 };
 
 var nearestToString= function( value, options ) {
-    return 'Nearest ' + selectorToString(value.selector);
+    return 'Nearest ' + selectorToString(value.selector, 'tags');
 };
 
 var arrayToString= function( value, options ) {
@@ -152,6 +166,7 @@ var valueToString= function( value, options ) {
             return options && 'returnOnObject' in options ? options.returnOnObject : objectToString(value, options);
         }
     }
+    if ( options && options.quoteStrings && typeof value === 'string' ) return '"' + value + '"'
 
     if ( value === '' ) return '<empty string>'
 
