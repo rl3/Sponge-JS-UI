@@ -51,14 +51,8 @@ var dataObjectToString= function( value, options ) {
     return collection + ' ' + name;
 };
 
-var mapToString= function( value, options ) {
-console.log('Map', value);
-    return 'MAP: ' + value;
-};
-
-var nearestToString= function( value, options ) {
-    var result= 'Nearest ';
-    var sel= value.selector;
+var selectorToString= function( sel ) {
+    var result= '';
     if ( sel ) {
         var version= sel.version;
         if ( typeof version === 'object' && '$in' in version ) {
@@ -76,6 +70,14 @@ var nearestToString= function( value, options ) {
         }
     }
     return result;
+};
+
+var mapToString= function( value, options ) {
+    return 'MAP ' + selectorToString(value.selector);
+};
+
+var nearestToString= function( value, options ) {
+    return 'Nearest ' + selectorToString(value.selector);
 };
 
 var arrayToString= function( value, options ) {
