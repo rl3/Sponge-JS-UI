@@ -1,9 +1,9 @@
 
-var arrayToString= function( value, options ) {
+var $arrayToString= function( value, options ) {
     return '[ ' + value.$array.map(function(v) { return valueToString(v, options); } ).join(', ') + ' ]';
 };
 
-var rangeToString= function( value, options ) {
+var $rangeToString= function( value, options ) {
     return 'From: ' + valueToString(value.$range.from, options)
         + ' To: '   + valueToString(value.$range.to, options)
         + ' Step: ' + valueToString(value.$range.step, options);
@@ -52,28 +52,31 @@ var dataObjectToString= function( value, options ) {
 };
 
 var selectorToString= function( sel ) {
+    if ( !sel ) return '';
+
     var result= '';
-    if ( sel ) {
+    var simpleVersion= 'objectType' in sel && 'version' in sel;
+    if ( simpleVersion ) {
         var version= sel.version;
         if ( typeof version === 'object' && '$in' in version ) {
             version= '[' + version.$in.join(',') + ']';
         }
         result+= sel.objectType + '/' + version;
-        var args= [];
-        for ( var prop in sel ) {
-            if ( prop === 'objectType' || prop === 'version' ) continue;
+    }
+    var args= [];
+    for ( var prop in sel ) {
+        if ( simpleVersion && (prop === 'objectType' || prop === 'version') ) continue;
 
-            args.push(prop + '="' + sel[prop] + '"');
-        }
-        if ( args.length ) {
-            result+= ' (' + args.join(', ') + ')';
-        }
+        args.push(prop + '="' + valueToString(sel[prop]) + '"');
+    }
+    if ( args.length ) {
+        result+= ' (' + args.join(', ') + ')';
     }
     return result;
 };
 
 var mapToString= function( value, options ) {
-    return 'MAP ' + selectorToString(value.selector);
+    return 'Map ' + selectorToString(value.selector);
 };
 
 var nearestToString= function( value, options ) {
@@ -137,8 +140,8 @@ var valueToString= function( value, options ) {
 
             return options && 'returnOnArray' in options ? options.returnOnArray : arrayToString(value, options);
         }
-        if ( '$array' in value )        return arrayToString(value, options);
-        if ( '$range' in value )        return rangeToString(value, options);
+        if ( '$array' in value )        return $arrayToString(value, options);
+        if ( '$range' in value )        return $rangeToString(value, options);
         if ( String(value.type).toLowerCase() === 'map' )
                                         return mapToString(value, options);
         if ( String(value.type).toLowerCase() === 'nearest' )
@@ -160,7 +163,7 @@ var buildValue= function( name, type, valueFn, info ) {
         name: name,
         type: type,
         valueText: function() {
-            return SpongeTools.valueToString(valueFn());
+            return valueToString(valueFn());
         },
         getValue: function() { return valueFn(); },
         setValue: function( newValue ) { valueFn(newValue); }
