@@ -22,17 +22,10 @@ var timeToString= function( value, options ) {
 };
 
 var locationToString= function( value, options ) {
-    var result= 'lat(' + value[1] + ')/lon(' + value[0] + ')';
-
-    if ( options && 'onLocation' in options ) {
-        var onLocationFn= typeof options.onLocation === 'function' ? options.onLocation : defaultLocationFn;
-        return onLocationFn(result, value);
-    }
-
-    return result;
+    return '<a href="#" class="location" lon="' + value[0] + '" lat="' + value[1] + '">lat(' + value[1] + ')/lon(' + value[0] + ')</a>';
 };
 
-var getObject= {
+var _getObject= {
     'Model': SpongeTools.getCachedData('getModel'),
     'AgroObj': SpongeTools.getCachedData('getAgroObject'),
 };
@@ -42,8 +35,8 @@ var dataObjectToString= function( value, options ) {
     var id= (value.selector || {})._id;
 
     var name;
-    if ( collection in getObject && id ) {
-        var object= getObject[collection](id);
+    if ( collection in _getObject && id ) {
+        var object= _getObject[collection](id);
         if ( object ) name= object.name;
     }
     if ( !name ) name= valueToString(id);
@@ -142,47 +135,60 @@ var objectToString= function( value, options ) {
         + '</table>';
 };
 
-var applyOn= function( value, options, onName, fn ) {
-    if ( !options || !(onName in options) ) return fn(value, options);
+var defaultHandler= {
+    onDate:     dateToString,
+    onObjectId: function( value ) { return 'ObjectId("' + value + '")'; },
+    onLocation: locationToString,
+    onArray:    arrayToString,
+    on$array:   $arrayToString,
+    on$range:   $rangeToString,
+    onMap:      mapToString,
+    onNearest:  nearestToString,
+    onDataObject: dataObjectToString,
+    onObject:   objectToString,
+    onString:   function( value, options ) {
+        if ( options && options.quoteStrings ) return '"' + value + '"';
+        return String(value);
+    },
+};
 
-    var onValue= options[onName];
-    if ( typeof onValue === 'function' ) onValue= onValue( value, options );
+var getHandler= function( value, options ) {
+    if ( typeof value !== 'object' )    return 'onString'
+    if ( value instanceof Date )        return 'onDate';
+    if ( value instanceof Meteor.Collection.ObjectID )
+                                        return 'onObjectId';
+    if ( _.isArray(value) ) {
+        if ( value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number' ) return 'onLocation';
 
-    return onValue === false ? onValue : fn(onValue, options);
+        return 'onArray';
+    }
+    if ( '$array' in value )            return 'on$array';
+    if ( '$range' in value )            return 'on$range';
+    if ( String(value.type).toLowerCase() === 'map' )
+                                        return 'onMap';
+    if ( String(value.type).toLowerCase() === 'nearest' )
+                                        return 'onNearest';
+    if ( '$ref' in value )              return 'onDataObject';
+    if ( value.constructor === Object ) return 'onObject';
+    return 'onString';
 };
 
 var valueToString= function( value, options ) {
     if ( value === undefined || value === null ) return '<empty>';
 
-    if ( typeof value === 'object' ) {
-        if ( value instanceof Date )    return dateToString(value, options);
-        if ( value instanceof Meteor.Collection.ObjectID )
-                                        return 'ObjectId("' + value + '")';
-        if ( _.isArray(value) ) {
-            if ( value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number' ) return locationToString(value, options);
-
-            return applyOn(value, options, 'onArray', arrayToString);
-        }
-        if ( '$array' in value )        return $arrayToString(value, options);
-        if ( '$range' in value )        return $rangeToString(value, options);
-        if ( String(value.type).toLowerCase() === 'map' )
-                                        return mapToString(value, options);
-        if ( String(value.type).toLowerCase() === 'nearest' )
-                                        return nearestToString(value, options);
-        if ( '$ref' in value )          return dataObjectToString(value, options);
-        if ( '_id' in value && 'type' in value ) {
-                                        return dataObjectToString({ $ref: value.type, selector: { _id: value._id, }, }, options);
-        }
-
-        if ( value.constructor === Object ) {
-            return applyOn(value, options, 'onObject', objectToString);
-        }
-    }
-    if ( options && options.quoteStrings && typeof value === 'string' ) return '"' + value + '"'
-
     if ( value === '' ) return '<empty string>'
 
-    return String(value);
+    // transform complete data objects to references
+    if ( typeof value === 'object' && '_id' in value && 'type' in value ) {
+        value= { $ref: value.type, selector: { _id: value._id, }, };
+    }
+
+    var onName= getHandler(value, options);
+
+    if ( !options || !(onName in options) ) return defaultHandler[onName](value, options);
+
+    var onValue= options[onName];
+    return typeof onValue === 'function' ? onValue( value, options, defaultHandler[onName] ) : onValue;
 };
 
 var buildValue= function( name, type, valueFn, info ) {
@@ -214,10 +220,6 @@ var buildValues= function( args, property, valueContext ) {
     });
 };
 
-var defaultLocationFn= function( text, location ) {
-    return '<a href="#" class="location" lon="' + location[0] + '" lat="' + location[1] + '">' + text + '</a>';
-};
-
 SpongeTools.valueToString= valueToString;
 SpongeTools.buildValues= buildValues;
 SpongeTools.buildValue= buildValue;
@@ -225,4 +227,4 @@ SpongeTools.buildValue= buildValue;
 SpongeTools.dateToString= dateToString;
 SpongeTools.timeToString= timeToString;
 
-SpongeTools.defaultLocationFn= defaultLocationFn;
+SpongeTools.defaultValueHandler= defaultHandler;

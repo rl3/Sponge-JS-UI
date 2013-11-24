@@ -122,13 +122,6 @@ T.events({
     },
     'click button.rerun-job': restartJob,
     'click button.delete-job': removeJob,
-    'click a.location': function( event ) {
-        var $a= $(event.currentTarget);
-        var lat= +$a.attr('lat');
-        var lon= +$a.attr('lon');
-        SpongeTools.showMap();
-        SpongeTools.addMapMarker(lon, lat, { infotext: '<div><div><b>Job-Titel</b></div><div>Hier kommt die Job-Beschreibung hin.</div></div>' });
-    },
 });
 
 T.select('jobArgs');
@@ -141,7 +134,7 @@ T.helper('args', function() {
     return Object.keys(args).map(function( argName ) {
         return {
             name: argName,
-            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName], { locationFn: true, })),
+            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName])),
         };
     });
 });
@@ -210,12 +203,7 @@ T.helper('resultMap', function() {
     return Object.keys(result).filter(function( key ) {
         return key !== 'tables';
     }).map(function( key ) {
-        var value= SpongeTools.valueToString(
-            result[key],
-            {
-                locationFn: true,
-            }
-        );
+        var value= SpongeTools.valueToString(result[key]);
         if ( ! value ) return;
 
         return {
