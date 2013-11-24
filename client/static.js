@@ -25,8 +25,14 @@ jQuery(function( $ ) {
             var $a= $(this);
             var lat= +$a.attr('lat');
             var lon= +$a.attr('lon');
+            var infoTitle= $a.attr('info-title');
+            var infoText= $a.attr('info-text');
+            var options= {};
+            if ( infoTitle || infoText ) {
+                options.infotext= '<div class="map-infotext"><div class="title">' + (infoTitle || '') + '</div><div class="text">' + (infoText || '') + '</div></div>';
+            }
             SpongeTools.showMap();
-            SpongeTools.addMapMarker(lon, lat, { infotext: '<div><div><b>Job-Titel</b></div><div>Hier kommt die Job-Beschreibung hin.</div></div>' });
+            SpongeTools.addMapMarker(lon, lat, options);
         })
     ;
 

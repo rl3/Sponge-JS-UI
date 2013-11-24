@@ -126,6 +126,19 @@ T.events({
 
 T.select('jobArgs');
 
+var onLocation= function( value, options, defaultFn ) {
+    var job= getJob();
+
+    if ( !job ) return defaultFn(value, options);
+
+    var $result= $('<p>' + defaultFn(value, options) + '</p>');
+    $result.find('a')
+        .attr('info-title', 'Job: "' + job.description.title + '"')
+        .attr('info-text', job.description.text)
+    ;
+    return $result.html();
+};
+
 T.helper('args', function() {
     var args= this.args;
 
@@ -134,7 +147,7 @@ T.helper('args', function() {
     return Object.keys(args).map(function( argName ) {
         return {
             name: argName,
-            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName])),
+            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName], { onLocation: onLocation })),
         };
     });
 });
@@ -203,7 +216,7 @@ T.helper('resultMap', function() {
     return Object.keys(result).filter(function( key ) {
         return key !== 'tables';
     }).map(function( key ) {
-        var value= SpongeTools.valueToString(result[key]);
+        var value= SpongeTools.valueToString(result[key], { onLocation: onLocation });
         if ( ! value ) return;
 
         return {
