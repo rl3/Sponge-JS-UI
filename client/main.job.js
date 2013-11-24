@@ -236,7 +236,7 @@ T.helper('resultTables', function() {
         for ( var id in tableList.tables ) {
             var tablePath= tableList.path.join('.') + '.tables.' + id;
 
-                // remove resultId and 'result' from path
+            // remove resultId and 'result' from path
             var path= tableList.path.slice(2);
             path.push(id);
             result.push({
@@ -263,13 +263,3 @@ T.helper('keys', function() {
     });
 });
 
-/*
-T.events({
-    'click a.resultTable': function( event ) {
-        var $a= $(event.currentTarget);
-        var path= $a.attr('path');
-        var format= $a.attr('format');
-        console.log('getResultTable', jobId(), path, format);
-    },
-});
-*/
