@@ -9,6 +9,5 @@ less
 http
 underscore
 ejson
-accounts-ui
 accounts-password
 standard-app-packages
