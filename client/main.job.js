@@ -166,6 +166,23 @@ T.events({
 
 T.select('jobResult');
 
+var filterTables= function( obj, tables, path ) {
+    if ( obj.tables ) {
+        tables.push({
+            path: path.join('.').split('.'),
+            tables: obj.tables,
+        });
+        delete obj.tables;
+    }
+    for ( var name in obj ) {
+        if ( obj[name] && typeof obj[name] === 'object' && obj[name].constructor === Object ) {
+            path.push(name);
+            filterTables(obj[name], tables, path);
+            path.pop();
+        }
+    }
+};
+
 T.helper('result', function() {
     var jobId= SpongeTools.jobId();
     if ( !jobId ) return;
@@ -175,10 +192,14 @@ T.helper('result', function() {
     if ( !jobResult ) return;
 
     return Object.keys(jobResult).map(function( id ) {
+        var result= jobResult[id].result;
+        var tables= [];
+        filterTables(result, tables, [id, 'result']);
         return {
             id: id,
             args: jobResult[id].args.args,
-            result: jobResult[id].result,
+            result: result,
+            tables: tables,
         };
     });
 });
@@ -192,8 +213,6 @@ T.helper('resultMap', function() {
         var value= SpongeTools.valueToString(
             result[key],
             {
-//                returnOnObject: null,
-//                returnOnArray: null,
                 locationFn: true,
             }
         );
@@ -209,21 +228,25 @@ T.helper('resultMap', function() {
 });
 
 T.helper('resultTables', function() {
-    var tables= (this.result || {}).tables;
-    var path= this.path;
-
-    if (! tables ) return;
+    var tables= this.tables;
+    if ( !tables || !tables.length ) return;
 
     var result= [];
-    for ( var id in tables ) {
-        var tablePath= path + '.tables.' + id;
-        result.push({
-            index: id,
-            tablePath: tablePath,
-            hrefXml: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
-            hrefCsv: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
-        });
-    }
+    tables.forEach(function( tableList ) {
+        for ( var id in tableList.tables ) {
+            var tablePath= tableList.path.join('.') + '.tables.' + id;
+
+                // remove resultId and 'result' from path
+            var path= tableList.path.slice(2);
+            path.push(id);
+            result.push({
+                index: path.join('.'),
+                tablePath: tablePath,
+                hrefXml: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
+                hrefCsv: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
+            });
+        }
+    });
     return result;
 });
 

@@ -24,9 +24,9 @@ var timeToString= function( value, options ) {
 var locationToString= function( value, options ) {
     var result= 'lat(' + value[1] + ')/lon(' + value[0] + ')';
 
-    if ( options && 'locationFn' in options ) {
-        var locationFn= typeof options.locationFn === 'function' ? options.locationFn : defaultLocationFn;
-        return locationFn(result, value);
+    if ( options && 'onLocation' in options ) {
+        var onLocationFn= typeof options.onLocation === 'function' ? options.onLocation : defaultLocationFn;
+        return onLocationFn(result, value);
     }
 
     return result;
@@ -142,6 +142,15 @@ var objectToString= function( value, options ) {
         + '</table>';
 };
 
+var applyOn= function( value, options, onName, fn ) {
+    if ( !options || !(onName in options) ) return fn(value, options);
+
+    var onValue= options[onName];
+    if ( typeof onValue === 'function' ) onValue= onValue( value, options );
+
+    return onValue === false ? onValue : fn(onValue, options);
+};
+
 var valueToString= function( value, options ) {
     if ( value === undefined || value === null ) return '<empty>';
 
@@ -152,7 +161,7 @@ var valueToString= function( value, options ) {
         if ( _.isArray(value) ) {
             if ( value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number' ) return locationToString(value, options);
 
-            return options && 'returnOnArray' in options ? options.returnOnArray : arrayToString(value, options);
+            return applyOn(value, options, 'onArray', arrayToString);
         }
         if ( '$array' in value )        return $arrayToString(value, options);
         if ( '$range' in value )        return $rangeToString(value, options);
@@ -161,9 +170,12 @@ var valueToString= function( value, options ) {
         if ( String(value.type).toLowerCase() === 'nearest' )
                                         return nearestToString(value, options);
         if ( '$ref' in value )          return dataObjectToString(value, options);
+        if ( '_id' in value && 'type' in value ) {
+                                        return dataObjectToString({ $ref: value.type, selector: { _id: value._id, }, }, options);
+        }
 
         if ( value.constructor === Object ) {
-            return options && 'returnOnObject' in options ? options.returnOnObject : objectToString(value, options);
+            return applyOn(value, options, 'onObject', objectToString);
         }
     }
     if ( options && options.quoteStrings && typeof value === 'string' ) return '"' + value + '"'
