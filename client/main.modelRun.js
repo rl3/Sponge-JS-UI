@@ -69,7 +69,12 @@ var parseArgs= function( args ) {
 
     var result= {};
     args.forEach(function( arg ) {
-        result[arg.name]= arg.getValue();
+        var value= arg.getValue();
+
+        // skip all undefined optional args
+        if ( value === undefined && arg.info.optional ) return;
+
+        result[arg.name]= value;
     });
     return result;
 };
@@ -80,7 +85,6 @@ var validateArgs= function( args ) {
 
     for ( var name in args ) {
         if ( typeof args[name] === 'undefined' ) {
-console.log('Arg ' + name + ' is undefined')
             return false;
         }
     }
@@ -88,29 +92,21 @@ console.log('Arg ' + name + ' is undefined')
 };
 
 T.helper('getArgs', function() {
-    var args= getModelArgs();
-    if ( !args ) return;
+    var modelArgs= getModelArgs();
+    if ( !modelArgs ) return;
 
     var self= this;
 
     var result= {};
 
     [ 'args', 'inputs' ].forEach(function( property ) {
-        if ( !args[property] ) return;
+        if ( !modelArgs[property] ) return;
 
-        result[property]= SpongeTools.buildValues(args, property, self);
+        result[property]= SpongeTools.buildValues(modelArgs, property, self);
     });
 
     verifyArgs= function() {
         var args= parseArgs(result.args);
-
-        if ( result.info && result.info.args ) {
-            Object.keys(result.info.args).forEach(function( name ) {
-                if ( result.info.args[name] && result.info.args[name].optional ) {
-                    delete args[name];
-                }
-            });
-        }
 
         return validateArgs(args);// && validateArgs(inputs);
     };
@@ -126,6 +122,10 @@ T.helper('getArgs', function() {
     };
 
     return result;
+});
+
+T.helper('nameClass', function() {
+    return this.info && this.info.optional ? 'optional' : 'mandatory';
 });
 
 T.events({

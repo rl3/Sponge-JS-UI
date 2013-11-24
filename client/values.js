@@ -192,18 +192,16 @@ var valueToString= function( value, options ) {
 };
 
 var buildValue= function( name, type, valueFn, info ) {
-    var result= {
+    return {
         name: name,
         type: type,
         valueText: function() {
             return valueToString(valueFn());
         },
         getValue: function() { return valueFn(); },
-        setValue: function( newValue ) { valueFn(newValue); }
+        setValue: function( newValue ) { valueFn(newValue); },
+        info: info || {},
     };
-    if ( info ) result.info= info;
-
-    return result;
 };
 
 var buildValues= function( args, property, valueContext ) {

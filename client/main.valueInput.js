@@ -493,7 +493,7 @@ T.change('rendered', function() {
         $this.datepicker('setValue', $this.val());
         var date= $input.data('datepicker').date;
         singleValue.newValue= new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    });
+    }).focus();
     var startValue= singleValue.get();
     if ( startValue ) {
         $input.datepicker('setValue', startValue);
