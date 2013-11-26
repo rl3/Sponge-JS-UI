@@ -14,7 +14,7 @@ var tempValue= {};
 var invalidData= {};
 
 // maximum number of object's names to load
-var limitAgroObjs= 30;
+var limitDataObjs= 30;
 
 var dateFormat= 'dd.mm.yyyy';
 
@@ -409,9 +409,9 @@ var buildContextForModel= function() {
 
     if ( result.models && result.models.length ) typeNames.push({ label: 'Model', type: 'model', setType: setFn, });
     if ( result.schemas && result.schemas.length ) {
-        typeNames.push({ label: 'AgroObject Map', type: 'map', setType: setFn, });
-        typeNames.push({ label: 'Nearest AgroObject', type: 'nearest', setType: setFn, });
-        typeNames.push({ label: 'AgroObjects', type: 'agroObj', setType: setFn, });
+        typeNames.push({ label: 'DataObject Map', type: 'map', setType: setFn, });
+        typeNames.push({ label: 'Nearest DataObject', type: 'nearest', setType: setFn, });
+        typeNames.push({ label: 'DataObjects', type: 'dataObj', setType: setFn, });
     }
 
     result.typeName= typeNames;
@@ -616,7 +616,7 @@ T.events({
         if ( !selectedType ) return;
 
         singleValue.newValue= {
-            $ref: selectedType.schemas ? 'AgroObj' : 'Model',
+            $ref: selectedType.schemas ? 'DataObj' : 'Model',
             selector: {
                 _id: new ObjectId(event.currentTarget.value),
             },
@@ -642,7 +642,7 @@ var getCompatibleObjects= function() {
         objectType: selectedType.schemas[0].objectType,
         versions: selectedType.schemas.map(function( schema ) { return schema.version }),
         name: getTempValue('modelName', '')(),
-        limit: limitAgroObjs + 1,
+        limit: limitDataObjs + 1,
     });
 };
 
@@ -653,15 +653,15 @@ T.helper('loadingValues', function() {
 T.helper('values', function() {
     var objects= getCompatibleObjects() || [];
 
-    return objects.map(function( agroObj ) {
-        return { id: agroObj._id.toHexString(), name: agroObj.name };
+    return objects.map(function( dataObj ) {
+        return { id: dataObj._id.toHexString(), name: dataObj.name };
     });
 });
 
 T.helper('valueCount', function() {
     var count= (getCompatibleObjects() || []).length;
 
-    return count > limitAgroObjs ? limitAgroObjs + '+' : count;
+    return count > limitDataObjs ? limitDataObjs + '+' : count;
 });
 
 T.helper('selected', function() {

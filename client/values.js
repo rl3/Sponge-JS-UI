@@ -27,7 +27,7 @@ var locationToString= function( value, options ) {
 
 var _getObject= {
     'Model': SpongeTools.getCachedData('getModel'),
-    'AgroObj': SpongeTools.getCachedData('getAgroObject'),
+    'DataObj': SpongeTools.getCachedData('getDataObject'),
 };
 
 var dataObjectToString= function( value, options ) {
@@ -41,7 +41,7 @@ var dataObjectToString= function( value, options ) {
     }
     if ( !name ) name= valueToString(id);
 
-    if ( collection === 'AgroObj' ) return name;
+    if ( collection === 'DataObj' ) return name;
 
     return collection + ' ' + name;
 };
