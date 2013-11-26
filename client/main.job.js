@@ -139,6 +139,9 @@ var onLocation= function( value, options, defaultFn ) {
     return $result.html();
 };
 
+var onObject= function( value, options, defaultFn ) {
+};
+
 T.helper('args', function() {
     var args= this.args;
 
@@ -200,7 +203,7 @@ T.helper('result', function() {
     return Object.keys(jobResult).map(function( id ) {
         var result= jobResult[id].result;
         var tables= [];
-        filterTables(result, tables, [id, 'result']);
+        if ( result ) filterTables(result, tables, [id, 'result']);
         return {
             id: id,
             args: jobResult[id].args.args,
