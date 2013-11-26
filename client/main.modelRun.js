@@ -17,7 +17,7 @@ var getModelArgs= function() {
     return _getModelArgs(modelId);
 };
 
-var _runModel= SpongeTools.getCachedData('startJob');
+var _runModel= SpongeTools.getCachedData('startJob', 2000);
 var runModel= function( args, details ) {
     return _runModel(SpongeTools.modelId(), args, details, function() {
         SpongeTools.invalidateJobList(true);
@@ -93,6 +93,10 @@ var validateArgs= function( args ) {
 
 T.helper('getArgs', function() {
     var modelArgs= getModelArgs();
+
+    // reset callbacks
+    verifyArgs= onClose= undefined;
+
     if ( !modelArgs ) return;
 
     var self= this;
@@ -112,7 +116,7 @@ T.helper('getArgs', function() {
     };
 
     onClose= function() {
-        runModel({
+        return runModel({
             args: parseArgs(result.args),
 //            input: parseArgs(result.inputs),
         },
@@ -149,6 +153,8 @@ var validateForm= function() {
     if ( !desc.title || !desc.text ) return false;
 
     if ( verifyArgs ) return verifyArgs();
+
+    return true;
 };
 
 $(function() {
@@ -160,12 +166,9 @@ $(function() {
         }
 
         $('#modelRun').modal('hide');
-        if ( !onClose ) return;
 
-        var _onClose= onClose;
-        onClose= undefined;
-        verifyArgs= undefined;
-        return _onClose();
+        if ( onClose ) onClose();
+        return false;
     });
 });
 

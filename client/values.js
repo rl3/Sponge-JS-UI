@@ -196,7 +196,14 @@ var buildValue= function( name, type, valueFn, info ) {
         name: name,
         type: type,
         valueText: function() {
-            return valueToString(valueFn());
+            return valueToString(
+                valueFn(),
+                {
+                    onLocation: function( value, options, defaultFn ) {
+                        return $(defaultFn(value, options)).html();
+                    }
+                }
+            );
         },
         getValue: function() { return valueFn(); },
         setValue: function( newValue ) { valueFn(newValue); },
