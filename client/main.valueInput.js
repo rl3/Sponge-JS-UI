@@ -203,6 +203,17 @@ $(function() {
     });
 });
 
+var valueToString= function( value ) {
+    return SpongeTools.valueToString(
+        value,
+        {
+            onLocation: function( value, options, defaultFn ) {
+                return $(defaultFn(value, options)).html();
+            }
+        }
+    );
+};
+
 /*
  * TEMPLATE inputTypeSingle
  * shows a single value to edit
@@ -211,7 +222,7 @@ $(function() {
 T.select('inputTypeSingle');
 
 T.helper('value', function() {
-    return SpongeTools.valueToString(newValue());
+    return valueToString(newValue());
 });
 
 T.events({
@@ -253,7 +264,7 @@ T.helper('values', function() {
 });
 
 T.helper('value', function() {
-    return SpongeTools.valueToString(this.value && this.value());
+    return valueToString(this.value && this.value());
 });
 
 T.events({
@@ -313,19 +324,19 @@ var buildRangeValue= function( name ) {
 T.helper('valueFrom', function() {
     isInvalid('rangeview.from');
     var value= buildRangeValue('from')
-    return { value: value, valueText: function() { return SpongeTools.valueToString(value()); } };
+    return { value: value, valueText: function() { return valueToString(value()); } };
 });
 
 T.helper('valueTo', function() {
     isInvalid('rangeview.to');
     var value= buildRangeValue('to')
-    return { value: value, valueText: function() { return SpongeTools.valueToString(value()); } };
+    return { value: value, valueText: function() { return valueToString(value()); } };
 });
 
 T.helper('valueStep', function() {
     isInvalid('rangeview.step');
     var value= buildRangeValue('step')
-    return { value: value, valueText: function() { return SpongeTools.valueToString(value()); } };
+    return { value: value, valueText: function() { return valueToString(value()); } };
 });
 
 T.events({

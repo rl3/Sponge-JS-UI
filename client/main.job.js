@@ -23,7 +23,11 @@ var getJob= function( _jobId ) {
 var getJobLog= SpongeTools.postData('getJobLog');
 var deleteJobLog= SpongeTools.postData('deleteJobLog');
 
-var getJobResult= SpongeTools.getCachedData('getJobResult', 2000);
+var _getJobResult= SpongeTools.getCachedData('getJobResult', 2000);
+var getJobResult= function( params ) {
+    invalidateJob((params || {})._jobId);
+    return _getJobResult.apply(this, arguments);
+};
 
 var _restartJob= SpongeTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
@@ -206,7 +210,7 @@ T.helper('result', function() {
         if ( result ) filterTables(result, tables, [id, 'result']);
         return {
             id: id,
-            args: jobResult[id].args.args,
+            args: (jobResult[id].args || {}).args,
             result: result,
             tables: tables,
         };

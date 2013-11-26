@@ -285,7 +285,7 @@ var jobsToWatch= {};
 var jobWatchTimer= null;
 
 var addJobWatchTimer= function( job ) {
-    if ( !job.invalidator ) job.invalidator= getInvalidator();
+    if ( !job.invalidator ) job.invalidator= getInvalidator('jobWatch' + job.jobId);
 
     job.invalidator();
 
