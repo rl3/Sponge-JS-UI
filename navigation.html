@@ -53,50 +53,96 @@
 </template>
 
 <template name="mainNavigation">
-    <div id="main-naivigation-header" class="nav-row">{{> mainNavigationHeader}}</div>
-    {{> mainNavigationModels}}
-    {{> mainNavigationJobs}}
-    {{#if isAdmin}}
-        {{> mainNavigationUsers}}
-    {{/if}}
+    <div id="main-naivigation-header" class="nav-row sort">{{> mainNavigationHeader}}</div>
+    <div class="accordion" id="main-navigation-accordion">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                <span class="accordion-toggle" href="#main-navigation-accordion-model">
+                    <span class="title">Model</span>
+                    {{> mainNavigationModelTitle}}
+                </span>
+            </div>
+        </div>
+        <div id="main-navigation-accordion-model" class="accordion-body collapse">
+            <div class="accordion-inner">
+                {{> mainNavigationModels}}
+            </div>
+        </div>
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                <span class="accordion-toggle" href="#main-navigation-accordion-job">
+                    <span class="title">Job</span>
+                </span>
+            </div>
+        </div>
+        <div id="main-navigation-accordion-job" class="accordion-body collapse">
+            <div class="accordion-inner">
+                {{> mainNavigationJobs}}
+            </div>
+        </div>
+        {{#if isAdmin}}
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <span class="accordion-toggle" href="#main-navigation-accordion-user">
+                        <span class="title">User</span>
+                    </span>
+                </div>
+            </div>
+            <div id="main-navigation-accordion-user" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    {{> mainNavigationUsers}}
+                </div>
+            </div>
+        {{/if}}
+    </div>
 </template>
 
 <template name="mainNavigationHeader">
-    <a sort="date" href="#" class="date-time"><i class="{{sortClassDate}}"></i>Date</a><a sort="name" href="#"><i class="{{sortClassName}}"></i>Name</a>
+    <a sort="date" href="#" class="date-time">{{sortDate}} Date</a><a sort="name" href="#">{{sortName}} </i>Name</a>
+</template>
+
+<template name="mainNavigationModelTitle">
+    {{#if selected}}
+        <a href="#" title="click to unselect">{{modelName}}</a>
+    {{/if}}
 </template>
 
 <template name="mainNavigationModels">
-    <div class="nav-row title">Models <a href="#" class="switch">{{switch}}</a></div>
-    {{#if loading}}
-        {{> loadingSmall}}
-    {{else}}
-        <div class="nav-list {{listClass}}">
-            {{#each models}}
-                <div class="nav-row model link {{rowClass}}">
-                    <div class="date-time">
-                        <div class="date">{{date}}</div>
-                        <div class="time">{{time}}</div>
-                    </div>
-                    {{name}}
+            <div class="nav-row" style="text-align: center;">
+                <div class="btn-group">
+                    <button class="btn btn-mini {{switchMy}}" type="button">my models</button>
+                    <button class="btn btn-mini {{switchAll}}" type="button">all models</button>
                 </div>
-            {{/each}}
-        </div>
-    {{/if}}
+            </div>
+            {{#if loading}}
+                {{> loadingSmall}}
+            {{else}}
+                <div class="nav-list">
+                    {{#each models}}
+                        <div class="nav-row model link {{rowClass}}">
+                            <div class="date-time">
+                                <div class="date">{{date}}</div>
+                                <div class="time">{{time}}</div>
+                            </div>
+                            {{name}}
+                        </div>
+                    {{/each}}
+                </div>
+            {{/if}}
 </template>
 
 <template name="mainNavigationJobs">
-    <div class="nav-row title">Jobs <a href="#" class="switch">{{switch}}</a></div>
-    {{#if loading}}
-        {{> loadingSmall}}
-    {{else}}
-        <div class="nav-list {{listClass}}">
-            {{#each jobs}}
-                {{> mainNavigationJobDetails}}
+            {{#if loading}}
+                {{> loadingSmall}}
             {{else}}
-                <div class="nav-row">(none)</div>
-            {{/each}}
-        </div>
-    {{/if}}
+                <div class="nav-list">
+                    {{#each jobs}}
+                        {{> mainNavigationJobDetails}}
+                    {{else}}
+                        <div class="nav-row">(none)</div>
+                    {{/each}}
+                </div>
+            {{/if}}
 </template>
 
 <template name="mainNavigationJobDetails">
@@ -113,16 +159,15 @@
 </template>
 
 <template name="mainNavigationUsers">
-    <div class="nav-row title">Users <a href="#" class="switch">{{switch}}</a></div>
-    <div class="nav-list {{listClass}}">
-        {{#each users}}
-            <div class="nav-row user link edit {{rowClass}}">
-                <div class="user-name">{{username}}</div>
-                <div class="full-name">{{profile.name}}</div>
-            </div>
-        {{/each}}
-    </div>
-    <div class="nav-row user link new">create new</div>
+            {{#each users}}
+                <div class="nav-list">
+                    <div class="nav-row user link edit {{rowClass}}">
+                        <div class="user-name">{{username}}</div>
+                        <div class="full-name">{{profile.name}}</div>
+                    </div>
+                </div>
+            {{/each}}
+            <div class="nav-row user link new">create new</div>
 </template>
 
 <template name="mainRightContent">

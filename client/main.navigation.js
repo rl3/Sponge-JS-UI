@@ -58,6 +58,17 @@ T.helper('header', function() {
     }
 });
 
+T.select('mainNavigation');
+
+T.change('rendered', function() {
+    $(this.find('.accordion')).find('.collapse').collapse({ toggle: false, });
+    switch (session('view') ) {
+        case 'model': $('#main-navigation-accordion-model').collapse('show'); break;
+        case 'job':   $('#main-navigation-accordion-job').collapse('show'); break;
+        case 'user':  $('#main-navigation-accordion-user').collapse('show'); break;
+    }
+});
+
 /**
  * TEMPLATE mainNavigationHeader
  */
@@ -69,20 +80,24 @@ var getSort= function() {
 
 var setSort= function( key, order ) {
     session('sort', { key: key, order: order });
-}
+};
 
-T.helper('sortClassDate', function() {
+var sortChar= function( order ) {
+    return new Handlebars.SafeString(order > 0 ? '&#9660;' : '&#9650;');
+};
+
+T.helper('sortDate', function() {
     var sort= getSort();
     if ( sort.key !== 'date' ) return;
 
-    return sort.order > 0 ? 'icon-arrow-up' : 'icon-arrow-down';
+    return sortChar(sort.order);
 });
 
-T.helper('sortClassName', function() {
+T.helper('sortName', function() {
     var sort= getSort();
     if ( sort.key !== 'name' ) return;
 
-    return sort.order > 0 ? 'icon-arrow-up' : 'icon-arrow-down';
+    return sortChar(sort.order);
 });
 
 T.events({
@@ -134,23 +149,49 @@ var getApiUserName= function() {
     return user.profile.agrohyd.apiUser;
 };
 
+T.select('mainNavigationModelTitle');
+
+T.helper('modelName', function() {
+    var _modelId= modelId();
+
+    if ( ! _modelId ) return;
+
+    var model= getModel(_modelId);
+    return model && model.name ? model.name : SpongeTools.valueToString(str2Oid(_modelId));
+});
+
+T.helper('selected', function() {
+    return modelId();
+});
+
+T.events({
+    'click a': function() {
+        modelId(undefined);
+        return false;
+    }
+});
 
 /**
  * TEMPLATE mainNavigationModels
  */
 T.select('mainNavigationModels');
 
-T.helper('switch', function() {
-    if ( modelId() ) return 'unselect';
+T.helper('switchAll', function() {
+    return session('allUsers') ? 'btn-primary' : '';
+});
 
-    return session('allUsers') ? 'my models' : 'all models';
+T.helper('switchMy', function() {
+    return session('allUsers') ? '' : 'btn-primary';
 });
 
 var sortFn= function() {
     var sort= getSort();
     return function( a, b ) {
-        if ( a[sort.key] < b[sort.key] ) return sort.order;
-        if ( a[sort.key] > b[sort.key] ) return -sort.order;
+        var akey= String(a[sort.key]).toLowerCase();
+        var bkey= String(b[sort.key]).toLowerCase();
+
+        if ( akey < bkey )     return sort.order;
+        if ( akey > bkey )     return -sort.order;
         if ( a.name < b.name ) return -1;
         if ( a.name > b.name ) return 1;
         return 0;
@@ -213,28 +254,14 @@ T.helper('time', function() {
     if ( this.date ) return SpongeTools.timeToString(this.date);
 });
 
-var commonListClass= function( getter ) {
-    return function() {
-        return getter() ? 'show-selected' : 'show-all';
-    };
-};
-
-var commonRowClass= function( getter, normalize ) {
-    if ( !normalize ) normalize= function( v ) { return v; };
-
-    return ;
-};
-
-T.helper('listClass', commonListClass(modelId));
 T.helper('rowClass', function() {
     if ( oid2Str(modelId()) === oid2Str(this.id) ) return 'selected';
 });
 
 T.events({
-    'click a.switch': function( event ) {
-        if ( modelId() ) return modelId(null);
-
-        return session('allUsers', !session('allUsers'));
+    'click button': function( event ) {
+        session('allUsers', !session('allUsers'));
+        return false;
     },
     'click .link': function( event ) {
         modelId(this.id);
@@ -247,10 +274,6 @@ T.events({
  * TEMPLATE mainNavigationJobs
  */
 T.select('mainNavigationJobs');
-
-T.helper('switch', function() {
-    if ( jobId() ) return 'unselect';
-});
 
 T.helper('loading', function() {
     var jobs= getJobs({ modelId: modelId() });
@@ -303,14 +326,6 @@ T.helper('jobs', function() {
     result.sort(sortFn());
 
     return result;
-});
-
-T.helper('listClass', commonListClass(jobId));
-
-T.events({
-    'click a.switch': function( event ) {
-        if ( jobId() ) return jobId(null);
-    },
 });
 
 T.select('mainNavigationJobDetails');
@@ -380,15 +395,9 @@ T.events({
  */
 T.select('mainNavigationUsers');
 
-T.helper('switch', function() {
-    if ( userName() ) return 'unselect';
-});
-
 T.helper('users', function() {
     return Meteor.users.find({}, { sort: [[ 'username', 'asc' ]] });
 });
-
-T.helper('listClass', commonListClass(userName));
 
 T.helper('rowClass', function() {
     var _class= getStatusClasses(this);
@@ -406,9 +415,6 @@ T.events({
     'click .link.new': function( event ) {
         userName(' new user');
         session('view', 'user');
-    },
-    'click a.switch': function( event ) {
-        if ( userName() ) return userName(null);
     },
 });
 

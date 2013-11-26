@@ -5,9 +5,9 @@
 @content-header-height: 46px;
 @content-header-color: #EECC00;// #DDCC55;
 
-@job-state-success: #99DD99;
-@job-state-error: #FFDDDD;
-@job-state-running: #DDDDFF;
+@job-state-success: lighten(#99DD99, 10%);
+@job-state-error: lighten(#FFDDDD, 10%);
+@job-state-running: lighten(#DDDDFF, 10%);
 
 
 @highlight-background: #DDDDDD;
@@ -90,12 +90,28 @@
     overflow-x: hidden;
     border-right: 1px solid black;
 
+    .accordion-heading {
+        .title {
+            color: #AAAAAA;
+            font-weight: bold;
+        }
+    }
+    .accordion-body {
+        .accordion-inner {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+
     .nav-row {
         .box-model;
         padding: 3px;
         clear: both;
         width: @nav-width;
         overflow: hidden;
+        &.sort {
+            font-size: smaller;
+        }
 
         .switch {
             font-size: 6pt;
@@ -109,6 +125,36 @@
             &:hover {
                 color: #005580;
                 background-color: @highlight-background;
+            }
+
+            &.selected {
+                background-color: #0088CC;
+                color: white;
+
+                &:hover {
+                    background-color: #005580;
+                    color: @highlight-background;
+                }
+            }
+            &.status {
+                &.error {
+                    background-color: @job-state-error;
+                    &.selected, &:hover {
+                        background-color: darken(@job-state-error, 20%);
+                    }
+                }
+                &.success {
+                    background-color: @job-state-success;
+                    &.selected, &:hover {
+                        background-color: darken(@job-state-success, 20%);
+                    }
+                }
+                &.running {
+                    background-color: @job-state-running;
+                    &.selected, &:hover {
+                        background-color: darken(@job-state-running, 20%);
+                    }
+                }
             }
         }
 
@@ -172,7 +218,7 @@
         .box-model;
         margin: 0;
         padding: 0;
-        max-height: 40%;
+        max-height: 20em;
         overflow-x: hidden;
         overflow-y: auto;
 
@@ -307,26 +353,6 @@ a.active {
     background-color: @active;
 }
 
-.status {
-    &.error {
-        background-color: @job-state-error;
-        &.active, &:hover {
-            background-color: darken(@job-state-error, 20%);
-        }
-    }
-    &.success {
-        background-color: @job-state-success;
-        &.active, &:hover {
-            background-color: darken(@job-state-success, 20%);
-        }
-    }
-    &.running {
-        background-color: @job-state-running;
-        &.active, &:hover {
-            background-color: darken(@job-state-running, 20%);
-        }
-    }
-}
 td.status {
     max-width: 800px;
 

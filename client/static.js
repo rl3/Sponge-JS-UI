@@ -34,7 +34,12 @@ jQuery(function( $ ) {
             SpongeTools.showMap();
             SpongeTools.addMapMarker(lon, lat, options);
         })
+        .on('click', '.accordion-toggle', function() {
+            var $accordion= $(this).closest('.accordion');
+            var self= this;
+            $accordion.find('.collapse').collapse('hide');
+            $($(this).attr('href')).collapse('show');
+        })
     ;
-
 });
 
