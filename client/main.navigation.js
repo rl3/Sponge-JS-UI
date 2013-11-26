@@ -62,7 +62,7 @@ T.select('mainNavigation');
 
 T.change('rendered', function() {
     $(this.find('.accordion')).find('.collapse').collapse({ toggle: false, });
-    switch (session('view') ) {
+    switch (session('view') || 'model' ) {
         case 'model': $('#main-navigation-accordion-model').collapse('show'); break;
         case 'job':   $('#main-navigation-accordion-job').collapse('show'); break;
         case 'user':  $('#main-navigation-accordion-user').collapse('show'); break;
@@ -100,6 +100,14 @@ T.helper('sortName', function() {
     return sortChar(sort.order);
 });
 
+T.helper('switchAll', function() {
+    return session('allUsers') ? 'btn-primary' : '';
+});
+
+T.helper('switchMy', function() {
+    return session('allUsers') ? '' : 'btn-primary';
+});
+
 T.events({
     'click a': function( event ) {
         var sortName= $(event.currentTarget).attr('sort');
@@ -111,7 +119,11 @@ T.events({
             sortOrder= -oldSort.order;
         }
         setSort(sortName, sortOrder);
-    }
+    },
+    'click button': function( event ) {
+        session('allUsers', !session('allUsers'));
+        return false;
+    },
 });
 
 var _getJobs= SpongeTools.getCachedData('getJobs', 2000);
@@ -175,14 +187,6 @@ T.events({
  * TEMPLATE mainNavigationModels
  */
 T.select('mainNavigationModels');
-
-T.helper('switchAll', function() {
-    return session('allUsers') ? 'btn-primary' : '';
-});
-
-T.helper('switchMy', function() {
-    return session('allUsers') ? '' : 'btn-primary';
-});
 
 var sortFn= function() {
     var sort= getSort();
@@ -259,10 +263,6 @@ T.helper('rowClass', function() {
 });
 
 T.events({
-    'click button': function( event ) {
-        session('allUsers', !session('allUsers'));
-        return false;
-    },
     'click .link': function( event ) {
         modelId(this.id);
         session('view', 'model');
