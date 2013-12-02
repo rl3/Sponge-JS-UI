@@ -281,11 +281,6 @@
     padding: 10px 10px 10px 10px;
 }
 
-.job-result {
-    .result.toggle {
-        cursor: pointer;
-    }
-}
 
 
 #google-maps-container {
@@ -548,6 +543,7 @@ table.value {
                 &.arrayIndex, &.objectKey {
                     text-align: right;
                     font-weight: bold;
+                    width: 1px; // display as small as possible
 
                     &:after {
                         content: ":";
@@ -555,6 +551,15 @@ table.value {
                 }
             }
         }
+    }
+}
+
+.job-result {
+    th {
+        width: 1px;
+    }
+    .result.toggle {
+        cursor: pointer;
     }
 }
 
