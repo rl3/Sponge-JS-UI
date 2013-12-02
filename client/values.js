@@ -121,7 +121,7 @@ var arrayToString= function( value, options ) {
             ;
     }
 
-    return '<table class="value array">'
+    return '<table class="value array" width="100%">'
         + value.map(function( v, i ) { return '<tr><td class="value arrayIndex">' + i + '</td><td class="value arrayValue">' + valueToString(v, options) + '</td></tr>'; }).join('')
         + '</table>';
 };
@@ -130,7 +130,7 @@ var objectToString= function( value, options ) {
     var keys= Object.keys(value);
     if ( !keys.length ) return '<empty Object>';
 
-    return '<table class="value object">'
+    return '<table class="value object" width="100%">'
         + keys.map(function( key ) { return '<tr valign="top"><td class="value objectKey">' + key + '</td><td class="value objectValue">' + valueToString(value[key], options) + '</td></tr>'; }).join('')
         + '</table>';
 };

@@ -217,13 +217,19 @@ T.helper('result', function() {
     });
 });
 
+var onObject= function( value, options, defaultFn ) {
+    var out= defaultFn(value, options);
+    return '<i class="result toggle icon-chevron-right"></i><div class="hidden">' + out + '</div>';
+//    return '<table width="100%"><tr valign="top"><td width="1%"><i class="result toggle icon-chevron-right"></i></td><td class="hidden">' + out + '</td></tr></table>';
+};
+
 T.helper('resultMap', function() {
     var result= this.result || {};
 
     return Object.keys(result).filter(function( key ) {
         return key !== 'tables';
     }).map(function( key ) {
-        var value= SpongeTools.valueToString(result[key], { onLocation: onLocation });
+        var value= SpongeTools.valueToString(result[key], { onLocation: onLocation, onObject: onObject, });
         if ( ! value ) return;
 
         return {
@@ -271,3 +277,20 @@ T.helper('keys', function() {
     });
 });
 
+T.events({
+    'click .result.toggle': function( event ) {
+/*
+        $(event.currentTarget)
+            .toggleClass('icon-chevron-right')
+            .toggleClass('icon-chevron-down')
+            .closest('tr').find('td:eq(1)').toggleClass('hidden')
+        ;
+*/
+        $(event.currentTarget)
+            .toggleClass('icon-chevron-right')
+            .toggleClass('icon-chevron-down')
+            .parent().find('div:first').toggleClass('hidden')
+        ;
+        return false;
+    },
+});
