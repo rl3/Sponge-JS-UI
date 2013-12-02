@@ -219,7 +219,7 @@ T.helper('result', function() {
 
 var onObject= function( value, options, defaultFn ) {
     var out= defaultFn(value, options);
-    return '<i class="result toggle icon-chevron-right"></i><div class="hidden">' + out + '</div>';
+    return '<i class="result toggle icon-chevron-right"></i><div class="sub-result hidden">' + out + '</div>';
 //    return '<table width="100%"><tr valign="top"><td width="1%"><i class="result toggle icon-chevron-right"></i></td><td class="hidden">' + out + '</td></tr></table>';
 };
 
