@@ -191,8 +191,10 @@ T.select('mainNavigationModels');
 var sortFn= function() {
     var sort= getSort();
     return function( a, b ) {
-        var akey= String(a[sort.key]).toLowerCase();
-        var bkey= String(b[sort.key]).toLowerCase();
+        var akey= a[sort.key];
+        var bkey= b[sort.key];
+        if ( typeof akey === 'string' ) akey= akey.toLowerCase();
+        if ( typeof bkey === 'string' ) bkey= bkey.toLowerCase();
 
         if ( akey < bkey )     return sort.order;
         if ( akey > bkey )     return -sort.order;
@@ -318,7 +320,7 @@ T.helper('jobs', function() {
             name: (job.description.title || '') + (job.description.text || ''),
             title: job.description.title || '',
             description: job.description.text || '',
-            date: job.timeStamp,
+            date: (job.status || {}).started || job.timeStamp,
             status: job.status,
         }
     });

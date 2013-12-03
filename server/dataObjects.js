@@ -55,9 +55,10 @@ Meteor.publish('client-cache', function() {
 });
 
 var Debug= false;
-// Debug= true;
 var debugFilter;
-// debugFilter= /getResult/;
+
+//Debug= true;
+//debugFilter= /getJobs/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;
