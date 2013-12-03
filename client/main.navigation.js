@@ -226,7 +226,7 @@ var modelHelper= function() {
     var models= {};
     jobs.forEach(function( job ) {
         var id= oid2Str(job.modelId);
-        var time= job.timeStamp;
+        var time= (job.status || {}).started || job.timeStamp;
         if ( !(id in models) || time > models[id] ) {
             models[id]= time;
         }
