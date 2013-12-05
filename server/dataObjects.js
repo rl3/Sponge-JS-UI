@@ -3,6 +3,8 @@ var dataCache= new Meteor.Collection('Cache');
 var dataCacheMeta= new Meteor.Collection('CacheMeta');
 var sessionData= new Meteor.Collection('SessionData')
 
+var Future;
+
 Meteor.startup(function() {
     Future = Npm.require('fibers/future');
     process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
