@@ -1,0 +1,36 @@
+
+<body>
+<div id="valuesInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="valuesInputLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="valuesInputLabel">{{> valuesInputTitle}}</h3>
+    </div>
+    <div class="modal-body">
+        {{> valuesInputBody}}
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button class="btn btn-primary">Done</button>
+    </div>
+</div>
+</body>
+
+<template name="valuesInputTitle">
+    {{title}}
+</template>
+
+<template name="valuesInputBody">
+    {{#if values}}
+        <table>
+            <tr>
+                <th>Name</th><th>Value</th>
+            </tr>
+            {{#each values}}
+                <tr valign="top">
+                    <td align="right" class="{{nameClass}}">{{name}}:</td>
+                    <td><a class="editValue" href="#">{{valueText}}</a></td>
+                </tr>
+            {{/each}}
+        </table>
+    {{/if}}
+</template>

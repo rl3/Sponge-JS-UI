@@ -227,13 +227,11 @@ T.helper('value', function() {
 
 T.events({
     'click a.value': function() {
-        singleValue= {
+        showSingleValue({
             get: function() { return newValue(); },
             set: function( value ) { newValue(value); },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     }
 });
 
@@ -279,27 +277,23 @@ T.events({
         invalidate('arraylist');
 
         // open newly added value in singleValueInput
-        singleValue= {
+        sshowSingleValue({
             get: function() { return array[index]; },
             set: function( value ) {
                 array[index]= value;
                 invalidate('arraylist');
             },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     },
     'click a.value': function() {
         var self= this;
         var v= self.value || function() {};
-        singleValue= {
+        showSingleValue({
             get: function() { return v(); },
             set: function( value ) { v(value); },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     }
 });
 
@@ -343,13 +337,11 @@ T.events({
     'click a.value': function() {
         var self= this;
         var v= self.value || function() {};
-        singleValue= {
+        showSingleValue({
             get: function() { return v(); },
             set: function( value ) { v(value); },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     }
 });
 
@@ -380,6 +372,8 @@ T.helper('input', function() {
         case 'Date':
         case 'String':
         case 'Boolean':
+        case 'Const':
+        case 'Color':
             templateName+= type; break;
         default: 
             templateName+= 'Model';
@@ -470,7 +464,7 @@ $(function() {
     T.helper('value', simpleValueGet);
     T.events(simpleValueEvents);
 });
-['Double', 'Integer', 'String', 'Boolean', 'Model', 'Date', 'Location'].forEach(function( type ) {
+['Double', 'Integer', 'String', 'Boolean', 'Model', 'Date', 'Location', 'Const', 'Color'].forEach(function( type ) {
     var templateName= 'valueInput' + type;
 
     T.select(templateName);
@@ -855,3 +849,11 @@ T.events({
     },
 });
 
+
+var showSingleValue= function( _singleValue ) {
+    singleValue= _singleValue;
+    invalidate('singlevalue');
+    SpongeTools.showModal($('#singleValueInput'));
+};
+
+SpongeTools.showSingleValueDialog= showSingleValue;
