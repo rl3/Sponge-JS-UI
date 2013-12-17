@@ -159,7 +159,7 @@ T.helper('args', function() {
     return Object.keys(args).map(function( argName ) {
         return {
             name: argName,
-            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName], { onLocation: onLocation })),
+            value: SpongeTools.valueToString(args[argName], { onLocation: onLocation }),
         };
     });
 });
@@ -239,7 +239,7 @@ T.helper('resultMap', function() {
 
         return {
             resultName: key,
-            resultValue: new Handlebars.SafeString(value),
+            resultValue: value,
         }
     }).filter(function( result ) {
         return result;
@@ -278,7 +278,7 @@ T.helper('keys', function() {
         return {
             key: key,
             objectValue: simpleValue === objectVal && self[key],
-            simpleValue: new Handlebars.SafeString(simpleValue),
+            simpleValue: simpleValue,
         };
     });
 });

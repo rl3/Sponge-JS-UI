@@ -60,6 +60,7 @@ T.events({
                 get: this.getValue,
                 set: this.setValue,
                 type: this.type,
+                info: this.info,
             });
             return;
         }

@@ -172,11 +172,16 @@
 </template>
 
 <template name="valueInputConst">
-    Const
+    <select>
+        <option style="display: none">Please select</option>
+        {{#each values}}
+            <option value="{{value}}" {{selected}}>{{value}}</option>
+        {{/each}}
+    </select>
 </template>
 
 <template name="valueInputColor">
-    Color
+    <input type="text" class="color" value="{{color}}" />
 </template>
 
 <template name="valueInputLocation">

@@ -473,8 +473,74 @@ $(function() {
         singleValue.newValue= singleValue.get();
     });
     T.change('rendered', function() {
-        this.find('input').focus();
+        var input= this.find('input, select');
+        if ( input ) input.focus();
     });
+});
+
+T.select('valueInputConst');
+
+T.helper('values', function() {
+    var values= (singleValue.info || {}).const;
+    if ( !values ) return;
+
+    return values.map(function( v ) {
+        return {
+            value: v,
+            selected: singleValue.newValue === v ? 'selected' : '',
+        };
+    });
+});
+
+T.events({
+    'change select': function( event ) {
+        singleValue.newValue= event.currentTarget.value;
+    }
+});
+
+
+T.select('valueInputColor');
+
+var hexPad= function( d ) {
+    d= (d & 0xFF).toString(16);
+    return d.length < 2 ? '0' + d : d;
+};
+
+var getColor= function( value ) {
+    if ( !value ) value= 0;
+
+    var intValue= parseInt(value, 16) || 0;
+
+    return {
+        r: intValue & 0xFF,
+        g: (intValue >> 8) & 0xFF,
+        b: (intValue >> 16) & 0xFF,
+        a: ((intValue >> 24) & 0xFF + 0.0) / 255,
+    };
+};
+
+T.change('rendered', function() {
+    var self= this;
+    var $modal= $('#singleValueInput');
+    var $input= $(this.find('input.color'));
+
+    var c= getColor(singleValue ? singleValue.get() : 0);
+
+console.log(c)
+console.log('rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')');
+    $input.colorpicker({
+        format: 'rgba',
+        value: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')',
+    }).on('changeColor', function( event ) {
+        var rgba= event.color.toRGB();
+        singleValue.newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.b) + hexPad(rgba.r);
+/*
+    }).on('create', function( event ) {
+        event.color.setColor('rgba(' + c.r + ',' + c.g + ',' + c.b + ')');
+        event.color.setAlpha(c.a);
+*/
+    })
+    .focus();
 });
 
 
