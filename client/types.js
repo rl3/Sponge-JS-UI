@@ -68,5 +68,14 @@ var editableTypeMap= function( context, prop, changedFn ) {
     })
 };
 
+var typeToString= function( type ) {
+    if ( !type || typeof type !== 'object' ) return type ? type.toString() : type;
+
+    if ( type.args && type.result ) return 'compatible object';
+
+    return type;
+};
+
 
 SpongeTools.editableTypeMap= editableTypeMap;
+SpongeTools.typeToString= typeToString;

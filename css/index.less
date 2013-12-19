@@ -282,6 +282,24 @@
 }
 
 
+#singleValueInputLabel {
+    .title {
+        font-weight: bold;
+        font-size: larger;
+    }
+    .type {
+        &:before {
+            content: "(";
+        }
+        &:after {
+            content: ")";
+        }
+        color: gray;
+    }
+    .desctiption {
+    }
+}
+
 
 #google-maps-container {
     .box-model;
@@ -335,7 +353,7 @@
 }
 
 
-#modelRun {
+#modelRun, #valuesInput {
     .optional {
         font-style: italic;
     }

@@ -34,6 +34,11 @@ var getJobResultMapArgs= function( jobId, path ) {
     return _getJobResultMapArgs(jobId, path);
 };
 
+var _getJobResultMap= SpongeTools.getCachedData('getJobResultMap', 2000);
+var getJobResultMap= function( jobId, path, data ) {
+    return _getJobResultMap(jobId, path, data);
+};
+
 var _restartJob= SpongeTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
     _restartJob(jobId(), function() {
@@ -309,15 +314,19 @@ T.helper('clicked', function() {
 
     if ( !clicked() ) return;
 
+    var _jobId= jobId();
+    var path= this.tablePath;
+
     // if clicked, get map args
-    var args= getJobResultMapArgs(jobId(), this.tablePath);
+    var args= getJobResultMapArgs(_jobId, path);
     if ( args === undefined ) return;
 
     // on result reset 'clicked'-status
     clicked(false);
-    console.log(args);
 
     var _args= SpongeTools.buildValues(args, 'args', this);
+
+    var resultMapArgs= injectVar(this, 'resultMapArgs');
 
     SpongeTools.valuesInput(
         _args, {
@@ -326,8 +335,30 @@ T.helper('clicked', function() {
         }, function( newArgs ) {
             var result= { args: newArgs };
             if ( 'transient' in args ) result.transient= args.transient;
-            console.log(result);
+
+            resultMapArgs(result);
         }
     );
 });
+
+T.select('jobResultMapResult');
+
+/**
+ * helper does not return anything
+ * it's simply a handler to show a dialog for map arguments
+ */
+T.helper('data', function() {
+    var args= injectVar(this, 'resultMapArgs', undefined);
+
+    if ( !args() ) return;
+
+    // TODO: offer returned Data for download
+    var data= getJobResultMap(jobId(), this.tablePath, args());
+    if ( !data ) return;
+
+console.log(data);
+    // args(undefined);
+    return data;
+});
+
 

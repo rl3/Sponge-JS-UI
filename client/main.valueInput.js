@@ -346,6 +346,24 @@ T.events({
 });
 
 
+T.select('singleValueInputTitle');
+
+T.helper('type', function() {
+    isInvalid('singlevalue');
+
+    if ( !singleValue ) return;
+
+    return SpongeTools.typeToString(singleValue.type);
+});
+
+T.helper('description', function() {
+    isInvalid('singlevalue');
+
+    if ( !singleValue ) return;
+
+    return (singleValue.info || {}).description;
+});
+
 /*
  * TEMPLATE singleValueInputBody
  * shows input for a single value.
