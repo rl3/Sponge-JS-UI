@@ -24,9 +24,19 @@ var getJobLog= SpongeTools.postData('getJobLog');
 var deleteJobLog= SpongeTools.postData('deleteJobLog');
 
 var _getJobResult= SpongeTools.getCachedData('getJobResult', 2000);
-var getJobResult= function( params ) {
-    invalidateJob((params || {})._jobId);
-    return _getJobResult.apply(this, arguments);
+var getJobResult= function( jobId, path ) {
+    invalidateJob(jobId);
+    return _getJobResult(jobId, path);
+};
+
+var _getJobResultMapArgs= SpongeTools.getCachedData('getJobResultMapArgs', 2000);
+var getJobResultMapArgs= function( jobId, path ) {
+    return _getJobResultMapArgs(jobId, path);
+};
+
+var _getJobResultMap= SpongeTools.getCachedData('getJobResultMap', 2000);
+var getJobResultMap= function( jobId, path, data ) {
+    return _getJobResultMap(jobId, path, data);
 };
 
 var _restartJob= SpongeTools.getCachedData('restartJob', 2000);
@@ -154,7 +164,7 @@ T.helper('args', function() {
     return Object.keys(args).map(function( argName ) {
         return {
             name: argName,
-            value: new Handlebars.SafeString(SpongeTools.valueToString(args[argName], { onLocation: onLocation })),
+            value: SpongeTools.valueToString(args[argName], { onLocation: onLocation }),
         };
     });
 });
@@ -200,7 +210,7 @@ T.helper('result', function() {
     var jobId= SpongeTools.jobId();
     if ( !jobId ) return;
 
-    var jobResult= getJobResult({ jobId: jobId, path: '', });
+    var jobResult= getJobResult(jobId, '');
 
     if ( !jobResult ) return;
 
@@ -234,7 +244,7 @@ T.helper('resultMap', function() {
 
         return {
             resultName: key,
-            resultValue: new Handlebars.SafeString(value),
+            resultValue: value,
         }
     }).filter(function( result ) {
         return result;
@@ -256,6 +266,7 @@ T.helper('resultTables', function() {
             result.push({
                 index: path.join('.'),
                 tablePath: tablePath,
+                jobId: jobId(),
                 hrefXml: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
                 hrefCsv: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
             });
@@ -272,20 +283,13 @@ T.helper('keys', function() {
         return {
             key: key,
             objectValue: simpleValue === objectVal && self[key],
-            simpleValue: new Handlebars.SafeString(simpleValue),
+            simpleValue: simpleValue,
         };
     });
 });
 
 T.events({
     'click .result.toggle': function( event ) {
-/*
-        $(event.currentTarget)
-            .toggleClass('icon-chevron-right')
-            .toggleClass('icon-chevron-down')
-            .closest('tr').find('td:eq(1)').toggleClass('hidden')
-        ;
-*/
         $(event.currentTarget)
             .toggleClass('icon-chevron-right')
             .toggleClass('icon-chevron-down')
@@ -293,4 +297,86 @@ T.events({
         ;
         return false;
     },
+    'click a.resultMap': function( event ) {
+        injectVar(this, 'clicked')(true);
+        return false;
+    },
 });
+
+T.select('jobResultMapLink');
+
+/**
+ * helper does not return anything
+ * it's simply a handler to show a dialog for map arguments
+ */
+T.helper('clicked', function() {
+    var clicked= injectVar(this, 'clicked', false);
+
+    if ( !clicked() ) return;
+
+    var _jobId= jobId();
+    var path= this.tablePath;
+
+    // if clicked, get map args
+    var args= getJobResultMapArgs(_jobId, path);
+    if ( args === undefined ) return;
+
+    // on result reset 'clicked'-status
+    clicked(false);
+
+    var _args= SpongeTools.buildValues(args, 'args', this);
+
+    var resultMapArgs= injectVar(this, 'resultMapArgs');
+
+    SpongeTools.valuesInput(
+        _args, {
+            title: 'Arguments for map "' + this.index + '"',
+            simple: true,
+        }, function( newArgs ) {
+            var result= { args: newArgs };
+            if ( 'transient' in args ) result.transient= args.transient;
+
+            resultMapArgs(result);
+        }
+    );
+});
+
+T.select('jobResultMapResult');
+
+/**
+ * helper does not return anything
+ * it's simply a handler to show a dialog for map arguments
+ */
+T.helper('data', function() {
+    var args= injectVar(this, 'resultMapArgs', undefined);
+
+    if ( !args() ) return;
+
+/*
+    $.fileDownload(SpongeTools.buildApiUrl('Job/getResultMap/af964b534b8325a269bc18d64104ea73/52b1e9f626ee39d96a000001.result.tables.sumPerMainCrop'), {
+//        preparingMessageHtml: "We are preparing your report, please wait...",
+//        failMessageHtml: "There was a problem generating your report, please try again.",
+        httpMethod: "PUT",
+        data: {"args":{"valueField":"etc[l]","putPlacemarks":true,"alpha":0.7,"polyAlpha":0.5,"outlineWidth":1,"outlineColor":"7f0000ff","points":10,"precision":1,"reverse":false,"extrude":false,"offset":35,"dimensionX":100,"dimensionY":335,"color":"default","font":"Georgia","propFields":["*"]},"transient":{"values":[],"createLegend":true}},
+    });
+
+    return;
+*/
+
+    // TODO: offer returned Data for download
+    var data= getJobResultMap(jobId(), this.tablePath, args());
+    if ( !data ) return;
+
+    var fileName= data.headers['content-disposition'];
+    if ( fileName ) {
+        var match= fileName.match(/filename\=\"(.+)\"/); //"
+        if ( match ) fileName= match[1];
+    }
+
+    SpongeTools.download(data.content, {
+        contentType: data.headers['content-type'],
+        fileName: fileName || 'resultMap.kml',
+    });
+});
+
+

@@ -1,14 +1,14 @@
 
 var $arrayToString= function( value, options ) {
     options= _.extend({ quoteStrings: true }, options);
-    return '[ ' + value.$array.map(function(v) { return valueToString(v, options); } ).join(', ') + ' ]';
+    return '[ ' + value.$array.map(function(v) { return _valueToString(v, options); } ).join(', ') + ' ]';
 };
 
 var $rangeToString= function( value, options ) {
     options= _.extend({ quoteStrings: true }, options);
-    return 'From: ' + valueToString(value.$range.from, options)
-        + ' To: '   + valueToString(value.$range.to, options)
-        + ' Step: ' + valueToString(value.$range.step, options);
+    return 'From: ' + _valueToString(value.$range.from, options)
+        + ' To: '   + _valueToString(value.$range.to, options)
+        + ' Step: ' + _valueToString(value.$range.step, options);
 };
 
 var pad= function( value ) {
@@ -39,7 +39,7 @@ var dataObjectToString= function( value, options ) {
         var object= _getObject[collection](id);
         if ( object ) name= object.name;
     }
-    if ( !name ) name= valueToString(id);
+    if ( !name ) name= _valueToString(id);
 
     if ( collection === 'DataObj' ) return name;
 
@@ -47,14 +47,14 @@ var dataObjectToString= function( value, options ) {
 };
 
 var selectorToString= function( sel, nameProperty ) {
-    if ( !sel ) return '<empty>';
+    if ( !sel ) return '&lt;empty&gt;';
 
     sel= _.clone(sel);
 
     var result= [];
 
     if ( nameProperty && nameProperty in sel ) {
-        result.push(valueToString(sel[nameProperty], { quoteStrings: true }));
+        result.push(_valueToString(sel[nameProperty], { quoteStrings: true }));
         delete sel[nameProperty];
     }
 
@@ -74,7 +74,7 @@ var selectorToString= function( sel, nameProperty ) {
             value= { $array: value.$in };
         }
 
-        return prop + '=' + valueToString(value, { quoteStrings: true });
+        return prop + '=' + _valueToString(value, { quoteStrings: true });
     });
     if ( args.length ) {
         result.push('(' + args.join(', ') + ')');
@@ -91,7 +91,7 @@ var nearestToString= function( value, options ) {
 };
 
 var arrayToString= function( value, options ) {
-    if ( !value.length ) return '<empty Array>';
+    if ( !value.length ) return '&lt;empty Array&gt;';
 
     var keys;
     var table= true;
@@ -115,23 +115,23 @@ var arrayToString= function( value, options ) {
         return '<table class="value table">'
             + '<tr><th>i</th>' + keys.map(function( k ) { return '<th>' + k + '</th>'; }).join('') + '</tr>'
             + value.map(function( o, i ) {
-                return '<tr><td>' + i + '</td>' + keys.map(function( k ) { return '<td>' + valueToString(o[k], options) + '</td>' }).join('') + '</tr>';
+                return '<tr><td>' + i + '</td>' + keys.map(function( k ) { return '<td>' + _valueToString(o[k], options) + '</td>' }).join('') + '</tr>';
             }).join('')
             + '</table>'
             ;
     }
 
     return '<table class="value array" width="100%">'
-        + value.map(function( v, i ) { return '<tr><td class="value arrayIndex">' + i + '</td><td class="value arrayValue">' + valueToString(v, options) + '</td></tr>'; }).join('')
+        + value.map(function( v, i ) { return '<tr><td class="value arrayIndex">' + i + '</td><td class="value arrayValue">' + _valueToString(v, options) + '</td></tr>'; }).join('')
         + '</table>';
 };
 
 var objectToString= function( value, options ) {
     var keys= Object.keys(value);
-    if ( !keys.length ) return '<empty Object>';
+    if ( !keys.length ) return '&lt;empty Object&gt;';
 
     return '<table class="value object" width="100%">'
-        + keys.map(function( key ) { return '<tr valign="top"><td class="value objectKey">' + key + '</td><td class="value objectValue">' + valueToString(value[key], options) + '</td></tr>'; }).join('')
+        + keys.map(function( key ) { return '<tr valign="top"><td class="value objectKey">' + key + '</td><td class="value objectValue">' + _valueToString(value[key], options) + '</td></tr>'; }).join('')
         + '</table>';
 };
 
@@ -173,10 +173,10 @@ var getHandler= function( value, options ) {
     return 'onString';
 };
 
-var valueToString= function( value, options ) {
-    if ( value === undefined || value === null ) return '<empty>';
+var _valueToString= function( value, options ) {
+    if ( value === undefined || value === null ) return '&lt;empty&gt;';
 
-    if ( value === '' ) return '<empty string>'
+    if ( value === '' ) return '&lt;empty string&gt;'
 
     // transform complete data objects to references
     if ( typeof value === 'object' && '_id' in value && 'type' in value ) {
@@ -189,6 +189,14 @@ var valueToString= function( value, options ) {
 
     var onValue= options[onName];
     return typeof onValue === 'function' ? onValue( value, options, defaultHandler[onName] ) : onValue;
+};
+
+/**
+ * make every result a SafeString
+ */
+var valueToString= function() {
+    var value= _valueToString.apply(null, arguments);
+    return value ? new Handlebars.SafeString(value) : value;
 };
 
 var buildValue= function( name, type, valueFn, info ) {

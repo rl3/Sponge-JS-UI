@@ -3,6 +3,8 @@ var dataCache= new Meteor.Collection('Cache');
 var dataCacheMeta= new Meteor.Collection('CacheMeta');
 var sessionData= new Meteor.Collection('SessionData')
 
+var Future;
+
 Meteor.startup(function() {
     Future = Npm.require('fibers/future');
     process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
@@ -55,9 +57,10 @@ Meteor.publish('client-cache', function() {
 });
 
 var Debug= false;
-// Debug= true;
 var debugFilter;
-// debugFilter= /getResult/;
+
+//Debug= true;
+//debugFilter= /getJobs/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;
@@ -254,7 +257,7 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                 return;
             }
 
-            var data= result.data;
+            var data= urlData.dataFormat === 'plain' ? result : result.data;
 
             // run onAfterMethod with options and data and set data with result
             if ( name in onAfterMethod) {

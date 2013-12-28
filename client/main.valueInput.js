@@ -227,13 +227,11 @@ T.helper('value', function() {
 
 T.events({
     'click a.value': function() {
-        singleValue= {
+        showSingleValue({
             get: function() { return newValue(); },
             set: function( value ) { newValue(value); },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     }
 });
 
@@ -279,27 +277,23 @@ T.events({
         invalidate('arraylist');
 
         // open newly added value in singleValueInput
-        singleValue= {
+        sshowSingleValue({
             get: function() { return array[index]; },
             set: function( value ) {
                 array[index]= value;
                 invalidate('arraylist');
             },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     },
     'click a.value': function() {
         var self= this;
         var v= self.value || function() {};
-        singleValue= {
+        showSingleValue({
             get: function() { return v(); },
             set: function( value ) { v(value); },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     }
 });
 
@@ -343,16 +337,32 @@ T.events({
     'click a.value': function() {
         var self= this;
         var v= self.value || function() {};
-        singleValue= {
+        showSingleValue({
             get: function() { return v(); },
             set: function( value ) { v(value); },
             type: getType(),
-        }
-        invalidate('singlevalue');
-        SpongeTools.showModal($('#singleValueInput'));
+        });
     }
 });
 
+
+T.select('singleValueInputTitle');
+
+T.helper('type', function() {
+    isInvalid('singlevalue');
+
+    if ( !singleValue ) return;
+
+    return SpongeTools.typeToString(singleValue.type);
+});
+
+T.helper('description', function() {
+    isInvalid('singlevalue');
+
+    if ( !singleValue ) return;
+
+    return (singleValue.info || {}).description;
+});
 
 /*
  * TEMPLATE singleValueInputBody
@@ -380,6 +390,8 @@ T.helper('input', function() {
         case 'Date':
         case 'String':
         case 'Boolean':
+        case 'Const':
+        case 'Color':
             templateName+= type; break;
         default: 
             templateName+= 'Model';
@@ -470,7 +482,7 @@ $(function() {
     T.helper('value', simpleValueGet);
     T.events(simpleValueEvents);
 });
-['Double', 'Integer', 'String', 'Boolean', 'Model', 'Date', 'Location'].forEach(function( type ) {
+['Double', 'Integer', 'String', 'Boolean', 'Model', 'Date', 'Location', 'Const', 'Color'].forEach(function( type ) {
     var templateName= 'valueInput' + type;
 
     T.select(templateName);
@@ -479,8 +491,74 @@ $(function() {
         singleValue.newValue= singleValue.get();
     });
     T.change('rendered', function() {
-        this.find('input').focus();
+        var input= this.find('input, select');
+        if ( input ) input.focus();
     });
+});
+
+T.select('valueInputConst');
+
+T.helper('values', function() {
+    var values= (singleValue.info || {}).const;
+    if ( !values ) return;
+
+    return values.map(function( v ) {
+        return {
+            value: v,
+            selected: singleValue.newValue === v ? 'selected' : '',
+        };
+    });
+});
+
+T.events({
+    'change select': function( event ) {
+        singleValue.newValue= event.currentTarget.value;
+    }
+});
+
+
+T.select('valueInputColor');
+
+var hexPad= function( d ) {
+    d= (d & 0xFF).toString(16);
+    return d.length < 2 ? '0' + d : d;
+};
+
+var getColor= function( value ) {
+    if ( !value ) value= 0;
+
+    var intValue= parseInt(value, 16) || 0;
+
+    return {
+        r: intValue & 0xFF,
+        g: (intValue >> 8) & 0xFF,
+        b: (intValue >> 16) & 0xFF,
+        a: ((intValue >> 24) & 0xFF + 0.0) / 255,
+    };
+};
+
+T.change('rendered', function() {
+    var self= this;
+    var $modal= $('#singleValueInput');
+    var $input= $(this.find('input.color'));
+
+    var c= getColor(singleValue ? singleValue.get() : 0);
+
+console.log(c)
+console.log('rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')');
+    $input.colorpicker({
+        format: 'rgba',
+        value: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')',
+    }).on('changeColor', function( event ) {
+        var rgba= event.color.toRGB();
+        singleValue.newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.b) + hexPad(rgba.r);
+/*
+    }).on('create', function( event ) {
+        event.color.setColor('rgba(' + c.r + ',' + c.g + ',' + c.b + ')');
+        event.color.setAlpha(c.a);
+*/
+    })
+    .focus();
 });
 
 
@@ -855,3 +933,11 @@ T.events({
     },
 });
 
+
+var showSingleValue= function( _singleValue ) {
+    singleValue= _singleValue;
+    invalidate('singlevalue');
+    SpongeTools.showModal($('#singleValueInput'));
+};
+
+SpongeTools.showSingleValueDialog= showSingleValue;

@@ -17,7 +17,7 @@
     <div id="singleValueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="singleValueInputLabel" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="singleValueInputLabel">{{> singleValueInputTitle}}</h3>
+            {{> singleValueInputTitle}}
         </div>
         <div class="modal-body">
             {{> singleValueInputBody}}
@@ -130,7 +130,10 @@
 
 
 <template name="singleValueInputTitle">
-    Value
+    <div id="singleValueInputLabel">
+        <span class="title">Value</span> <span class="type">{{type}}</span>
+        <div class="description">{{description}}</div>
+    </div>
 </template>
 
 <template name="singleValueInputBody">
@@ -169,6 +172,19 @@
 
 <template name="valueInputBoolean">
     <input type="checkbox" />
+</template>
+
+<template name="valueInputConst">
+    <select>
+        <option style="display: none">Please select</option>
+        {{#each values}}
+            <option value="{{value}}" {{selected}}>{{value}}</option>
+        {{/each}}
+    </select>
+</template>
+
+<template name="valueInputColor">
+    <input type="text" class="color" value="{{color}}" />
 </template>
 
 <template name="valueInputLocation">

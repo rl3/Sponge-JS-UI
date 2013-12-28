@@ -99,6 +99,8 @@
                                         <tr><th align="right">{{index}}:</th><td>
                                             <a class="resultTable" href="{{hrefXml}}" target="_new">XML</a>
                                             <a class="resultTable" href="{{hrefCsv}}" target="_new">CSV</a>
+                                            {{> jobResultMapLink}}
+                                            {{> jobResultMapResult}}
                                         </td></tr>
                                     {{/each}}
                                 </table>
@@ -111,3 +113,12 @@
     {{/each}}
 </template>
 
+
+<template name="jobResultMapLink">
+    {{clicked}}
+    <a class="resultMap" href="#">Map</a>
+</template>
+
+<template name="jobResultMapResult">
+    {{data}}
+</template>

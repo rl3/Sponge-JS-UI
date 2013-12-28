@@ -37,18 +37,22 @@
 <template name="mainHeader">
     <img class="logo" src="images/logo.png" />
     <div class="header my-box-model">
-        {{#with header}}
-            {{main}}
-            {{#if title}}
-                <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
-            {{/if}}
-            {{#if addition}}
-                <span class="addition {{additionClass}}">({{addition}})</span>
-            {{/if}}
-            {{#if message}}
-                <span class="message {{messageClass}}">{{message}}</span>
-            {{/if}}
-        {{/with}}
+        {{#if currentUser}}
+            {{#with header}}
+                {{main}}
+                {{#if title}}
+                    <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
+                {{/if}}
+                {{#if addition}}
+                    <span class="addition {{additionClass}}">({{addition}})</span>
+                {{/if}}
+                {{#if message}}
+                    <span class="message {{messageClass}}">{{message}}</span>
+                {{/if}}
+            {{/with}}
+        {{else}}
+            Welcome to SpongeJS!
+        {{/if}}
     </div>
 </template>
 
@@ -101,8 +105,8 @@
     <div class="nav-row" style="text-align: center;">
         <a sort="date" href="#" class="sort-date">{{sortDate}} Date</a><a sort="name" href="#" class="sort-name">{{sortName}} </i>Name</a>
         <div class="btn-group">
-            <button class="btn btn-mini {{switchMy}}" type="button">only my</button>
-            <button class="btn btn-mini {{switchAll}}" type="button">show all</button>
+            <button class="btn btn-mini {{switchMy}}" type="button">mine</button>
+            <button class="btn btn-mini {{switchAll}}" type="button">all</button>
         </div>
     </div>
 </template>
