@@ -229,7 +229,7 @@ T.helper('resultMap', function() {
     return Object.keys(result).filter(function( key ) {
         return key !== 'tables';
     }).map(function( key ) {
-        var value= SpongeTools.valueToString(result[key], { onLocation: onLocation, onObject: onObject, });
+        var value= SpongeTools.valueToString(result[key], { onLocation: onLocation, onObject: onObject, onArray: onObject });
         if ( ! value ) return;
 
         return {
