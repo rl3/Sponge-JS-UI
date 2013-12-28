@@ -26,3 +26,29 @@ SpongeTools.editor= function( onChange ) {
     }
 };
 
+SpongeTools.download= function( data, options ) {
+    if ( !options ) options= {};
+
+    var blob= new Blob([data], {type: options.contentType});
+    var fileName= options.fileName;
+
+    var href= window.URL.createObjectURL(blob);
+
+    var a = document.createElement('a');
+    if ( fileName ) a.download = fileName;
+    a.href = href;
+    a.style.display= 'none';
+
+    document.body.appendChild(a);
+
+    a.onclick= function() {
+        document.body.removeChild(a)
+
+        // Need a small delay for the revokeObjectURL to work properly.
+        setTimeout(function() {
+            window.URL.revokeObjectURL(href);
+        }, 1500);
+    };
+
+    a.click();
+};

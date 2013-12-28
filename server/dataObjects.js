@@ -257,7 +257,7 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                 return;
             }
 
-            var data= result.data;
+            var data= urlData.dataFormat === 'plain' ? result : result.data;
 
             // run onAfterMethod with options and data and set data with result
             if ( name in onAfterMethod) {

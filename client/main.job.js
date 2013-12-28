@@ -352,13 +352,31 @@ T.helper('data', function() {
 
     if ( !args() ) return;
 
+/*
+    $.fileDownload(SpongeTools.buildApiUrl('Job/getResultMap/af964b534b8325a269bc18d64104ea73/52b1e9f626ee39d96a000001.result.tables.sumPerMainCrop'), {
+//        preparingMessageHtml: "We are preparing your report, please wait...",
+//        failMessageHtml: "There was a problem generating your report, please try again.",
+        httpMethod: "PUT",
+        data: {"args":{"valueField":"etc[l]","putPlacemarks":true,"alpha":0.7,"polyAlpha":0.5,"outlineWidth":1,"outlineColor":"7f0000ff","points":10,"precision":1,"reverse":false,"extrude":false,"offset":35,"dimensionX":100,"dimensionY":335,"color":"default","font":"Georgia","propFields":["*"]},"transient":{"values":[],"createLegend":true}},
+    });
+
+    return;
+*/
+
     // TODO: offer returned Data for download
     var data= getJobResultMap(jobId(), this.tablePath, args());
     if ( !data ) return;
 
-console.log(data);
-    // args(undefined);
-    return data;
+    var fileName= data.headers['content-disposition'];
+    if ( fileName ) {
+        var match= fileName.match(/filename\=\"(.+)\"/); //"
+        if ( match ) fileName= match[1];
+    }
+
+    SpongeTools.download(data.content, {
+        contentType: data.headers['content-type'],
+        fileName: fileName || 'resultMap.kml',
+    });
 });
 
 
