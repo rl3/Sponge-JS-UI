@@ -1,0 +1,3 @@
+[submodule ".external/bootstrap-colorpicker"]
+	path = .external/bootstrap-colorpicker
+	url = https://github.com/mjolnic/bootstrap-colorpicker.git
