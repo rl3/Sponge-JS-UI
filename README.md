@@ -7,3 +7,11 @@ Requirements
 ------------
 * meteor
 * meteorite
+
+
+Update Submodules
+-----------------
+At project's root directory call
+  git submodule init
+  git submodule update --recursive
+

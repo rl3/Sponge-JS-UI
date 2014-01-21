@@ -47,10 +47,10 @@ var restartJob= function() {
     });
 };
 
-var _removeJob= SpongeTools.getCachedData('removeJob', 2000);
-var removeJob= function() {
+var _deleteJob= SpongeTools.getCachedData('deleteJob', 2000);
+var deleteJob= function() {
     var _jobId= jobId();
-    _removeJob(_jobId, function() {
+    _deleteJob(_jobId, function() {
         SpongeTools.invalidateJobList(true);
         invalidateJob(_jobId, true);
     });
@@ -135,7 +135,7 @@ T.events({
 
     },
     'click button.rerun-job': restartJob,
-    'click button.delete-job': removeJob,
+    'click button.delete-job': deleteJob,
 });
 
 T.select('jobArgs');
