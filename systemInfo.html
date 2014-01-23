@@ -1,0 +1,27 @@
+
+<template name="systemInfo">
+    <div class="system-info">
+        <button class="btn btn-mini btn-info show-hide" type="button">{{> jobCount}}</button>
+        {{> jobQueue}}
+    </div>
+</template>
+
+<template name="jobCount">
+    {{jobCount}}
+</template>
+
+<template name="jobQueue">
+    {{#if jobListVisible}}
+        <div class="job-queue alert alert-info">
+            {{#each jobs}}
+                <div>
+                    <i class="state {{state}}" title="{{stateText}}"></i>
+                    <span class="job-name" title="{{description}}">{{name}}</span>
+                    <a href="#" class="btn btn-mini job-remove"><i class="icon-remove"></i></a>
+                </div>
+            {{else}}
+                <div>job queue is empty</div>
+            {{/each}}
+        </div>
+    {{/if}}
+</template>

@@ -163,15 +163,15 @@
 </template>
 
 <template name="valueInputDate">
-    <input type="text" />
+    <input type="text" value="{{value}}" />
 </template>
 
 <template name="valueInputString">
-    <input type="text" />
+    <input type="text" value="{{value}}" />
 </template>
 
 <template name="valueInputBoolean">
-    <input type="checkbox" />
+    <input type="checkbox" {{#if value}}checked{{/if}} />
 </template>
 
 <template name="valueInputConst">

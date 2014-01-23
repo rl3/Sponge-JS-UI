@@ -259,18 +259,32 @@
     float: right;
 }
 
-.login-buttons {
+.right-nav-panel {
     position: absolute;
     right: 10px;
     top: 10px;
     text-align: right;
 
-    .sign-out-panel {
-        display: none;
-        background-color: white;
-        border: 1px solid black;
-        padding: 5px;
-        width: 10em;
+    .system-info, .login-buttons {
+        margin: 0 10px;
+        float: right;
+    }
+
+    .system-info {
+        .job-queue {
+            margin-top: 5px;
+        }
+    }
+
+    .login-buttons {
+
+        .sign-out-panel {
+            display: none;
+            background-color: white;
+            border: 1px solid black;
+            padding: 5px;
+            width: 10em;
+        }
     }
 }
 

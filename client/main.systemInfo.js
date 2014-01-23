@@ -10,10 +10,40 @@ var getJob= SpongeTools.getCachedData('getJob');
 
 var T= SpongeTools.Template;
 
+var queueUpdater= setInterval(function() { invalidateJobQueue(true); }, 10000);
+var jobListVisible= injectVar({}, 'visible', false);
+
 /**
- * Template jobQueueBody
+ * Template systemInfo
  */
-T.select('jobQueueBody');
+T.select('systemInfo');
+
+T.events({
+    'click button.show-hide': function( event ) {
+        jobListVisible(!jobListVisible());
+    },
+});
+
+
+T.select('jobCount');
+
+T.helper('jobCount', function() {
+    invalidateJobQueue();
+    var queue= getJobQueue();
+    if ( !queue ) return 'pease wait...';
+
+    if ( !queue.length ) return 'no jobs in queue';
+
+    var running= queue.filter(function( e ) { return e.state === 'running'; }).length;
+    return running + ' of ' + queue.length + ' running jobs';
+});
+
+
+T.select('jobQueue');
+
+T.helper('jobListVisible', function() {
+    return jobListVisible();
+});
 
 T.helper('jobs', function() {
     invalidateJobQueue();

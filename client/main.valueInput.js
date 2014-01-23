@@ -496,6 +496,14 @@ $(function() {
     });
 });
 
+T.select('valueInputBoolean');
+T.helper('value', simpleValueGet);
+T.events({
+    'change input': function( event ) {
+        singleValue.newValue= event.currentTarget.checked;
+    },
+});
+
 T.select('valueInputConst');
 
 T.helper('values', function() {

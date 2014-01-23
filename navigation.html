@@ -19,7 +19,12 @@
             {{> loginPanel}}
         {{/if}}
     </div>
-    {{> userPanel}}
+    <div class="right-nav-panel">
+        {{> userPanel}}
+        {{#if currentUser}}
+            {{> systemInfo}}
+        {{/if}}
+    </div>
 </body>
 
 <template name="loading">
