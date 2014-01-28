@@ -31,8 +31,8 @@ jQuery(function( $ ) {
             if ( infoTitle || infoText ) {
                 options.infotext= '<div class="map-infotext"><div class="title">' + (infoTitle || '') + '</div><div class="text">' + (infoText || '') + '</div></div>';
             }
-            SpongeTools.showMap();
-            SpongeTools.addMapMarker(lon, lat, options);
+            SpongeTools.Map.show();
+            SpongeTools.Map.addMarker(lon, lat, options);
         })
         .on('click', '.accordion-toggle', function() {
             var $accordion= $(this).closest('.accordion');

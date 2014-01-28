@@ -1,6 +1,7 @@
 
 var map;
 var markers= [];
+var polygons= [];
 
 var initialize= function( elem ) {
     var mapOptions = {
@@ -47,6 +48,10 @@ var removeMarkers= function() {
     while ( markers.length ) markers.shift().setMap(null);
 };
 
+var removePolygons= function() {
+    while ( polygons.length ) polygons.shift().polygon.setMap(null);
+};
+
 var addMarker= function( lon, lat, options ) {
     if ( _.isArray(lon) ) {
         options= lat;
@@ -90,26 +95,37 @@ var addMarker= function( lon, lat, options ) {
 };
 
 var get$container= function() {
+    return $('#google-map-dialog');
     return $('#google-maps-container');
 };
 
 var get$map= function() {
-    return $('#google-maps-canvas');
+    return $('#google-map-canvas');
 };
 
-var showMap= function() {
-    get$container().show();
-    var $map= get$map();
-    initialize($map[0]);
-    addMarker(11.2, 53.6);
+var showMap= function( cb ) {
+//    get$container().show();
+    SpongeTools.showModal(get$container(), function() {
+        var $map= get$map();
+        initialize($map[0]);
+        if ( cb ) cb();
+    });
 };
 
 var hideMap= function() {
-    get$container().hide();
+    get$container().modal('hide');
+//    get$container().hide();
 };
 
-SpongeTools.removeMapMarkers= removeMarkers;
-SpongeTools.addMapMarker= addMarker;
-SpongeTools.showMap= showMap;
-SpongeTools.hideMap= hideMap;
+var clearMap= function() {
+    removeMarkers();
+    removePolygons();
+}
 
+SpongeTools.Map= {
+    removeMarkers: removeMarkers,
+    addMarker: addMarker,
+    show: showMap,
+    hide: hideMap,
+    clear: clearMap,
+};

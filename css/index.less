@@ -297,47 +297,31 @@
 }
 
 
-#google-maps-container {
+#google-map-dialog {
     .box-model;
-    display: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50%;
-    bottom: 0;
-    background-color: white;
-    padding: 1px;
-    border: 1px solid @highlight-background;
+    position: fixed;
+    top: 10%;
+    bottom: 10%;
+    left: 10%;
+    right: 10%;
+    width: auto;
+    height: auto;
+    margin: 0;
 
-    #google-maps-border {
+    .modal-body {
         .box-model;
-        padding: 1px;
-        border: 1px solid black;
+        max-height: none;
         width: 100%;
         height: 100%;
-
-        #google-maps-canvas {
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
     }
 
-    .maps-button {
-        padding: 5px;
-
-        .button {
-            background-color: white;
-            border: 1px solid;
-            cursor: pointer;
-            text-align: center;
-            line-height: 100%;
-            padding: 3px;
-        }
+    #google-map-canvas {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     }
 }
-
 
 .dropdown-menu li {
     padding-left: 12px;
