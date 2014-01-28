@@ -16,15 +16,6 @@ var jobListVisible= injectVar({}, 'visible', false);
 /**
  * Template systemInfo
  */
-T.select('systemInfo');
-
-T.events({
-    'click button.show-hide': function( event ) {
-        jobListVisible(!jobListVisible());
-    },
-});
-
-
 T.select('jobCount');
 
 T.helper('jobCount', function() {
@@ -80,7 +71,7 @@ T.helper('name', function() {
 });
 
 T.events({
-    'click a.job-remove': function( event ) {
+    'click button.job-remove': function( event ) {
         removeJob(this.jobId);
         invalidateJobQueue(true);
         return false;

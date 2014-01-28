@@ -45,12 +45,12 @@
 
 <template name="userPanel">
     {{#if currentUser}}
-        <div class="login-buttons my-box-model">
-            <a href="#">{{currentUser.username}} &#x25BC;</a>
-            <div class="sign-out-panel">
-                <button class="btn btn-info btn-block sign-out">Sign Out</button>
-                <button class="btn btn-info btn-block edit-profile">Edit Profile</button>
-            </div>
+        <div class="btn-group">
+            <a href="#" class="btn btn-small dropdown-toggle" data-toggle="dropdown">{{currentUser.username}} <b class="caret"></b></a>
+            <ul class="dropdown-menu pull-right">
+                <li><a class="sign-out">Sign Out</a></li>
+                <li><a class="edit-profile">Edit Profile</a></li>
+            </ul>
         </div>
     {{/if}}
 </template>

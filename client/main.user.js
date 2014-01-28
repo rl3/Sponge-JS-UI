@@ -175,14 +175,10 @@ T.select('userPanel');
 
 
 T.events({
-    'click a': function( event, template ) {
-        $(template.find('.sign-out-panel')).toggle();
-        return false;
-    },
-    'click button.sign-out': function( event, template ) {
+    'click a.sign-out': function( event, template ) {
         Meteor.logout();
     },
-    'click button.edit-profile': function( event, template ) {
+    'click a.edit-profile': function( event, template ) {
         var session= SpongeTools.localSession('main-navigation');
         session('username', Meteor.user().username);
         session('view', 'user');
