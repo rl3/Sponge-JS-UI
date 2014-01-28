@@ -15,11 +15,9 @@
 <template name="jobQueue">
     {{#each jobs}}
         <li>
-            <a>
                 <i class="state {{state}}" title="{{stateText}}"></i>
                 <span class="job-name" title="{{description}}">{{name}}</span>
                 <button class="btn btn-mini job-remove"><i class="icon-remove"></i></button>
-            </a>
         </li>
     {{else}}
         <li><a>job queue is empty</a></li>

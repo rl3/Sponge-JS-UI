@@ -6,8 +6,8 @@
 @content-header-color: #EECC00;// #DDCC55;
 
 @job-state-success: lighten(#99DD99, 10%);
-@job-state-error: lighten(#FFDDDD, 10%);
-@job-state-running: lighten(#DDDDFF, 10%);
+@job-state-error: #FFDDDD;
+@job-state-running: #DDDDFF;
 
 
 @highlight-background: #DDDDDD;
@@ -157,7 +157,7 @@
                 &.running {
                     background-color: @job-state-running;
                     &.selected, &:hover {
-                        background-color: darken(@job-state-running, 20%);
+                        background-color: darken(@job-state-running, 10%);
                     }
                 }
             }
