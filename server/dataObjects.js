@@ -59,8 +59,8 @@ Meteor.publish('client-cache', function() {
 var Debug= false;
 var debugFilter;
 
-//Debug= true;
-//debugFilter= /getJobs/;
+// Debug= true;
+// debugFilter= /Model\/get/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;
@@ -166,7 +166,7 @@ var _request= function( method, url, options, callback ) {
         result= EJSON.fromJSONValue(result || {});
         if ( Debug ) {
             if ( !debugFilter || url.match(debugFilter) ) {
-//            console.log('result', result);
+//                console.log('result', result);
                 console.log('data', url, result.data);
             }
         }
