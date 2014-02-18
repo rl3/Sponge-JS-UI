@@ -94,6 +94,13 @@ var addMarker= function( lon, lat, options ) {
     if ( map ) map.setCenter(markerOptions.position);
 };
 
+var setViewRange= function( northEast, southWest ) {
+    map.panToBounds(new google.maps.LatLngBounds(
+        new google.maps.LatLng(northEast[0], northEast[1]),
+        new google.maps.LatLng(southWest[0], southWest[1])
+    ));
+};
+
 var get$container= function() {
     return $('#google-map-dialog');
     return $('#google-maps-container');
@@ -125,6 +132,7 @@ var clearMap= function() {
 SpongeTools.Map= {
     removeMarkers: removeMarkers,
     addMarker: addMarker,
+    setViewRange: setViewRange,
     show: showMap,
     hide: hideMap,
     clear: clearMap,

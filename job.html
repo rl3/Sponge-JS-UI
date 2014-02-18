@@ -12,19 +12,21 @@
 </body>
 
 <template name="job">
+    <div class="settings btn-group">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="icon-cog"></i>
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu pull-right">
+            <li><button class="btn btn-primary btn-block btn-primary share-job" type="button">share</button></li>
+            <li><button class="btn btn-primary btn-block btn-primary rerun-job" type="button">rerun</button></li>
+            <li><button class="btn btn-primary btn-block btn-primary show-log" type="button">show log</button></li>
+            <li><button class="btn btn-primary btn-block btn-danger delete-log" type="button">delete log</button></li>
+            <li><button class="btn btn-primary btn-block btn-danger delete-job" type="button">delete job</button></li>
+        </ul>
+    </div>
+
     <table width="100%">
-        <tr valign="top">
-            <td colspan="2">
-                <table cellspacing="100" width="100%">
-                    <tr>
-                        <td align="center"><button class="btn btn-primary span2 btn-primary rerun-job" type="button">rerun</button></td>
-                        <td align="center"><button class="btn btn-primary span2 btn-primary show-log" type="button">show log</button></td>
-                        <td align="center"><button class="btn btn-primary span2 btn-danger delete-log" type="button">delete log</button></td>
-                        <td align="center"><button class="btn btn-primary span2 btn-danger delete-job" type="button">delete job</button></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
         <tr valign="top">
             <th align="right" width="10%">Model:</th><td class="">{{model}}</td>
         </tr>

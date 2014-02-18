@@ -1,0 +1,49 @@
+
+<body>
+<div id="shareObject" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="shareObjectLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="shareObjectLabel">share Object</h3>
+    </div>
+    <div class="modal-body">
+        {{> shareObjectBody}}
+    </div>
+</div>
+</body>
+
+<template name="shareObjectBody">
+    <table>
+        <tr><td colspan="2"><button class="save btn btn-primary">save</button> <button class="cancel btn">cancel</button></tr>
+        <tr><td>Type:</td><td>{{type}}</td></tr>
+        <tr>
+            <td valign="top">ACL:</td>
+            <td>
+                {{#with acl}}
+                    <table><tr valign="top"><td>
+                        <table>
+                            <tr><th>user</th><th>read</th><th>write</th></tr>
+                            {{#each user}}
+                                <tr>
+                                    <td align="right">{{name}}</td>
+                                    <td align="middle"><input type="checkbox" data="read" {{checked read}} /></td>
+                                    <td align="middle"><input type="checkbox" data="write" {{checked write}} /></td>
+                                </tr>
+                            {{/each}}
+                        </table>
+                    </td><td>
+                        <table>
+                            <tr><th>group</th><th>read</th><th>write</th></tr>
+                            {{#each group}}
+                                <tr>
+                                    <td align="right">{{name}}</td>
+                                    <td align="middle"><input type="checkbox" data="read" {{checked read}} /></td>
+                                    <td align="middle"><input type="checkbox" data="write" {{checked write}} /></td></tr>
+                            {{/each}}
+                        </table>
+                    </td></tr></table>
+                {{/with}}
+            </td>
+        </tr>
+    </table>
+</template>
+

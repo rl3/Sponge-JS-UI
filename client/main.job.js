@@ -136,6 +136,12 @@ T.events({
     },
     'click button.rerun-job': restartJob,
     'click button.delete-job': deleteJob,
+    'click button.share-job': function( event ) {
+        // FIXME: do we have the job object already?
+        var id= (getJob() || {})._id;
+        SpongeTools.shareObject({ type: 'Job', id: id });
+        SpongeTools.showModal($('#shareObject'));
+    },
 });
 
 T.select('jobArgs');

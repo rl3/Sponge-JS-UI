@@ -722,7 +722,8 @@ T.events({
     'click a.select-from-map': function( event ) {
         SpongeTools.Map.clear();
         SpongeTools.Map.show(function() {
-            SpongeTools.Map.addMarker(11.2, 53.6);
+            SpongeTools.Map.setViewRange([54,11], [53, 12]);
+//            SpongeTools.Map.addMarker(11.2, 53.6);
         });
 
         return false;
