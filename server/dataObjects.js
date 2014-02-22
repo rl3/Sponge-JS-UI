@@ -312,13 +312,16 @@ var updateCache= function( key, newData, cb ) {
 };
 
 
-onAfterMethod.restartJob= function( jobId ) {
-console.log('invalidate', jobId)
-    methods.getJob(jobId);
-};
+onAfterMethod.restartJob=
 onAfterMethod.removeJob= function( jobId ) {
 console.log('invalidate', jobId)
     methods.getJob(jobId);
+};
+
+onAfterMethod.addAcl=
+onAfterMethod.removeAcl= function( collection, id, acls ) {
+console.log('invalidate ACLs', collection, id)
+    methods.getAcl(collection, id);
 };
 
 
