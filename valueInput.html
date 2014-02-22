@@ -235,12 +235,16 @@
                 <select class="span3" disabled></select>
                 <span class="add-on"><img src="skin/loading.gif" /></span>
             {{else}}
-                <select class="span3">
-                    <option value="" class="hidden">Please Select</option>
-                    {{#each values}}
-                        <option value="{{id}}" {{selected}}>{{name}}</option>
-                    {{/each}}
-                </select>
+                {{#if values}}
+                    <select class="span3">
+                        <option value="" class="hidden">Please Select</option>
+                        {{#each values}}
+                            <option value="{{id}}" {{selected}}>{{name}}</option>
+                        {{/each}}
+                    </select>
+                {{else}}
+                    <select class="span3" disabled><option selected>No Item Available</option></select>
+                {{/if}}
                 <span class="add-on">{{valueCount}}</span>
             {{/if}}
         {{/if}}

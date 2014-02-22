@@ -60,7 +60,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /Model\/get/;
+// debugFilter= /Model\/getCompat/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;

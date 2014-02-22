@@ -644,12 +644,8 @@ T.events({
 
 var getCompatibleTypes= function() {
     var value= getValue();
-    if ( !value ) {
-        return {
-            schemas: [],
-            models: [],
-        };
-    }
+
+    if ( !value ) return;
 
     var compatibleTypes= getMatchingTypes( value.type );
 
@@ -733,11 +729,21 @@ T.events({
 var getCompatibleObjects= function() {
     var selectedType= getTempValue('modelVariant')();
 
-    if ( !selectedType ) return;
+    var compatibleTypes= getCompatibleTypes();
+
+    if ( !selectedType ) {
+        if ( !compatibleTypes ) return;
+
+        // return undefined only, if compatible items are found
+        if ( compatibleTypes.models.length + compatibleTypes.schemas.length ) return;
+
+        return [];
+    }
 
     // Model
     if ( selectedType.schemas === undefined ) {
-        var compatibleTypes= getCompatibleTypes();
+        if ( !compatibleTypes || compatibleTypes.model ) return [];
+
         return compatibleTypes.models.map(function( model ){
             return { _id: model._id, name: model.name };
         });
@@ -753,7 +759,7 @@ var getCompatibleObjects= function() {
 };
 
 T.helper('loadingValues', function() {
-    return getCompatibleObjects() === undefined;
+    return !getCompatibleObjects();
 });
 
 T.helper('values', function() {
