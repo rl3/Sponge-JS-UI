@@ -6,6 +6,8 @@ var injectVar= SpongeTools.injectVar;
 
 var dataObj= SpongeTools.shareObject;
 
+var oldData= {};
+var aclInvalidator= SpongeTools.getInvalidator('acls');
 var acls;
 var changes;
 
@@ -21,17 +23,21 @@ var getAcls= function() {
 
     var data= dataObj();
 
-
     if ( !data ) {
         acls= null;
+        aclInvalidator(true);
         return;
     }
 
-    if ( acls ) return acls;
+    if ( acls && _.isEqual(oldData, data) ) return acls;
 
-    var _acls= _getAcls(data.type, data.id);
+    oldData= data;
+    acls= null;
+    aclInvalidator(true);
 
-    if ( !_acls ) return;
+    var rawAcls= _getAcls(data.type, data.id);
+
+    if ( !rawAcls ) return;
 
     acls= {
         users: {},
@@ -50,10 +56,9 @@ var getAcls= function() {
         acls.groups[name]= {};
     });
 
-
     var owner;
 
-    _acls.forEach(function(acl) {
+    rawAcls.forEach(function( acl ) {
         var o;
         switch (acl[1]) {
             case 'u': o= acls.users; break;
@@ -95,6 +100,9 @@ var saveAcls= function() {
 
     if ( add.length )   addAcls(data.type, data.id, add);
     if ( remove.length) removeAcls(data.type, data.id, remove);
+
+    // reinit acl request
+    acls= null;
 };
 
 
@@ -119,6 +127,8 @@ T.helper('acl', function() {
 });
 
 var aclBuilder= function( property ) {
+    aclInvalidator();
+
     return function() {
         if ( !acls || !acls[property] ) return;
 
