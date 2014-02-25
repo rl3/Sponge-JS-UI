@@ -30,18 +30,20 @@
 <template name="modelRunArgs">
     {{#with getArgs}}
         {{#if args}}
-            <table width="100%">
+            <table>
                 <tr>
                     <th>Argument</th><th>Value</th>
                 </tr>
                 {{#each args}}
                     <tr valign="top">
-                        <td align="right" class="{{nameClass}}">{{name}}:</td>
-                        <td align="left">
-                            <a class="editValue" href="#">{{valueText}}</a>
+                        <td align="right" class="{{nameClass}}">
                             {{#if infoNotEmpty}}
                                 <a data-toggle="tooltip" data-original-title="{{infoText}}" href="#"><i class="icon-info-sign"> </i></a>
                             {{/if}}
+                            {{name}}:
+                        </td>
+                        <td align="left">
+                            <a class="editValue" href="#">{{valueText}}</a>
                         </td>
                     </tr>
                 {{/each}}
