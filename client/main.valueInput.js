@@ -196,9 +196,13 @@ T.helper('inputType', function() {
 });
 
 $(function() {
-    $('body').delegate('#valueInput button.btn-primary', 'click', function() {
+    $('body').delegate('#valueInput button.saveValue', 'click', function() {
         var value= getValue();
         if ( value ) value.setValue(newValue());
+        $('#valueInput').modal('hide');
+    }).delegate('#valueInput button.clearValue', 'click', function() {
+        var value= getValue();
+        if ( value ) value.setValue(undefined);
         $('#valueInput').modal('hide');
     });
 });
@@ -461,11 +465,13 @@ var simpleValueEvents= {
 var singleValueCleanup= [];
 
 $(function() {
-    $('body').delegate('#singleValueInput button.btn-primary', 'click', function() {
+    $('body').delegate('#singleValueInput button.saveValue', 'click', function() {
         singleValue.set(singleValue.newValue);
         $('#singleValueInput').modal('hide');
-    });
-    $('body').delegate('#singleValueInput', 'hide', function() {
+    }).delegate('#singleValueInput button.clearValue', 'click', function() {
+        singleValue.set(undefined);
+        $('#singleValueInput').modal('hide');
+    }).delegate('#singleValueInput', 'hide', function() {
         while ( singleValueCleanup.length ) {
             var $element= $(singleValueCleanup.shift())
             $element.detach();

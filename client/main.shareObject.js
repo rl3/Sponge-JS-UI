@@ -10,6 +10,7 @@ var oldData= {};
 var aclInvalidator= SpongeTools.getInvalidator('acls');
 var acls;
 var changes;
+var owner;
 
 var getAllUsers= SpongeTools.getCachedData('getAllUserNames');
 var getAllGroups= SpongeTools.getCachedData('getAllGroupNames');
@@ -24,7 +25,7 @@ var getAcls= function() {
     var data= dataObj();
 
     if ( !data ) {
-        acls= null;
+        acls= owner= null;
         aclInvalidator(true);
         return;
     }
@@ -32,7 +33,7 @@ var getAcls= function() {
     if ( acls && _.isEqual(oldData, data) ) return acls;
 
     oldData= data;
-    acls= null;
+    acls= owner= null;
     aclInvalidator(true);
 
     var rawAcls= _getAcls(data.type, data.id);
@@ -56,7 +57,7 @@ var getAcls= function() {
         acls.groups[name]= {};
     });
 
-    var owner;
+    owner= null;
 
     rawAcls.forEach(function( acl ) {
         var o;
@@ -117,6 +118,12 @@ T.helper('type', function() {
     var data= dataObj();
 
     return data ? data.type : undefined;
+});
+
+T.helper('owner', function() {
+    getAcls();
+
+    return owner ? owner : '';
 });
 
 T.helper('acl', function() {

@@ -42,6 +42,14 @@ T.helper('title', function() {
 
 T.select('modelRunBody');
 
+T.change('rendered', function() {
+    $(this.find('table')).tooltip({
+        placement: 'bottom',
+        selector: 'a',
+        html: true,
+    });
+});
+
 T.helper('defaultJobTitle', function() {
     var model= getModel();
 
@@ -132,6 +140,20 @@ T.helper('getArgs', function() {
 
 T.helper('nameClass', function() {
     return this.info && this.info.optional ? 'optional' : 'mandatory';
+});
+
+T.helper('infoNotEmpty', function() {
+    return this.info && (this.info.unit || this.info.description);
+});
+
+T.helper('infoText', function() {
+    var result= [];
+
+    if ( this.info.unit ) result.push('[' + this.info.unit + ']');
+
+    if ( this.info.description ) result.push(this.info.description.replace('\n', '<br />'));
+
+    return result.join('<br />');
 });
 
 T.events({
