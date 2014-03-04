@@ -37,13 +37,13 @@
                 {{#each args}}
                     <tr valign="top">
                         <td align="right" class="{{nameClass}}">
-                            {{#if infoNotEmpty}}
-                                <a data-toggle="tooltip" data-original-title="{{infoText}}" href="#"><i class="icon-info-sign"> </i></a>
-                            {{/if}}
                             {{name}}:
                         </td>
                         <td align="left">
                             <a class="editValue" href="#">{{valueText}}</a>
+                            {{#if infoNotEmpty}}
+                                <a data-toggle="tooltip" data-original-title="{{infoText}}" href="#"><i class="icon-info-sign"> </i></a>
+                            {{/if}}
                         </td>
                     </tr>
                 {{/each}}

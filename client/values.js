@@ -223,7 +223,8 @@ var buildValues= function( args, property, valueContext ) {
     var info= args.info && args.info[property] || {};
 
     var injectPrefix= 'args.' + property + '.';
-    return Object.keys(args[property]).map(function( name ) {
+
+    var result= Object.keys(args[property]).map(function( name ) {
         return buildValue(
             name,
             args[property][name], // type
@@ -231,6 +232,22 @@ var buildValues= function( args, property, valueContext ) {
             info[name] // info
         );
     });
+
+    result.sort(function( a, b ) {
+        var indexA= a.info.index || 0;
+        var indexB= b.info.index || 0;
+
+        // if at least one index is set sort by index
+        if ( indexA || indexB ) return indexA - indexB;
+
+        var optA= !!a.info.optional;
+        var optB= !!b.info.optional;
+        if ( optA !== optB ) return optA - optB;
+
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    });
+
+    return result;
 };
 
 SpongeTools.valueToString= valueToString;

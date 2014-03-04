@@ -151,7 +151,7 @@ T.helper('infoText', function() {
 
     if ( this.info.unit ) result.push('[' + this.info.unit + ']');
 
-    if ( this.info.description ) result.push(this.info.description.replace('\n', '<br />'));
+    if ( this.info.description ) result.push(this.info.description.replace(/\n/g, '<br />'));
 
     return result.join('<br />');
 });
