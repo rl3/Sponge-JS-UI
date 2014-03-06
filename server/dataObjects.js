@@ -26,19 +26,19 @@ Meteor.startup(function() {
     Meteor.users.allow({
         insert: isAdmin,
         update: function( userId, doc, fieldNames, modifier ) {
-            if ( isAdmin() ) return true;
-
-            if ( userId !== doc._id ) return false;
-
-            return true;
+            return isAdmin() || userId === doc._id;
         },
         remove: isAdmin,
     });
 
-    // deny all changes except in user's profile
+    // deny all changes except in user's profile (or role for admins)
     Meteor.users.deny({
         update: function( userId, doc, fieldNames, modifier ) {
-            return fieldNames.filter(function( name ) { return name !== 'profile' }).length;
+            return fieldNames.filter(function( name ) {
+                if ( name === 'roles' && isAdmin() ) return false;
+
+                return name !== 'profile';
+            }).length;
         }
     });
 });

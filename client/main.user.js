@@ -47,10 +47,8 @@ var needOldPassword= function( templateData ) {
     if ( !user ) return false;
 
     // to change own password *always* require old password
-    if ( user.username === templateData.username ) return true;
-
     // only admins may change password without old password
-    return SpongeTools.isAdmin();
+    return user.username === templateData.username || !SpongeTools.isAdmin();
 };
 
 T.helper('error', function() {
@@ -72,12 +70,27 @@ T.helper('newUser', function() {
     return this.username && this.username[0] === ' ';
 });
 
+T.helper('isAdmin', function() {
+    return SpongeTools.isAdmin();
+});
+
+T.helper('changePasswordAllowed', function() {
+    if ( SpongeTools.isAdmin() ) return true;
+
+    return !SpongeTools.hasRole('chpwDenied', this);
+});
+
+T.helper('chpwAllowed', function() {
+    return !SpongeTools.hasRole('chpwDenied', this);
+});
+
 T.events({
     'submit form': function( event, template ) {
         var $form= $(event.currentTarget);
         var userId=       template.data._id;
         var userName=     userId ? template.data.username : $form.find('[name=user-name]').val().trim();
         var fullName=     $form.find('[name=full-name]').val().trim();
+        var chpwAllowed=  $form.find('[name=change-pw-allowed]').attr('checked');
         var oldPassword=  $form.find('[name=old-password]').val();
         var password=     $form.find('[name=new-password]').val();
         var password2=    $form.find('[name=new-password2]').val();
@@ -93,7 +106,9 @@ T.events({
         $form.find('[type=password]').val('');
 
         var errors= [];
+
         var set= {};
+        var update= {};
 
         if ( fullName && fullName !== template.data.profile.name ) set['profile.name']= fullName;
 
@@ -107,6 +122,9 @@ T.events({
             else {
                 errors.push("API's passwords don't match");
             }
+        }
+        if ( SpongeTools.isAdmin() ) {
+            update[chpwAllowed ? '$pull' : '$addToSet' ]= { roles: 'chpwDenied' };
         }
 
         if ( errors.length ) {
@@ -126,6 +144,7 @@ T.events({
                         apiPassword: apiPassword,
                     },
                 },
+                roles: chpwAllowed ? [] : ['chpwDenied'],
             }, function( err ) {
                 if ( err ) return userError(err);
 
@@ -136,13 +155,15 @@ T.events({
 
         var successMessage= "User " + userName + "'s data successfully updated";
 
-        if ( !Object.keys(set).length && !password ) {
+        if ( Object.keys(set).length ) update.$set= set;
+
+        if ( !Object.keys(update).length && !password ) {
             userSuccess('There is no data to change');
             return false;
         }
 
-        if ( Object.keys(set).length ) {
-            Meteor.users.update({ _id: userId }, { $set: set }, function( err, count ) {
+        if ( Object.keys(update).length ) {
+            Meteor.users.update({ _id: userId }, update, function( err, count ) {
                 if ( err ) return userError([ err ]);
             });
         }
