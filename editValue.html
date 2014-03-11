@@ -1,7 +1,9 @@
 
 <template name="editValue">
     <tr>
-        <td>{{name}}</td>
-        <td><a href="#">{{valueText}}</a></td>
+        <td>
+            {{value.name}}{{> valueInfo info}}
+        </td>
+        <td><a href="#">{{value.valueText}}</a></td>
     </tr>
 </template>

@@ -95,11 +95,13 @@ T.helper('inputs', function() {
     var changedFn= injectVar(this, 'changed');
     var inputChangedFn= injectVar(this, 'inputChanged');
     var model= this;
-    var inputDefs= model.inputDefinitions;
-
+    var inputDefs= model.definition.inputs || model.inputDefinitions;
     if ( !inputDefs ) return;
 
+    var inputInfo= (model.definition.info || {}).inputs || {};
+
     if ( !model.inputs ) model.inputs= {};
+
     var inputs= model.inputs;
     var result= Object.keys(inputDefs).map(function( name ) {
         var inputChangedFn= injectVar(this, 'input.' + name, inputs[name]);
@@ -113,7 +115,10 @@ T.helper('inputs', function() {
 
             return inputs[name];
         }
-        return SpongeTools.buildValue(name, inputDefs[name], varFn, null);
+        return {
+            value: SpongeTools.buildValue(name, inputDefs[name], varFn, null),
+            info: inputInfo[name] || {},
+        };
     });
     return result;
 });

@@ -60,7 +60,7 @@ T.helper('header', function() {
 
 T.select('mainNavigation');
 
-T.change('rendered', function() {
+T.addFn('rendered', function() {
     $(this.find('.accordion')).find('.collapse').collapse({ toggle: false, });
     switch (session('view') || 'model' ) {
         case 'model': $('#main-navigation-accordion-model').collapse('show'); break;

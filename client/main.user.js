@@ -31,7 +31,7 @@ T.select('userEdit');
 var userError= SpongeTools.injectVar({}, 'error');
 var userSuccess= SpongeTools.injectVar({}, 'success');
 
-T.change('created', function() {
+T.addFn('created', function() {
     userError(undefined);
     userSuccess(undefined);
 });

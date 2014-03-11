@@ -493,10 +493,10 @@ $(function() {
 
     T.select(templateName);
 
-    T.change('init', function() {
+    T.addFn('init', function() {
         singleValue.newValue= singleValue.get();
     });
-    T.change('rendered', function() {
+    T.addFn('rendered', function() {
         var input= this.find('input, select');
         if ( input ) input.focus();
     });
@@ -551,7 +551,7 @@ var getColor= function( value ) {
     };
 };
 
-T.change('rendered', function() {
+T.addFn('rendered', function() {
     var self= this;
     var $modal= $('#singleValueInput');
     var $input= $(this.find('input.color'));
@@ -578,7 +578,7 @@ console.log('rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')');
 
 T.select('valueInputDate');
 
-T.change('rendered', function() {
+T.addFn('rendered', function() {
     var self= this;
     var $modal= $('#singleValueInput');
     var $input= $(this.find('input'));

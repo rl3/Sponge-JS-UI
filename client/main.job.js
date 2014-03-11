@@ -242,6 +242,9 @@ var onObject= function( value, options, defaultFn ) {
 T.helper('resultMap', function() {
     var result= this.result || {};
 
+    var model= getModel();
+    var info= (((model || {}).definition || {}).info || {}).result || {};
+
     return Object.keys(result).filter(function( key ) {
         return key !== 'tables';
     }).map(function( key ) {
@@ -251,6 +254,7 @@ T.helper('resultMap', function() {
         return {
             resultName: key,
             resultValue: value,
+            resultInfo: info[key] || {},
         }
     }).filter(function( result ) {
         return result;
@@ -261,6 +265,9 @@ T.helper('resultTables', function() {
     var tables= this.tables;
     if ( !tables || !tables.length ) return;
 
+    var model= getModel();
+    var info= ((((model || {}).definition || {}).info || {}).result || {}).tables || {};
+
     var result= [];
     tables.forEach(function( tableList ) {
         for ( var id in tableList.tables ) {
@@ -269,10 +276,12 @@ T.helper('resultTables', function() {
             // remove resultId and 'result' from path
             var path= tableList.path.slice(2);
             path.push(id);
+            var index= path.join('.');
             result.push({
-                index: path.join('.'),
+                index: index,
                 tablePath: tablePath,
                 jobId: jobId(),
+                info: info[index] || {},
                 hrefXml: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
                 hrefCsv: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
             });

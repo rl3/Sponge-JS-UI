@@ -88,7 +88,11 @@
                                 <table width="100%">
                                     <tr><th colspan="2">Main Values</th></tr>
                                     {{#each this}}
-                                        <tr valign="top"><th align="right">{{resultName}}:</th><td>{{resultValue}}</td></tr>
+                                        <tr valign="top">
+                                            <th align="right">
+                                                {{resultName}}{{> valueInfo resultInfo}}:
+                                            </th>
+                                            <td>{{resultValue}}</td></tr>
                                     {{/each}}
                                 </table>
                             {{/with}}
@@ -98,7 +102,7 @@
                                 <table>
                                     <tr><th colspan="2">Tables</th></tr>
                                     {{#each this}}
-                                        <tr><th align="right">{{index}}:</th><td>
+                                        <tr><th align="right">{{index}}{{> valueInfo info}}:</th><td>
                                             <a class="resultTable" href="{{hrefXml}}" target="_new">XML</a>
                                             <a class="resultTable" href="{{hrefCsv}}" target="_new">CSV</a>
                                             {{> jobResultMapLink}}
