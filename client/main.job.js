@@ -252,8 +252,8 @@ T.helper('resultMap', function() {
         if ( ! value ) return;
 
         return {
-            resultName: key,
-            resultValue: value,
+            name: key,
+            value: value,
             info: info[key] || {},
         }
     }).filter(function( result ) {
