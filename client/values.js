@@ -219,6 +219,20 @@ var buildValue= function( name, type, valueFn, info ) {
     };
 };
 
+var valueSort= function( a, b ) {
+    var indexA= a.info.index || 0;
+    var indexB= b.info.index || 0;
+
+    // if at least one index is set sort by index
+    if ( indexA || indexB ) return indexA - indexB;
+
+    var optA= !!a.info.optional;
+    var optB= !!b.info.optional;
+    if ( optA !== optB ) return optA - optB;
+
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+};
+
 var buildValues= function( args, property, valueContext ) {
     var info= args.info && args.info[property] || {};
 
@@ -233,22 +247,12 @@ var buildValues= function( args, property, valueContext ) {
         );
     });
 
-    result.sort(function( a, b ) {
-        var indexA= a.info.index || 0;
-        var indexB= b.info.index || 0;
-
-        // if at least one index is set sort by index
-        if ( indexA || indexB ) return indexA - indexB;
-
-        var optA= !!a.info.optional;
-        var optB= !!b.info.optional;
-        if ( optA !== optB ) return optA - optB;
-
-        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-    });
+    result.sort(valueSort);
 
     return result;
 };
+
+SpongeTools.indexSortFn= valueSort;
 
 SpongeTools.valueToString= valueToString;
 SpongeTools.buildValues= buildValues;

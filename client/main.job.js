@@ -254,11 +254,11 @@ T.helper('resultMap', function() {
         return {
             resultName: key,
             resultValue: value,
-            resultInfo: info[key] || {},
+            info: info[key] || {},
         }
     }).filter(function( result ) {
         return result;
-    });
+    }).sort(SpongeTools.indexSortFn);
 });
 
 T.helper('resultTables', function() {
