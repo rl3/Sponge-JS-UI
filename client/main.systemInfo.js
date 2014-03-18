@@ -57,7 +57,12 @@ T.helper('description', function() {
     var result= [];
 
     if ( job ) {
-        result.push('Description: ' + job.description.text);
+        if ( job.description ) {
+            result.push('Description: ' + job.description.text);
+        }
+        else {
+            result.push('Other user\'s job');
+        }
     };
     if ( this.started ) result.push('Started: ' + this.started);
     result.push('Queued: ' + this.queued);
@@ -67,7 +72,7 @@ T.helper('description', function() {
 
 T.helper('name', function() {
     var job= getJob(this.jobId);
-    return job ? job.description.title : this.jobId;
+    return job && job.description && job.description.title ? job.description.title : this.jobId;
 });
 
 T.events({
