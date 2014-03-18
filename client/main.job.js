@@ -8,7 +8,23 @@ var jobId= SpongeTools.jobId;
 
 var invalidateJob= SpongeTools.invalidateJob;
 
-var editor= SpongeTools.editor(function( context ) {
+var _saveJobTitle= SpongeTools.postData('setJobTitle');
+var saveJobTitle= function( title ) {
+    _saveJobTitle({ jobId: jobId(), title: title });
+};
+
+var _saveJobDescription= SpongeTools.postData('setJobDescription');
+var saveJobDescription= function( description ) {
+    _saveJobDescription({ jobId: jobId(), description: description });
+};
+
+var editor= SpongeTools.editor(function( context, property ) {
+
+    switch ( property ) {
+        case 'title': saveJobTitle(context.title); break;
+        case 'text': saveJobDescription(context.text); break;
+    }
+
     injectVar(context, 'changed')(true);
 });
 

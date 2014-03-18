@@ -211,6 +211,22 @@ var methods= {};
     };
 });
 
+methods.setJobTitle= function( data ) {
+    return put('Job/setTitle/' + data.jobId, { title: data.title }, function( err, result ) {
+        if ( err ) return;
+
+        methods.getJob(data.jobId);
+    });
+};
+
+methods.setJobDescription= function( data ) {
+    return put('Job/setDescription/' + data.jobId, { description: data.description }, function( err, result ) {
+        if ( err ) return;
+
+        methods.getJob(data.jobId);
+    });
+};
+
 
 var onBeforeMethod= {};
 var onAfterMethod= {};

@@ -19,7 +19,7 @@ T.helper('infoText', function() {
 
 T.addFn('rendered', function() {
     $(this.find('a')).tooltip({
-        placement: 'bottom',
+        placement: 'right',
         html: true,
     });
 });
