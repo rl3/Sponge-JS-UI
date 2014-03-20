@@ -565,7 +565,7 @@ console.log('rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')');
         value: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')',
     }).on('changeColor', function( event ) {
         var rgba= event.color.toRGB();
-        singleValue.newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.b) + hexPad(rgba.r);
+        singleValue.newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.g) + hexPad(rgba.r);
 /*
     }).on('create', function( event ) {
         event.color.setColor('rgba(' + c.r + ',' + c.g + ',' + c.b + ')');
