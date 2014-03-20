@@ -396,7 +396,7 @@ T.helper('data', function() {
 
     // TODO: offer returned Data for download
     var data= getJobResultMap(jobId(), this.tablePath, args());
-    if ( !data ) return;
+    if ( !data ) return true;
 
     var fileName= data.headers['content-disposition'];
     if ( fileName ) {
@@ -404,9 +404,11 @@ T.helper('data', function() {
         if ( match ) fileName= match[1];
     }
 
-    SpongeTools.download(data.content, {
-        contentType: data.headers['content-type'],
-        fileName: fileName || 'resultMap.kml',
+    SpongeTools.downloadLink(data.url, {
+        query: {
+            contentType: data.headers['content-type'],
+            fileName: fileName || 'resultMap.kml',
+        },
     });
 });
 

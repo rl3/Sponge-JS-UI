@@ -27,16 +27,16 @@
     </div>
 </body>
 
+<template name="loadingImage">
+    <img src="skin/loading.gif" />
+</template>
+
 <template name="loading">
-    <div class="loading">
-        <img src="skin/loading.gif" />
-    </div>
+    <div class="loading">{{> loadingImage}}</div>
 </template>
 
 <template name="loadingSmall">
-    <div class="loading-small">
-        <img src="skin/loading.gif" />
-    </div>
+    <div class="loading-small">{{> loadingImage}}</div>
 </template>
 
 <template name="mainHeader">

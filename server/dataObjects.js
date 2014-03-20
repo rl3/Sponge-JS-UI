@@ -282,9 +282,22 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                 data= onAfterMethod[name].apply(null, args);
             }
 
-            updateCache(key, SpongeTools.convertToMongo(data), function( err ) {
-                delete getInstances[key];
-            });
+            switch ( urlData.dataStore ) {
+                case 'file':
+                    var fs = Npm.require('fs');
+                    var temp= SpongeTools.mktemp();
+
+                    fs.writeFileSync(temp.localname, data.content);
+
+                    delete data.content;
+                    data.url= temp.url;
+                    // fall through
+                default:
+                    return updateCache(key, SpongeTools.convertToMongo(data), function( err ) {
+                        delete getInstances[key];
+                    });
+            }
+
         });
     };
 });

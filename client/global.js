@@ -30,24 +30,43 @@ SpongeTools.download= function( data, options ) {
     if ( !options ) options= {};
 
     var blob= new Blob([data], {type: options.contentType});
-    var fileName= options.fileName;
 
     var href= window.URL.createObjectURL(blob);
 
+    SpongeTools.downloadLink(href, options, function() {
+        // Need a small delay for the revokeObjectURL to work properly.
+        setTimeout(function() {
+            window.URL.revokeObjectURL(href);
+        }, 1500);
+    });
+};
+
+SpongeTools.downloadLink= function( href, options, cb ) {
+    if ( !options ) options= {};
+
+    var fileName= options.fileName;
+
     var a = document.createElement('a');
+
     if ( fileName ) a.download = fileName;
+
+    if ( options.query ) {
+        href+= '?' + Object.keys(options.query).map(function( name ) {
+             return encodeURIComponent(name) + '=' + encodeURIComponent(options.query[name]);
+        }).join('&');
+    }
+
     a.href = href;
     a.style.display= 'none';
+
+    if ( options.target ) a.target= options.target;
 
     document.body.appendChild(a);
 
     a.onclick= function() {
         document.body.removeChild(a)
 
-        // Need a small delay for the revokeObjectURL to work properly.
-        setTimeout(function() {
-            window.URL.revokeObjectURL(href);
-        }, 1500);
+        if ( cb ) cb();
     };
 
     a.click();

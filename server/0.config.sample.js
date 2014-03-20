@@ -14,5 +14,8 @@ SpongeTools.Config= {
 
     // path to append to baseurl for authentication
     authurl:  'doAuth',
+
+    // path to append to baseurl for authentication
+    tmpdir:  '/tmp/spongefiles',
 };
 */
