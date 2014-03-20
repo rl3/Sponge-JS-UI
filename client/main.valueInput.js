@@ -760,10 +760,26 @@ T.events({
        };
     },
     'click a.select-from-map': function( event ) {
+        var objects= getCompatibleObjects() || [].filter(function( o ) { return 'location' in o; });
+        if ( objects.length === 0 ) return;
+
         SpongeTools.Map.clear();
         SpongeTools.Map.show(function() {
-            SpongeTools.Map.setViewRange([54,11], [53, 12]);
-//            SpongeTools.Map.addMarker(11.2, 53.6);
+//            SpongeTools.Map.setViewRange([54,11], [53, 12]);
+            SpongeTools.Map.addMarker(11.2, 53.6);
+            var left= right= objects[0].location[0];
+            var top= bottom= objects[0].location[1];
+            for ( var i in objects ) {
+                var l= objects[i].location;
+                SpongeTools.Map.addMarker(l[0], l[1]);
+                if ( l[0] < left )   left=   l[0];
+                if ( l[0] > right )  right=  l[0];
+                if ( l[1] < bottom ) bottom= l[1];
+                if ( l[1] > top )    top=    l[1];
+console.log(l)
+            }
+            SpongeTools.Map.setViewRange([top + 1,left - 1], [bottom - 1, right + 1]);
+console.log([top + 1,left - 1], [bottom - 1, right + 1]);
         });
 
         return false;
