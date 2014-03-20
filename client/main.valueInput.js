@@ -558,11 +558,9 @@ T.addFn('rendered', function() {
 
     var c= getColor(singleValue ? singleValue.get() : 0);
 
-console.log(c)
-console.log('rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')');
     $input.colorpicker({
         format: 'rgba',
-        value: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')',
+        color: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')',
     }).on('changeColor', function( event ) {
         var rgba= event.color.toRGB();
         singleValue.newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.g) + hexPad(rgba.r);

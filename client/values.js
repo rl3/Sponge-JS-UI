@@ -135,6 +135,17 @@ var objectToString= function( value, options ) {
         + '</table>';
 };
 
+var colorToString= function( value, options ) {
+    var color= value.substr(6, 2) + value.substr(4, 2) + value.substr(2, 2);
+    var alpha= Math.round(parseInt(value.substr(0, 2), 16) / 2.55);
+
+    return ''
+        + '<div class="colored-spot-border">'
+            + '<div class="colored-spot" style="background-color: #' + color + ';"></div>'
+            + '<div class="colored-spot" style="background-color: #' + color + '; opacity: ' + (alpha / 100) + '; filter:alpha(opacity=' + alpha + ');"></div>'
+        + '</div>';
+}
+
 var defaultHandler= {
     onDate:     dateToString,
     onObjectId: function( value ) { return 'ObjectId("' + value + '")'; },
@@ -146,6 +157,7 @@ var defaultHandler= {
     onNearest:  nearestToString,
     onDataObject: dataObjectToString,
     onObject:   objectToString,
+    onColor:    colorToString,
     onString:   function( value, options ) {
         if ( options && options.quoteStrings ) return '"' + value + '"';
         return String(value);
@@ -153,6 +165,9 @@ var defaultHandler= {
 };
 
 var getHandler= function( value, options ) {
+    if ( typeof value === 'string' && value.length == 8 && value.match(/^[\da-f]+$/i) )
+                                        return 'onColor';
+
     if ( typeof value !== 'object' )    return 'onString'
     if ( value instanceof Date )        return 'onDate';
     if ( value instanceof Meteor.Collection.ObjectID )
@@ -170,6 +185,7 @@ var getHandler= function( value, options ) {
                                         return 'onNearest';
     if ( '$ref' in value )              return 'onDataObject';
     if ( value.constructor === Object ) return 'onObject';
+
     return 'onString';
 };
 
