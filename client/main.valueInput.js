@@ -207,15 +207,15 @@ $(function() {
     });
 });
 
-var valueToString= function( value ) {
-    return SpongeTools.valueToString(
-        value,
-        {
-            onLocation: function( value, options, defaultFn ) {
-                return $(defaultFn(value, options)).html();
-            }
+var valueToString= function( value, type ) {
+    var options= {
+        onLocation: function( value, options, defaultFn ) {
+            return $(defaultFn(value, options)).html();
         }
-    );
+    };
+    if ( type ) options.type= type;
+
+    return SpongeTools.valueToString(value, options);
 };
 
 /*
@@ -226,7 +226,7 @@ var valueToString= function( value ) {
 T.select('inputTypeSingle');
 
 T.helper('value', function() {
-    return valueToString(newValue());
+    return valueToString(newValue(), getType());
 });
 
 T.events({
@@ -396,6 +396,7 @@ T.helper('input', function() {
         case 'Boolean':
         case 'Const':
         case 'Color':
+        case 'Set':
             templateName+= type; break;
         default: 
             templateName+= 'Model';
@@ -527,6 +528,45 @@ T.helper('values', function() {
 T.events({
     'change select': function( event ) {
         singleValue.newValue= event.currentTarget.value;
+    }
+});
+
+T.select('valueInputSet');
+
+T.addFn('init', function() {
+    var set= (singleValue.get() || []).slice();
+
+    // if set consists of a single '*', select all values
+    if ( set.length === 1 && set[0] === '*' ) set= ((singleValue.info || {}).const || []).slice();
+
+    singleValue.newValue= set;
+});
+
+T.helper('values', function() {
+    var values= (singleValue.info || {}).const;
+    if ( !values ) return;
+
+    return values.map(function( v ) {
+        return {
+            value: v,
+            checked: singleValue.newValue.indexOf(v) >= 0 ? 'checked' : '',
+        };
+    });
+});
+
+T.events({
+    'change input': function( event ) {
+        var $cb= $(event.currentTarget);
+        var value= event.currentTarget.value;
+
+        var set= singleValue.newValue;
+
+        if ( $cb.prop('checked') ) {
+            if ( set.indexOf(value) < 0 ) set.push(value);
+            return;
+        }
+
+        singleValue.newValue= _.without(set, value);
     }
 });
 

@@ -146,6 +146,10 @@ var colorToString= function( value, options ) {
         + '</div>';
 }
 
+var setToString= function( value, options ) {
+    return '[' + (value || []).join(', ') + ']';
+}
+
 var defaultHandler= {
     onDate:     dateToString,
     onObjectId: function( value ) { return 'ObjectId("' + value + '")'; },
@@ -158,6 +162,7 @@ var defaultHandler= {
     onDataObject: dataObjectToString,
     onObject:   objectToString,
     onColor:    colorToString,
+    onSet:      setToString,
     onString:   function( value, options ) {
         if ( options && options.quoteStrings ) return '"' + value + '"';
         return String(value);
@@ -165,8 +170,11 @@ var defaultHandler= {
 };
 
 var getHandler= function( value, options ) {
-    if ( typeof value === 'string' && value.length == 8 && value.match(/^[\da-f]+$/i) )
+    if ( options && options.type === 'Color' )
                                         return 'onColor';
+
+    if ( options && options.type === 'Set' )
+                                        return 'onSet';
 
     if ( typeof value !== 'object' )    return 'onString'
     if ( value instanceof Date )        return 'onDate';
@@ -225,7 +233,8 @@ var buildValue= function( name, type, valueFn, info ) {
                 {
                     onLocation: function( value, options, defaultFn ) {
                         return $(defaultFn(value, options)).html();
-                    }
+                    },
+                    type: type,
                 }
             );
         },

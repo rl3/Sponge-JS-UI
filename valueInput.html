@@ -185,6 +185,14 @@
     </select>
 </template>
 
+<template name="valueInputSet">
+    <table>
+        {{#each values}}
+            <tr><td><label><input type="checkbox" value="{{value}}" {{checked}} />{{value}}</td></tr>
+        {{/each}}
+    </table>
+</template>
+
 <template name="valueInputColor">
     <input type="text" class="color" value="{{color}}" />
 </template>
