@@ -3,6 +3,9 @@ var map;
 var markers= [];
 var polygons= [];
 
+var bounds= undefined;
+var eventHandlers= {};
+
 var initialize= function( elem ) {
     var mapOptions = {
         zoom: 10,
@@ -29,9 +32,32 @@ var initialize= function( elem ) {
         streetViewControlOptions: {
             position: google.maps.ControlPosition.LEFT_TOP
         }
-    }
+    };
 
     map = new google.maps.Map(elem, mapOptions);
+
+    bounds= undefined;
+    clearEvents();
+
+    google.maps.event.addListener(map, 'bounds_changed', function() {
+        var b= map.getBounds();
+
+        if ( !b ) return;
+
+        var northEast= b.getNorthEast();
+        var southWest= b.getSouthWest();
+
+        var newBounds= {
+            north: northEast.lat(),
+            east:  northEast.lng(),
+            south: southWest.lat(),
+            west:  southWest.lng(),
+        };
+        if ( bounds && _.isEqual(bounds, newBounds) ) return;
+
+        bounds= newBounds;
+        fireEvents('bounds_changed', [bounds]);
+    });
 
     var $closeDiv= $('<div class="maps-button"><div class="button" title="close"><div><i class="icon-remove"></i></div></div></div>');
 
@@ -44,12 +70,47 @@ var initialize= function( elem ) {
     });
 }
 
+var fireEvents= function( event, args ) {
+    if ( !(event in eventHandlers) ) return;
+
+    return eventHandlers[event].forEach(function( handler ) {
+        handler.call.apply(handler.context, args);
+    });
+};
+
+var unregisterEventHandler= function( event, id ) {
+    if ( !id || !(event in eventHandlers) ) return;
+
+    eventHandlers[event]= eventHandlers[event].filter(function( handler ) { return handler.id !== id; });
+};
+
+var registerEventHandler= function( event, handler, id, context ) {
+    if ( event in eventHandlers ) {
+        unregisterHandler(event, id);
+    }
+    else {
+        eventHandlers[event]= [];
+    }
+
+    if ( !id ) id= 'autoId_' + eventHandlers[event].length;
+
+    eventHandlers[event].push({
+        call: handler,
+        context: context,
+        id: id,
+    });
+};
+
 var removeMarkers= function() {
     while ( markers.length ) markers.shift().setMap(null);
 };
 
 var removePolygons= function() {
     while ( polygons.length ) polygons.shift().polygon.setMap(null);
+};
+
+var clearEvents= function() {
+    eventHandlers= {};
 };
 
 var addMarker= function( lon, lat, options ) {
@@ -95,10 +156,14 @@ var addMarker= function( lon, lat, options ) {
 };
 
 var setViewRange= function( northEast, southWest ) {
-    map.panToBounds(new google.maps.LatLngBounds(
-        new google.maps.LatLng(northEast[0], northEast[1]),
-        new google.maps.LatLng(southWest[0], southWest[1])
+    map.fitBounds(new google.maps.LatLngBounds(
+        new google.maps.LatLng(southWest[0], southWest[1]),
+        new google.maps.LatLng(northEast[0], northEast[1])
     ));
+};
+
+var getViewRange= function() {
+    return bounds;
 };
 
 var get$container= function() {
@@ -133,7 +198,10 @@ SpongeTools.Map= {
     removeMarkers: removeMarkers,
     addMarker: addMarker,
     setViewRange: setViewRange,
+    getViewRange: getViewRange,
     show: showMap,
     hide: hideMap,
     clear: clearMap,
+    registerEventHandler: registerEventHandler,
+    unregisterEventHandler: unregisterEventHandler,
 };
