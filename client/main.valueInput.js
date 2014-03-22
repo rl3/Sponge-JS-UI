@@ -548,6 +548,23 @@ T.addFn('init', function() {
     singleValue.newValue= set;
 });
 
+var updateCBSelectAll= function( $container ) {
+        var selectedCount= $container.find('input.value:checked').length;
+        var valueCount= ((singleValue.info || {}).const || []).length;
+
+        $cbSA= $container.find('input.select-all');
+        $cbSA.prop('indeterminate', false);
+        switch ( selectedCount ) {
+            case 0: $cbSA.prop('checked', false); break;
+            case valueCount: $cbSA.prop('checked', true); break;
+            default: $cbSA.prop('indeterminate', true); break;
+        }
+};
+
+T.addFn('rendered', function() {
+    updateCBSelectAll($(this.find('table')));
+});
+
 T.helper('values', function() {
     var values= (singleValue.info || {}).const;
     if ( !values ) return;
@@ -564,6 +581,17 @@ T.events({
     'change input': function( event ) {
         var $cb= $(event.currentTarget);
         var value= event.currentTarget.value;
+
+        var $parent= $cb.closest('table');
+
+        if ( $cb.hasClass('select-all') ) {
+            var checked= $cb.prop('checked');
+            $parent.find('input.value').prop('checked', checked);
+            singleValue.newValue= checked ? ((singleValue.info || {}).const || []) : [];
+            return;
+        }
+
+        updateCBSelectAll($parent);
 
         var set= singleValue.newValue;
 

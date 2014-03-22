@@ -187,8 +187,9 @@
 
 <template name="valueInputSet">
     <table>
+        <tr><td><label><input type="checkbox" class="select-all" /><b>all</b></td></tr>
         {{#each values}}
-            <tr><td><label><input type="checkbox" value="{{value}}" {{checked}} />{{value}}</td></tr>
+            <tr><td><label><input type="checkbox" class="value" value="{{value}}" {{checked}} />{{value}}</td></tr>
         {{/each}}
     </table>
 </template>
