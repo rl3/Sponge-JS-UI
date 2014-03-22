@@ -59,8 +59,8 @@ Meteor.publish('client-cache', function() {
 var Debug= false;
 var debugFilter;
 
-// Debug= true;
-// debugFilter= /Model\/getCompat/;
+Debug= true;
+debugFilter= /Point\/get/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;

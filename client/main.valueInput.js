@@ -4,6 +4,8 @@ var getMatchingObjects= SpongeTools.getCachedData('getMatchingObjects');
 var getTags= SpongeTools.getCachedData('getTagsByTypeVersion');
 var getMapnames= SpongeTools.getCachedData('getMapnamesByTypeVersion');
 
+var getObjectsByLocation= SpongeTools.getCachedData('getObjectsByLocation');
+
 var ObjectId= SpongeTools.ObjectId;
 
 var injectVar= SpongeTools.injectVar;
@@ -19,6 +21,8 @@ var limitDataObjs= 30;
 var dateFormat= 'dd.mm.yyyy';
 
 var T= SpongeTools.Template;
+
+var selectFromMapInvalidator= SpongeTools.getInvalidator('select from map');
 
 /*
  * generic local temporary value
@@ -765,21 +769,10 @@ T.events({
 
         SpongeTools.Map.clear();
         SpongeTools.Map.show(function() {
-//            SpongeTools.Map.setViewRange([54,11], [53, 12]);
-            SpongeTools.Map.addMarker(11.2, 53.6);
-            var left= right= objects[0].location[0];
-            var top= bottom= objects[0].location[1];
-            for ( var i in objects ) {
-                var l= objects[i].location;
-                SpongeTools.Map.addMarker(l[0], l[1]);
-                if ( l[0] < left )   left=   l[0];
-                if ( l[0] > right )  right=  l[0];
-                if ( l[1] < bottom ) bottom= l[1];
-                if ( l[1] > top )    top=    l[1];
-console.log(l)
-            }
-            SpongeTools.Map.setViewRange([top + 1,left - 1], [bottom - 1, right + 1]);
-console.log([top + 1,left - 1], [bottom - 1, right + 1]);
+            SpongeTools.Map.registerEventHandler('bounds_changed', function( bounds ) {
+                selectFromMapInvalidator(true);
+            });
+            if ( !SpongeTools.Map.getViewRange() ) SpongeTools.Map.setViewRange([55, 15.3], [46.7, 5.7]);
         });
 
         return false;
@@ -846,6 +839,33 @@ T.helper('selected', function() {
     if ( id === this.id ) return 'SELECTED';
 });
 
+
+T.select('valueInputSelectFromMapHandler');
+
+T.helper('handler', function() {
+    selectFromMapInvalidator();
+
+    SpongeTools.Map.clear();
+
+    var bounds= SpongeTools.Map.getViewRange();
+    if ( !bounds ) return;
+
+    var variant= getTempValue('modelVariant')();
+    if ( !('schemas' in variant) ) return;
+
+    var schemas= variant.schemas;
+    if ( !schemas.length ) return;
+
+    var type= schemas[0].objectType;
+    var versions= schemas.map(function( schema ) { return schema.version });
+    versions= schemas[0].version;
+    versions= 2;
+
+console.log(type, versions)
+    var objects= getObjectsByLocation(type, versions, bounds);
+
+    console.log(objects);
+});
 
 
 

@@ -261,7 +261,9 @@
     </div>
     {{#if loading}}
     {{else}}
-        <a href="#" class="select-from-map">select from map</a>
+        <a href="#" class="select-from-map">select from map</a>{{> valueInputSelectFromMapHandler}}
     {{/if}}
 </template>
+
+<template name="valueInputSelectFromMapHandler">{{handler}}</template>
 
