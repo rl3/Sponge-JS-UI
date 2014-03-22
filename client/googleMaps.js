@@ -136,6 +136,9 @@ var addMarker= function( lon, lat, options ) {
         delete options.infotext;
     }
 
+    var events= options.events;
+    if ( events ) delete options.events;
+
     if ( options ) {
         for ( var key in options ) {
             markerOptions[key]= options[key];
@@ -145,14 +148,25 @@ var addMarker= function( lon, lat, options ) {
     var marker= new google.maps.Marker(markerOptions);
 
     if ( infowindow ) {
-        google.maps.event.addListener(marker, 'click', function() {
+        google.maps.event.addListener(marker, 'mouseover', function() {
             infowindow.open(map, marker);
         });
+        google.maps.event.addListener(marker, 'mouseout', function() {
+            infowindow.close();
+        });
+    }
+
+    if ( events ) {
+        for ( var name in events ) {
+            google.maps.event.addListener(marker, name, events[name]);
+        }
     }
 
     markers.push(marker);
 
-    if ( map ) map.setCenter(markerOptions.position);
+    if ( map && options.center ) map.setCenter(markerOptions.position);
+
+    return marker
 };
 
 var setViewRange= function( northEast, southWest ) {

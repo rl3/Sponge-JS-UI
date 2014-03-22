@@ -24,6 +24,8 @@ var T= SpongeTools.Template;
 
 var selectFromMapInvalidator= SpongeTools.getInvalidator('select from map');
 
+var Map= SpongeTools.Map;
+
 /*
  * generic local temporary value
  */
@@ -569,7 +571,6 @@ T.events({
             if ( set.indexOf(value) < 0 ) set.push(value);
             return;
         }
-
         singleValue.newValue= _.without(set, value);
     }
 });
@@ -767,12 +768,26 @@ T.events({
         var objects= getCompatibleObjects() || [].filter(function( o ) { return 'location' in o; });
         if ( objects.length === 0 ) return;
 
-        SpongeTools.Map.clear();
-        SpongeTools.Map.show(function() {
-            SpongeTools.Map.registerEventHandler('bounds_changed', function( bounds ) {
+        var oldBounds;
+
+        Map.clear();
+        Map.show(function() {
+            Map.registerEventHandler('bounds_changed', function( bounds ) {
+                if ( !bounds ) return;
+
+                if ( oldBounds ) {
+                    // if new bounds is inside old bounds, do nothing
+                    if (
+                        oldBounds.east < bounds.east
+                        && oldBounds.west > bounds.west
+                        && oldBounds.north > bounds.north
+                        && oldBounds.south < bounds.south
+                    ) return;
+                }
+                oldBounds= bounds;
                 selectFromMapInvalidator(true);
             });
-            if ( !SpongeTools.Map.getViewRange() ) SpongeTools.Map.setViewRange([55, 15.3], [46.7, 5.7]);
+            if ( !Map.getViewRange() ) Map.setViewRange([55, 15.3], [46.7, 5.7]);
         });
 
         return false;
@@ -845,15 +860,13 @@ T.select('valueInputSelectFromMapHandler');
 T.helper('handler', function() {
     selectFromMapInvalidator();
 
-    SpongeTools.Map.clear();
-
-    var bounds= SpongeTools.Map.getViewRange();
+    var bounds= Map.getViewRange();
     if ( !bounds ) return;
 
-    var variant= getTempValue('modelVariant')();
-    if ( !('schemas' in variant) ) return;
+    var selectedType= getTempValue('modelVariant')();
+    if ( !('schemas' in selectedType) ) return;
 
-    var schemas= variant.schemas;
+    var schemas= selectedType.schemas;
     if ( !schemas.length ) return;
 
     var type= schemas[0].objectType;
@@ -861,10 +874,34 @@ T.helper('handler', function() {
     versions= schemas[0].version;
     versions= 2;
 
-console.log(type, versions)
     var objects= getObjectsByLocation(type, versions, bounds);
 
-    console.log(objects);
+    if ( !objects ) return;
+
+    Map.clear();
+
+    objects.forEach(function( o ) {
+        var infotext= '<b>' + o.properties.name + '</b>';
+        if ( o.properties.description ) {
+            infotext+= '<br />' + o.properties.description;
+        }
+
+        Map.addMarker(o.placemark, {
+            infotext: infotext,
+            events: {
+                dblclick: function( event ) {
+                    singleValue.newValue= {
+                        $ref: selectedType.schemas ? 'DataObj' : 'Model',
+                        selector: {
+                            _id: new ObjectId(o.properties._id),
+                        },
+                    };
+                    Map.hide();
+                    $('#singleValueInput button.saveValue').click();
+                },
+            },
+        });
+    });
 });
 
 
