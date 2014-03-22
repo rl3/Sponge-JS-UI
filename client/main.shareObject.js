@@ -36,6 +36,8 @@ var getAcls= function() {
     acls= owner= null;
     aclInvalidator(true);
 
+    if ( !data.type ) return;
+
     var rawAcls= _getAcls(data.type, data.id);
 
     if ( !rawAcls ) return;
