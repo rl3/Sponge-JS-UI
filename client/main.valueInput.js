@@ -899,8 +899,6 @@ T.helper('handler', function() {
 
     var type= schemas[0].objectType;
     var versions= schemas.map(function( schema ) { return schema.version });
-    versions= schemas[0].version;
-    versions= 2;
 
     var objects= getObjectsByLocation(type, versions, bounds);
 
