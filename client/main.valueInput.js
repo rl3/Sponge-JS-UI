@@ -4,7 +4,15 @@ var getMatchingObjects= SpongeTools.getCachedData('getMatchingObjects');
 var getTags= SpongeTools.getCachedData('getTagsByTypeVersion');
 var getMapnames= SpongeTools.getCachedData('getMapnamesByTypeVersion');
 
-var getObjectsByLocation= SpongeTools.getCachedData('getObjectsByLocation');
+var _getObjectsByLocation= SpongeTools.getCachedData('getObjectsByLocation');
+var getObjectsByLocation= function( type, versions, bounds ) {
+    bounds= _.clone(bounds)
+    bounds.east= Math.min(Math.floor(bounds.east + 1), 180);
+    bounds.west= Math.floor(bounds.west);
+    bounds.north= Math.min(Math.floor(bounds.north + 1), 90);
+    bounds.south= Math.floor(bounds.south);
+    return _getObjectsByLocation(type, versions, bounds);
+};
 
 var ObjectId= SpongeTools.ObjectId;
 
@@ -796,23 +804,11 @@ T.events({
         var objects= getCompatibleObjects() || [].filter(function( o ) { return 'location' in o; });
         if ( objects.length === 0 ) return;
 
-        var oldBounds;
-
         Map.clear();
         Map.show(function() {
             Map.registerEventHandler('bounds_changed', function( bounds ) {
                 if ( !bounds ) return;
 
-                if ( oldBounds ) {
-                    // if new bounds is inside old bounds, do nothing
-                    if (
-                        oldBounds.east > bounds.east
-                        && oldBounds.west < bounds.west
-                        && oldBounds.north > bounds.north
-                        && oldBounds.south < bounds.south
-                    ) return;
-                }
-                oldBounds= bounds;
                 selectFromMapInvalidator(true);
             });
             if ( !Map.getViewRange() ) Map.setViewRange([55, 15.3], [46.7, 5.7]);

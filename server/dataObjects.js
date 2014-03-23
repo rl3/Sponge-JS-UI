@@ -243,10 +243,6 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
 
         var key= typeof _urlData === 'object' ? JSON.stringify(_urlData) : _urlData;
 
-        if ( key in getInstances ) return;
-
-        getInstances[key]= undefined;
-
         var urlData;
 
         if ( typeof _urlData === 'object' ) {
@@ -259,6 +255,16 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                 method: 'GET',
             };
         }
+        var instanceKey= urlData.instanceKey || key;
+
+        var running= instanceKey in getInstances;
+
+        getInstances[instanceKey]= urlData.lastInstance ? {
+            key: key,
+            args: args,
+        } : undefined;
+
+        if ( running ) return;
 
         var fn= post;
         switch ( (urlData.method || '').toLowerCase() ) {
@@ -267,11 +273,23 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
             case 'del': fn= del; break;
         }
 
-        return fn(urlData.url, urlData.data, function( err, result ) {
-            if ( err ) {
-                delete getInstances[key];
+        // delete semaphore and re-run last invocation, if lastInstance is required and keys don't match
+        var finishFn= function() {
+            if ( !(instanceKey in getInstances) ) {
+                console.error('Did not found instanceKey "' + instanceKey + '" in getInstances! This should never happen.');
                 return;
             }
+
+            var lastInstance= getInstances[instanceKey];
+            delete getInstances[instanceKey];
+
+            if ( !urlData.lastInstance || key === lastInstance.key ) return;
+
+            return methods[name].apply(null, lastInstance.args);
+        };
+
+        return fn(urlData.url, urlData.data, function( err, result ) {
+            if ( err ) return finishFn();
 
             var data= urlData.dataFormat === 'plain' ? result : result.data;
 
@@ -279,7 +297,7 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
             if ( name in onAfterMethod) {
                 var afterArgs= args.slice();
                 afterArgs.push(data);
-                data= onAfterMethod[name].apply(null, args);
+                data= onAfterMethod[name].apply(null, afterArgs);
             }
 
             switch ( urlData.dataStore ) {
@@ -294,7 +312,7 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                     // fall through
                 default:
                     return updateCache(key, SpongeTools.convertToMongo(data), function( err ) {
-                        delete getInstances[key];
+                        return finishFn();
                     });
             }
 
