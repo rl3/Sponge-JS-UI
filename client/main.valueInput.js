@@ -806,8 +806,8 @@ T.events({
                 if ( oldBounds ) {
                     // if new bounds is inside old bounds, do nothing
                     if (
-                        oldBounds.east < bounds.east
-                        && oldBounds.west > bounds.west
+                        oldBounds.east > bounds.east
+                        && oldBounds.west < bounds.west
                         && oldBounds.north > bounds.north
                         && oldBounds.south < bounds.south
                     ) return;

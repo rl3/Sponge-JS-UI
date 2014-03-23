@@ -19,9 +19,9 @@ var initialize= function( elem ) {
         panControlOptions: {
             position: google.maps.ControlPosition.TOP_LEFT
         },
-        zoomControl: false,
+        zoomControl: true,
         zoomControlOptions: {
-            style: google.maps.ZoomControlStyle.LARGE,
+            style: google.maps.ZoomControlStyle.DEFAULT,
             position: google.maps.ControlPosition.LEFT_CENTER
         },
         scaleControl: false,
