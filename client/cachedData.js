@@ -21,7 +21,7 @@ var getCachedData= function( name, timeout ) {
 
         var id= SpongeTools.cachedMethodUrl[name].apply(SpongeTools.cachedMethodUrl, args);
 
-        var key= typeof id === 'object' ? JSON.stringify(id) : id;
+        var key= SpongeTools.buildCacheKey(id);
 
         var query= { key: key, };
 

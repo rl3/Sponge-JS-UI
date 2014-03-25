@@ -45,12 +45,13 @@ Meteor.startup(function() {
 
 Meteor.publish('client-cache', function() {
     var query= { userId: this.userId };
+    var cacheQuery= { $or: [ { userId: this.userId }, { userId: null } ] };
 
     var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
 
     return [
-        dataCache.find(query),
-        dataCacheMeta.find(query),
+        dataCache.find(cacheQuery),
+        dataCacheMeta.find(cacheQuery),
         sessionData.find(query),
         Meteor.users.find(admin ? {} : { _id: this.userId }, { fields: { username: true, roles: true, profile: true, } }),
     ];
@@ -202,11 +203,9 @@ var methods= {};
             var id= model._id;
             if ( !id ) return;
 
-            var url= SpongeTools.cachedMethodUrl['get' + type](id);
+            var key= SpongeTools.buildCacheKey(SpongeTools.cachedMethodUrl['get' + type](id));
 
-            if ( typeof url === 'object' ) url= JSON.stringify(url);
-
-            updateCache(url, model);
+            updateCache(key, Meteor.userId(), model);
         });
     };
 });
@@ -241,7 +240,7 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
         // run onBeforeMethod with options and return on false
         if ( name in onBeforeMethod && !onBeforeMethod[name].apply(null, args) ) return;
 
-        var key= typeof _urlData === 'object' ? JSON.stringify(_urlData) : _urlData;
+        var key= SpongeTools.buildCacheKey(_urlData);
 
         var urlData;
 
@@ -255,7 +254,9 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                 method: 'GET',
             };
         }
-        var instanceKey= urlData.instanceKey || key;
+        var instanceKey= urlData.instanceKey ? SpongeTools.buildCacheKey(urlData.instanceKey, urlData.noAuth) : key;
+
+        var userId= urlData.noAuth ? null : Meteor.userId();
 
         var running= instanceKey in getInstances;
 
@@ -311,7 +312,7 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                     data.url= temp.url;
                     // fall through
                 default:
-                    return updateCache(key, SpongeTools.convertToMongo(data), function( err ) {
+                    return updateCache(key, userId, SpongeTools.convertToMongo(data), function( err ) {
                         return finishFn();
                     });
             }
@@ -340,12 +341,10 @@ methods.getResultTable= function( jobId, tablePath, format ) {
 
 Meteor.methods(methods);
 
-var updateCache= function( key, newData, cb ) {
+var updateCache= function( key, userId, newData, cb ) {
     if ( !cb ) cb= function() {};
 
     if ( newData === undefined ) newData= null;
-
-    var userId= Meteor.userId();
 
     var query= { key: key, userId: userId, };
 
