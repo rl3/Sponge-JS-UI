@@ -19,9 +19,7 @@ var getCachedData= function( name, timeout ) {
             cb= args.pop();
         }
 
-        var id= SpongeTools.cachedMethodUrl[name].apply(SpongeTools.cachedMethodUrl, args);
-
-        var key= SpongeTools.buildCacheKey(id);
+        var key= SpongeTools.buildCacheKey(SpongeTools.getCachedMethodData(name, args));
 
         var query= { key: key, };
 

@@ -203,7 +203,7 @@ var methods= {};
             var id= model._id;
             if ( !id ) return;
 
-            var key= SpongeTools.buildCacheKey(SpongeTools.cachedMethodUrl['get' + type](id));
+            var key= SpongeTools.buildCacheKey(SpongeTools.getCachedMethodData('get' + type, [id]));
 
             updateCache(key, Meteor.userId(), model);
         });
@@ -232,29 +232,17 @@ var onAfterMethod= {};
 
 var getInstances= {};
 
-Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
+SpongeTools.getCachedMethodNames().forEach(function( name ) {
     methods[name]= function( /* arguments */ ) {
         var args= Array.prototype.slice.call(arguments);
-        var _urlData= SpongeTools.cachedMethodUrl[name].apply(SpongeTools.cachedMethodUrl, args);
+        var urlData= SpongeTools.getCachedMethodData(name, args);
 
         // run onBeforeMethod with options and return on false
         if ( name in onBeforeMethod && !onBeforeMethod[name].apply(null, args) ) return;
 
-        var key= SpongeTools.buildCacheKey(_urlData);
+        var key= SpongeTools.buildCacheKey(urlData);
 
-        var urlData;
-
-        if ( typeof _urlData === 'object' ) {
-            urlData= _.clone(_urlData);
-        }
-        else {
-            urlData= {
-                url: _urlData,
-                data: null,
-                method: 'GET',
-            };
-        }
-        var instanceKey= urlData.instanceKey ? SpongeTools.buildCacheKey(urlData.instanceKey, urlData.noAuth) : key;
+        var instanceKey= urlData.instanceKey ? (SpongeTools.getUserKeyPrefix(urlData.noAuth) + urlData.instanceKey) : key;
 
         var userId= urlData.noAuth ? null : Meteor.userId();
 
@@ -267,11 +255,12 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
 
         if ( running ) return;
 
-        var fn= post;
+        var fn;
         switch ( (urlData.method || '').toLowerCase() ) {
-            case 'get': fn= get; break;
+            case 'post': fn= post; break;
             case 'put': fn= put; break;
             case 'del': fn= del; break;
+            default: fn= get; break;
         }
 
         // delete semaphore and re-run last invocation, if lastInstance is required and keys don't match
@@ -312,6 +301,8 @@ Object.keys(SpongeTools.cachedMethodUrl).forEach(function( name ) {
                     data.url= temp.url;
                     // fall through
                 default:
+                    if ( urlData.noResult ) return finishFn();
+
                     return updateCache(key, userId, SpongeTools.convertToMongo(data), function( err ) {
                         return finishFn();
                     });
