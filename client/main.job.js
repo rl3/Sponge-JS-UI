@@ -18,7 +18,7 @@ var saveJobDescription= function( description ) {
     _saveJobDescription({ jobId: jobId(), description: description });
 };
 
-var editor= SpongeTools.editor(function( context, property ) {
+var editorContext= SpongeTools.editorContext(function( context, property ) {
 
     switch ( property ) {
         case 'title': saveJobTitle(context.title); break;
@@ -117,12 +117,12 @@ T.helper('model', function() {
     return model.name;
 });
 
-T.helper('descriptionTitle', function() {
-    return editor(this.description, 'title');
+T.helper('descriptionTitleContext', function() {
+    return editorContext(this.description, 'title');
 });
 
-T.helper('descriptionText', function() {
-    return editor(this.description, 'text');
+T.helper('descriptionTextContext', function() {
+    return editorContext(this.description, 'text');
 });
 
 var setLogResult= function( content ) {

@@ -108,7 +108,7 @@
 
 <template name="mainNavigationHeader">
     <div class="nav-row" style="text-align: center;">
-        <a sort="date" href="#" class="sort-date">{{sortDate}} Date</a><a sort="name" href="#" class="sort-name">{{sortName}} </i>Name</a>
+        <a sort="date" href="#" class="sort-date">{{sortDate}} Date</a><a sort="name" href="#" class="sort-name">{{sortName}} Name</a>
         <div class="btn-group">
             <button class="btn btn-mini {{switchMy}}" type="button">mine</button>
             <button class="btn btn-mini {{switchAll}}" type="button">all</button>
@@ -180,6 +180,7 @@
 </template>
 
 <template name="mainRightContent">
-    {{content}}
+    {{> content context}}
 </template>
 
+<template name="empty"></template>

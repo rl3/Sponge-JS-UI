@@ -42,10 +42,10 @@
             </tr>
         {{/if}}
         <tr valign="top">
-            <th align="right">Title:</th><td class="">{{descriptionTitle}}</td>
+            <th align="right">Title:</th><td class="">{{> edit descriptionTitleContext}}</td>
         </tr>
         <tr valign="top">
-            <th align="right">Description:</th><td class="">{{descriptionText}}</td>
+            <th align="right">Description:</th><td class="">{{> edit descriptionTextContext}}</td>
         </tr>
         {{> jobArgs inArgs}}
         {{> jobResult}}

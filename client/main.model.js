@@ -16,22 +16,22 @@ var str2Oid= SpongeTools.str2Oid;
 
 var T= SpongeTools.Template;
 
-var editor= SpongeTools.editor(function( context ) {
+var editorContext= SpongeTools.editorContext(function( context ) {
     injectVar(context, 'changed')(true);
 });
 
 T.select('model');
 
-T.helper('name', function() {
-    return editor(this, 'name');
+T.helper('nameContext', function() {
+    return editorContext(this, 'name');
 });
 
 T.helper('id', function() {
     return valueToString(str2Oid(this._id));
 });
 
-T.helper('description', function() {
-    return editor(this, 'description');
+T.helper('descriptionContext', function() {
+    return editorContext(this, 'description');
 });
 
 T.helper('args', function() {

@@ -427,28 +427,24 @@ T.events({
  */
 T.select('mainRightContent');
 
-T.helper('content', function() {
-    var template;
+T.helper('context', function() {
     switch ( session('view') ) {
-        case 'model':
-            template= Template.model;
-            context= cleanObject(getModel(modelId()));
-            break;
-        case 'job':
-            template= Template.job;
-            context= cleanObject(getJob(jobId()));
-            break;
+        case 'model': return cleanObject(getModel(modelId()));
+        case 'job': return cleanObject(getJob(jobId()));
         case 'user':
-            template= Template.userEdit;
             var username= userName();
             if ( !username ) return;
 
             var user= Meteor.users.findOne({ username: username }) || { username: username, profile: {} };
-            context= cleanObject(user);
-            break;
+            return cleanObject(user);
     }
+});
 
-    if ( !template || !context ) return;
-
-    return new Handlebars.SafeString(template(context));
+T.helper('content', function() {
+    switch ( session('view') ) {
+        case 'model': return Template.model;
+        case 'job':   return Template.job;
+        case 'user':  return Template.userEdit;
+    }
+    return null;
 });

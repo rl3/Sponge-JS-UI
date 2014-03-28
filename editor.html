@@ -1,9 +1,9 @@
 
 <template name="edit">
     {{#if asTr}}
-        {{#if editMode}}<tr class="editMode value">{{editTemplate}}<td><i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i></td></tr>{{else}}<tr class="viewMode value">{{viewTemplate}}<td><i class="icon-edit"></i></td></tr>{{/if}}
+        {{#if editMode}}<tr class="editMode value">{{> editTemplate editTemplateContext}}<td><i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i></td></tr>{{else}}<tr class="viewMode value">{{> viewTemplate viewTemplateContext}}<td><i class="icon-edit"></i></td></tr>{{/if}}
     {{else}}
-        {{#if editMode}}<span class="editMode value">{{editTemplate}} <i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i></span>{{else}}<span class="viewMode value">{{viewTemplate}} <i class="icon-edit"></i></span>{{/if}}
+        {{#if editMode}}<span class="editMode value">{{> editTemplate editTemplateContext}} <i class="icon-ok-sign"></i> <i class="icon-remove-sign"></i></span>{{else}}<span class="viewMode value">{{> viewTemplate viewTemplateContext}} <i class="icon-edit"></i></span>{{/if}}
     {{/if}}
 </template>
 
@@ -34,7 +34,7 @@
         <span class="valueName"><input type="text" name="name" title="Argument's name (required)" placeholder="Argument's name (required)" class="span1" value="{{value.name}}" required /></span>
         <span class="valueType"><select name="type" title="Argument's type (required)" class="span1" value="{{value.type}}" required>
             {{#each types value.type}}
-                <option {{#if selected}}selected{{/if}} value="{{type}}">{{type}}</option>
+                <option {{selected}} value="{{type}}">{{type}}</option>
             {{/each}}
         </select></span>
         {{#if value.sparse}}

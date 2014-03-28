@@ -11,7 +11,7 @@
                                     <a tabindex="-1" href="#">{{type}}</a>
                                     <ul class="dropdown-menu">
                                         {{#each versions}}
-                                            <li><a tabindex="-1" href="#">Version {{version}}</a>
+                                            <li><a tabindex="-1" href="#">Version {{version}}</a></li>
                                         {{/each}}
                                     </ul>
                                 </li>
@@ -91,9 +91,11 @@
         {{#each setValues}}
             <tr>
                 {{#each this}}
-                    <t{{#if header}}h{{else}}d{{/if}} title="{{description}}{{#if unit}} in {{unit}}{{/if}}">
-                        {{value}}
-                    </t{{#if header}}h{{else}}d{{/if}}>
+                    {{#if header}}
+                        <th title="{{description}}{{#if unit}} in {{unit}}{{/if}}">{{value}}</th>
+                    {{else}}
+                        <td title="{{description}}{{#if unit}} in {{unit}}{{/if}}">{{value}}</td>
+                    {{/if}}
                 {{/each}}
             </tr>
         {{else}}

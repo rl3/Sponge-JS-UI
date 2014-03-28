@@ -12,17 +12,15 @@ SpongeTools.advancedView= function( value ) {
     return session('advancedView');
 };
 
-SpongeTools.editor= function( onChange ) {
+SpongeTools.editorContext= function( onChange ) {
     return function( context, property ) {
-        return new Handlebars.SafeString(Template.edit(
-            new GuiTools.Edit({
-                get: function() { return context[property]; },
-                set: function( newValue ) {
-                    context[property]= newValue;
-                    if ( onChange ) onChange(context, property);
-                },
-            })
-        ));
+        return new GuiTools.Edit({
+            get: function() { return context[property]; },
+            set: function( newValue ) {
+                context[property]= newValue;
+                if ( onChange ) onChange(context, property);
+            },
+        })
     }
 };
 

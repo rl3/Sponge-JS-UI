@@ -45,8 +45,10 @@
                 </label>
             {{/each}}
         </td>
-        <td>
-            {{inputType}}
+        <td>XXX
+            {{#if inputType}}
+                {{> inputTypeTemplate}}
+            {{/if}}
         </td>
     </tr></table>
 </template>
@@ -173,7 +175,7 @@
 </template>
 
 <template name="valueInputBoolean">
-    <input type="checkbox" {{#if value}}checked{{/if}} />
+    <input type="checkbox" {{checked}} />
 </template>
 
 <template name="valueInputConst">
@@ -187,9 +189,9 @@
 
 <template name="valueInputSet">
     <table>
-        <tr><td><label><input type="checkbox" class="select-all" /><b>all</b></td></tr>
+        <tr><td><label><input type="checkbox" class="select-all" /><b>all</b></label></td></tr>
         {{#each values}}
-            <tr><td><label><input type="checkbox" class="value" value="{{value}}" {{checked}} />{{value}}</td></tr>
+            <tr><td><label><input type="checkbox" class="value" value="{{value}}" {{checked}} />{{value}}</label></td></tr>
         {{/each}}
     </table>
 </template>

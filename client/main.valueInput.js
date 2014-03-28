@@ -43,6 +43,9 @@ var getTempValue= function( name, initValue ) {
 
 
 var inputType= function() {
+    var result= getTempValue('inputType').apply(null, arguments);
+    console.log('inputType', arguments, result);
+    return result;
     return getTempValue('inputType').apply(null, arguments);
 };
 
@@ -207,10 +210,15 @@ T.events({
 });
 
 T.helper('inputType', function() {
-    var type= inputType();
-    if ( !type ) return;
+console.log('inputTypeXXX')
+    return inputType();
+});
 
-    return new Handlebars.SafeString(Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)]());
+T.helper('inputTypeTemplate', function() {
+    var type= inputType();
+    if ( !type ) return null;
+
+    return Template['inputType' + type.charAt(0).toUpperCase() + type.slice(1)] || null;
 });
 
 $(function() {
@@ -527,6 +535,9 @@ $(function() {
 
 T.select('valueInputBoolean');
 T.helper('value', simpleValueGet);
+T.helper('checked', function() {
+    return simpleValueGet() ? 'checked' : '';
+});
 T.events({
     'change input': function( event ) {
         singleValue.newValue= event.currentTarget.checked;

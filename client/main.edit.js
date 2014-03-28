@@ -4,10 +4,10 @@ var Edit= function( options ) {
     this.options= options;
     if ( 'get' in options ) this.get= options.get;
     if ( 'set' in options ) this.set= options.set;
-    this.viewTemplateName= options.viewTemplateName || 'editViewText';
-    this.editTemplateName= options.editTemplateName || 'editEditText';
     this.asTr= options.asTr || false;
 
+    this.viewTemplateName= options.viewTemplateName || 'editViewText';
+    this.editTemplateName= options.editTemplateName || 'editViewText';
     this.editMode= SpongeTools.ReactiveValue(false);
 };
 Edit.prototype.get= function() {
@@ -18,11 +18,14 @@ Edit.prototype.set= function( value ) {
 };
 
 Template.edit.editTemplate= function() {
+    return Template[this.viewTemplateName || 'editViewText'] || null;
+};
+Template.edit.editTemplateContext= function() {
     var self= this;
     this.tempValue= this.get();
     if ( _.isObject(this.tempValue) ) this.tempValue= _.clone(this.tempValue);
 
-    return new Handlebars.SafeString(Template[this.editTemplateName]({
+    return {
         value: this.tempValue,
         set: function( property, value ) {
             if ( property ) {
@@ -31,10 +34,13 @@ Template.edit.editTemplate= function() {
             }
             self.tempValue= value;
         },
-    }));
+    };
 };
 Template.edit.viewTemplate= function() {
-    return new Handlebars.SafeString(Template[this.viewTemplateName](this.get()));
+    return Template[this.viewTemplateName || 'editViewText'] || null;
+};
+Template.edit.viewTemplateContext= function() {
+    return this.get();
 };
 
 Template.edit.editMode= function() {
@@ -68,7 +74,7 @@ Template.editEditType.types= function( currentType ) {
     return types.map(function( type ) {
         return {
             type: type,
-            selected: type == currentType,
+            selected: type == currentType ? 'selected' : '',
         }
     });
 }

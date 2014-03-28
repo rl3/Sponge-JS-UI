@@ -80,8 +80,8 @@ T.helper('changePasswordAllowed', function() {
     return !SpongeTools.hasRole('chpwDenied', this);
 });
 
-T.helper('chpwAllowed', function() {
-    return !SpongeTools.hasRole('chpwDenied', this);
+T.helper('chpwAllowedChecked', function() {
+    return SpongeTools.hasRole('chpwDenied', this) ? '' : 'checked';
 });
 
 T.events({

@@ -55,6 +55,7 @@ T.helper('nameClass', function() {
 
 T.events({
     'click a.editValue': function( event ) {
+console.log('click a.editValue')
         if ( options.simple ) {
             SpongeTools.showSingleValueDialog({
                 get: this.getValue,

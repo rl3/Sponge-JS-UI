@@ -3,10 +3,10 @@
     <table>
         {{> modelChangedRow}}
         <tr>
-            <th align="right">Name:</th><td>{{name}} <span class="id">({{id}})</span></td>
+            <th align="right">Name:</th><td>{{> edit nameContext}} <span class="id">({{id}})</span></td>
         </tr>
         <tr>
-            <th align="right">Description:</th><td>{{description}}</td>
+            <th align="right">Description:</th><td>{{> edit descriptionContext}}</td>
         </tr>
         <tr>
             <th align="right">Last Changed:</th><td>{{timeStamp}}</td>
@@ -84,7 +84,7 @@
 
 <template name="modelInputDefinition">
     <tr valign="top">
-        <td>{{name}}<td>
+        <td>{{name}}</td>
         <td>{{> objectType}}</td>
     </tr>
 </template>
