@@ -105,6 +105,10 @@ var getType= function() {
     return (getValue() || {}).type;
 };
 
+var getInfo= function() {
+    return (getValue() || {}).info;
+};
+
 /*
  * TEMPLATE valueInputTitle
  * shows title and description of value to change/inspect
@@ -249,6 +253,7 @@ T.events({
             get: function() { return newValue(); },
             set: function( value ) { newValue(value); },
             type: getType(),
+            info: getInfo(),
         });
     }
 });
@@ -295,13 +300,14 @@ T.events({
         invalidate('arraylist');
 
         // open newly added value in singleValueInput
-        sshowSingleValue({
+        showSingleValue({
             get: function() { return array[index]; },
             set: function( value ) {
                 array[index]= value;
                 invalidate('arraylist');
             },
             type: getType(),
+            info: getInfo(),
         });
     },
     'click a.value': function() {
@@ -311,6 +317,7 @@ T.events({
             get: function() { return v(); },
             set: function( value ) { v(value); },
             type: getType(),
+            info: getInfo(),
         });
     }
 });
@@ -359,6 +366,7 @@ T.events({
             get: function() { return v(); },
             set: function( value ) { v(value); },
             type: getType(),
+            info: getInfo(),
         });
     }
 });
