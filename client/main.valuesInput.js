@@ -7,6 +7,7 @@ var injectGlobalVar= SpongeTools.injectGlobalVar;
 var options= {};
 var onClose= undefined;
 var values= undefined;
+var errorMessages= SpongeTools.ReactiveValue([]);
 
 var dialogInvalidator= SpongeTools.getInvalidator('valuesInputDialog');
 
@@ -36,12 +37,13 @@ var parseValues= function() {
 
 
 var verifyValues= function( values ) {
+    var result= [];
     for ( var name in values ) {
         if ( typeof values[name] === 'undefined' ) {
-            return false;
+            result.push('Value for "' + name + '" is mandatory');
         }
     }
-    return true;
+    return result;
 };
 
 T.helper('values', function() {
@@ -53,9 +55,26 @@ T.helper('nameClass', function() {
     return this.info && this.info.optional ? 'optional' : 'mandatory';
 });
 
+T.helper('topTemplate', function() {
+    return options.topTemplate || null;
+});
+T.helper('topTemplateContext', function() {
+    return options.topTemplateContext;
+});
+
+T.helper('bottomTemplate', function() {
+    return options.bottomTemplate || null;
+});
+T.helper('bottomTemplateContext', function() {
+    return options.bottomTemplateContext;
+});
+
+T.helper('errorMessages', function() {
+    return errorMessages();
+});
+
 T.events({
     'click a.editValue': function( event ) {
-console.log('click a.editValue')
         if ( options.simple ) {
             SpongeTools.showSingleValueDialog({
                 get: this.getValue,
@@ -75,10 +94,12 @@ $(function() {
 
         var _values= parseValues();
 
-        if ( !verifyValues(_values) ) {
-            alert('You have to set all values');
-            return;
-        }
+        var _errorMessages= verifyValues(_values);
+        if ( options.validate ) _errorMessages= _errorMessages.concat(options.validate(_values) || []);
+
+        errorMessages(_errorMessages);
+
+        if ( _errorMessages.length ) return;
 
         $('#valuesInput').modal('hide');
 
@@ -96,6 +117,7 @@ SpongeTools.valuesInput= function( _values, _options, _onClose ) {
         _onClose= _options;
         _options= {};
     }
+    errorMessages([]);
     values= _values;
     onClose= _onClose;
     options= _options || {};

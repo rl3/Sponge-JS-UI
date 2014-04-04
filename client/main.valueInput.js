@@ -19,9 +19,14 @@ var ObjectId= SpongeTools.ObjectId;
 var injectVar= SpongeTools.injectVar;
 var injectGlobalVar= SpongeTools.injectGlobalVar;
 
+var globalInvalidator= SpongeTools.getInvalidator('valueInput');
+
 var currentValue;
 var tempValue= {};
-var invalidData= {};
+
+var arraylistInvalidator= SpongeTools.getInvalidator('arraylist');
+var rangeviewInvalidator= SpongeTools.getObjectInvalidator('rangeview');
+var singlevalueInvalidator= SpongeTools.getInvalidator('singlevalue');
 
 // maximum number of object's names to load
 var limitDataObjs= 30;
@@ -43,9 +48,6 @@ var getTempValue= function( name, initValue ) {
 
 
 var inputType= function() {
-    var result= getTempValue('inputType').apply(null, arguments);
-    console.log('inputType', arguments, result);
-    return result;
     return getTempValue('inputType').apply(null, arguments);
 };
 
@@ -58,9 +60,11 @@ var newValue= function( _newValue ) {
 
     return getTempValue(type + '.value').apply(null, arguments);
 };
-var getNewValueInit= function( defaultValue ) {
-    var result= newValue();
-    return result === undefined ? newValue(defaultValue) : result;
+var getNewValueInit= function( type, defaultValue ) {
+    var value= getTempValue(type + '.value');
+    var result= value();
+
+    return result === undefined ? value(defaultValue) : result;
 };
 
 var singleValue= {
@@ -69,17 +73,6 @@ var singleValue= {
     type: undefined,
     description: undefined,
     newValue: undefined,
-};
-
-/*
- * invalidate a template
- */
-var _invalidateCounter= 0;
-var invalidate= function( name ) {
-    return injectVar(invalidData, name)(_invalidateCounter++);
-};
-var isInvalid= function( name ) {
-    return injectVar(invalidData, name)();
 };
 
 /*
@@ -93,14 +86,9 @@ var getValue= function() {
     currentValue= value;
 
     // empty current values
+    globalInvalidator(true);
     tempValue= {};
-/*
-    if ( tempValue._meta ) {
-        Object.keys(tempValue._meta).slice().forEach(function( property ) {
-            delete tempValue._meta[property];
-        });
-    }
-*/
+
     return value;
 };
 
@@ -120,6 +108,7 @@ var getInfo= function() {
 T.select('valueInputTitle');
 
 T.helper('title', function() {
+    globalInvalidator();
     var value= getValue();
     if ( ! value ) return;
 
@@ -127,6 +116,7 @@ T.helper('title', function() {
 });
 
 T.helper('description', function() {
+    globalInvalidator();
     var value= getValue();
     if ( ! value ) return;
 
@@ -154,6 +144,7 @@ var typeMapper= function( type ) {
 T.select('valueInputBody');
 
 T.helper('inputTypes', function() {
+    globalInvalidator();
     var value= getValue();
 
     if ( !value ) return;
@@ -210,11 +201,12 @@ T.events({
 });
 
 T.helper('inputType', function() {
-console.log('inputTypeXXX')
+    globalInvalidator();
     return inputType();
 });
 
 T.helper('inputTypeTemplate', function() {
+    globalInvalidator();
     var type= inputType();
     if ( !type ) return null;
 
@@ -273,10 +265,14 @@ T.events({
 
 T.select('inputTypeArray');
 
-T.helper('values', function() {
-    isInvalid('arraylist');
+var getArrayValue= function() {
+    return getNewValueInit('array', { $array: [] });
+};
 
-    var currentValue= getNewValueInit({ $array: [] });
+T.helper('values', function() {
+    arraylistInvalidator();
+
+    var currentValue= getArrayValue();
 
     return currentValue.$array.map(function( value, i ) {
         return {
@@ -284,7 +280,7 @@ T.helper('values', function() {
             value: function( newValue ) {
                 if ( arguments.length ) {
                     currentValue.$array[i]= newValue;
-                    invalidate('arraylist');
+                    arraylistInvalidator(true);
                 }
                 return currentValue.$array[i];
             },
@@ -298,21 +294,21 @@ T.helper('value', function() {
 
 T.events({
     'click a.remove': function( event ) {
-        getNewValueInit({ $array: [] }).$array.splice(this.index, 1);
-        invalidate('arraylist');
+        getArrayValue().$array.splice(this.index, 1);
+        arraylistInvalidator(true);
     },
     'click a.add': function( event ) {
-        var array= getNewValueInit({ $array: [] }).$array;
+        var array= getArrayValue().$array;
         var index= array.length;
         array.push(undefined);
-        invalidate('arraylist');
+        arraylistInvalidator(true);
 
         // open newly added value in singleValueInput
         showSingleValue({
             get: function() { return array[index]; },
             set: function( value ) {
                 array[index]= value;
-                invalidate('arraylist');
+                arraylistInvalidator(true);
             },
             type: getType(),
             info: getInfo(),
@@ -337,11 +333,15 @@ T.events({
 
 T.select('inputTypeRange');
 
+var getRangeValue= function() {
+    return getNewValueInit('range', { $range: {} });
+};
+
 var buildRangeValue= function( name ) {
-    var $range= getNewValueInit({ $range: {} }).$range;
+    var $range= getRangeValue().$range;
     return function( newValue ) {
         if ( arguments.length ) {
-            invalidate('rangeview.' + name);
+            rangeviewInvalidator(name, true);
             $range[name]= newValue;
         }
         return $range[name];
@@ -349,19 +349,19 @@ var buildRangeValue= function( name ) {
 };
 
 T.helper('valueFrom', function() {
-    isInvalid('rangeview.from');
+    rangeviewInvalidator('from');
     var value= buildRangeValue('from')
     return { value: value, valueText: function() { return valueToString(value()); } };
 });
 
 T.helper('valueTo', function() {
-    isInvalid('rangeview.to');
+    rangeviewInvalidator('to');
     var value= buildRangeValue('to')
     return { value: value, valueText: function() { return valueToString(value()); } };
 });
 
 T.helper('valueStep', function() {
-    isInvalid('rangeview.step');
+    rangeviewInvalidator('step');
     var value= buildRangeValue('step')
     return { value: value, valueText: function() { return valueToString(value()); } };
 });
@@ -383,7 +383,7 @@ T.events({
 T.select('singleValueInputTitle');
 
 T.helper('type', function() {
-    isInvalid('singlevalue');
+    singlevalueInvalidator();
 
     if ( !singleValue ) return;
 
@@ -391,7 +391,7 @@ T.helper('type', function() {
 });
 
 T.helper('description', function() {
-    isInvalid('singlevalue');
+    singlevalueInvalidator();
 
     if ( !singleValue ) return;
 
@@ -407,13 +407,13 @@ T.helper('description', function() {
 T.select('singleValueInputBody');
 
 T.helper('input', function() {
-    isInvalid('singlevalue');
+    singlevalueInvalidator();
 
-    if ( !singleValue ) return;
+    if ( !singleValue ) return null;
 
     var type= singleValue.type;
 
-    if ( !type ) return;
+    if ( !type ) return null;
 
     var templateName= 'valueInput';
 
@@ -434,10 +434,10 @@ T.helper('input', function() {
             break;
     }
 
-    if ( !Template[templateName] ) return;
+    if ( !Template[templateName] ) return null;
 
     Template[templateName].init();
-    return new Handlebars.SafeString(Template[templateName]());
+    return Template[templateName];
 });
 
 
@@ -689,12 +689,19 @@ T.addFn('rendered', function() {
         $('.datepicker').css('z-index', zindex + 1);
     }).on('changeDate', function( event ) {
         singleValue.newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
-    }).on('change', function( event ) {
-        var $this= $(this);
-        $this.datepicker('setValue', $this.val());
-        var date= $input.data('datepicker').date;
-        singleValue.newValue= new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    }).focus();
+    }).on('change', (function() {
+        // semaphore to prevent calling 'change' during setValue
+        var running= false;
+        return function( event ) {
+            if ( running ) return;
+            var $this= $(this);
+            running= true;
+            $this.datepicker('setValue', $this.val());
+            running= false;
+            var date= $this.data('datepicker').dates.get();
+            singleValue.newValue= new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        };
+    })()).focus();
     var startValue= singleValue.get();
     if ( startValue ) {
         $input.datepicker('setValue', startValue);
@@ -907,7 +914,7 @@ T.helper('handler', function() {
     if ( !bounds ) return;
 
     var selectedType= getTempValue('modelVariant')();
-    if ( !('schemas' in selectedType) ) return;
+    if ( !selectedType || !('schemas' in selectedType) ) return;
 
     var schemas= selectedType.schemas;
     if ( !schemas.length ) return;
@@ -990,7 +997,7 @@ var commonNearestMapEvents= function( valueSetter ) {
 T.select('inputTypeNearest');
 
 var getNearestValue= function() {
-    return getNewValueInit({ type: 'Nearest', selector: { objectType: undefined, version: undefined, tags: undefined, }, });
+    return getNewValueInit('nearest', { type: 'Nearest', selector: { objectType: undefined, version: undefined, tags: undefined, }, });
 };
 
 var setNearestSelector= function( newSelector ) {
@@ -1055,7 +1062,7 @@ T.events({
 T.select('inputTypeMap');
 
 var getMapValue= function() {
-    return getNewValueInit({ type: 'Map', selector: { objectType: undefined, version: undefined, mapname: undefined, }, });
+    return getNewValueInit('map', { type: 'Map', selector: { objectType: undefined, version: undefined, mapname: undefined, }, });
 };
 
 var setMapSelector= function( newSelector ) {
@@ -1077,15 +1084,15 @@ T.events(commonNearestMapEvents(setMapSelector));
 var getMaps= function() {
     var sel= getMapValue().selector;
 
-    var version;
+    var versions;
     if ( typeof sel.version === 'object' && sel.version.$in ) {
-        version= sel.version.$in;
+        versions= sel.version.$in;
     }
     else {
-        version= [sel.version];
+        versions= [sel.version];
     }
 
-    var maps= getMapnames(sel.objectType, version);
+    var maps= getMapnames(sel.objectType, versions);
     if ( !maps || maps.length === 0 ) return;
 
     return maps;
@@ -1117,7 +1124,7 @@ T.events({
 
 var showSingleValue= function( _singleValue ) {
     singleValue= _singleValue;
-    invalidate('singlevalue');
+    singlevalueInvalidator(true);
     SpongeTools.showModal($('#singleValueInput'));
 };
 

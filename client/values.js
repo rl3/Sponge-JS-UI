@@ -220,7 +220,7 @@ var _valueToString= function( value, options ) {
  */
 var valueToString= function() {
     var value= _valueToString.apply(null, arguments);
-    return value ? new Handlebars.SafeString(value) : value;
+    return value ? new Spacebars.SafeString(value) : value;
 };
 
 var buildValue= function( name, type, valueFn, info ) {

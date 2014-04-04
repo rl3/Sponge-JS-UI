@@ -68,6 +68,7 @@
             </tr>
         {{/if}}
     </table>
+    {{runModelHelper}}
 </template>
 
 <template name="modelChangedRow">
@@ -116,3 +117,7 @@
     {{/with}}
 </template>
 
+<template name="modelRunArgsBottom">
+    <tr valign="top"><td align="right">job title:</td><td><input class="span3" type="text" name="job-title" value=""></td></tr>
+    <tr valign="top"><td align="right">job description:</td><td><textarea class="span3" rows="3" name="job-description">{{defaultJobDescription}}</textarea></td></tr>
+</template>

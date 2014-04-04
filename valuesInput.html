@@ -23,8 +23,20 @@
     {{#if values}}
         <table>
             <tr>
+                <td colspan=2 class="errorMessages">
+                    {{#if errorMessages}}
+                        <ul>
+                            {{#each errorMessages}}
+                                <li>{{this}}</li>
+                            {{/each}}
+                        </ul>
+                    {{/if}}
+                </td>
+            </tr>
+            <tr>
                 <th>Name</th><th>Value</th>
             </tr>
+            {{> topTemplate topTemplateContext}}
             {{#each values}}
                 <tr valign="top">
                     <td align="right" class="{{nameClass}}">{{name}}{{> valueInfo info}}:</td>
@@ -33,6 +45,7 @@
                     </td>
                 </tr>
             {{/each}}
+            {{> bottomTemplate bottomTemplateContext}}
         </table>
     {{/if}}
 </template>

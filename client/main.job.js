@@ -68,7 +68,8 @@ var deleteJob= function() {
     var _jobId= jobId();
     _deleteJob(_jobId, function() {
         SpongeTools.invalidateJobList(true);
-        invalidateJob(_jobId, true);
+        jobId(undefined);
+        SpongeTools.localSession('main-navigation')('view', undefined);
     });
     jobId(undefined);
 };
@@ -96,18 +97,18 @@ T.helper('statusClass', function() {
 });
 
 T.helper('status', function() {
-    if ( this.status.error )     return new Handlebars.SafeString('Error:<br /><code>' + this.status.error + '</code>');
+    if ( this.status.error )     return new Spacebars.SafeString('Error:<br /><code>' + this.status.error + '</code>');
     if ( this.status.success )   return 'Successfully finished';
     if ( !this.status.finished ) return 'Running';
     return '';
 });
 
 T.helper('startTime', function() {
-    return this.status.started.toLocaleString();
+    return this.status && this.status.started && this.status.started.toLocaleString();
 });
 
 T.helper('finishTime', function() {
-    return this.status.finished && this.status.finished.toLocaleString();
+    return this.status && this.status.finished && this.status.finished.toLocaleString();
 });
 
 T.helper('model', function() {
@@ -196,7 +197,7 @@ var showArgs= function( context ) {
 };
 
 T.helper('showHideArgsText', function() {
-    return new Handlebars.SafeString('<i class="' + (showArgs(this)() ? 'icon-chevron-down' : 'icon-chevron-right') + '"></i>');
+    return new Spacebars.SafeString('<i class="' + (showArgs(this)() ? 'icon-chevron-down' : 'icon-chevron-right') + '"></i>');
 });
 
 T.helper('showArgs', function() {

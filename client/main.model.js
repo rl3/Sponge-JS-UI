@@ -10,9 +10,35 @@ var saveModel= function( model ) {
     _saveModel[type](model);
 };
 
+var _getModel= SpongeTools.getCachedData('getModel');
+var getModel= function() {
+    var modelId= SpongeTools.modelId();
+    if ( !modelId ) return;
+
+    return _getModel(modelId);
+};
+
+var _getModelArgs= SpongeTools.getCachedData('getModelArgs');
+var getModelArgs= function() {
+    var modelId= SpongeTools.modelId();
+    if ( !modelId ) return;
+
+    return _getModelArgs(modelId);
+};
+
+var _runModel= SpongeTools.getCachedData('startJob', 2000);
+var runModel= function( args, details ) {
+    return _runModel(SpongeTools.modelId(), args, details, function() {
+        SpongeTools.invalidateJobList(true);
+    });
+};
+
 var injectVar= SpongeTools.injectVar;
 var valueToString= SpongeTools.valueToString;
 var str2Oid= SpongeTools.str2Oid;
+
+var runModelInvalidator= SpongeTools.getInvalidator();
+var runModelActive= false;
 
 var T= SpongeTools.Template;
 
@@ -132,9 +158,59 @@ T.events({
         injectVar(this, 'changed')(false);
     },
     'click a.modelRun': function() {
-        SpongeTools.showModal($('#modelRun'));
+        runModelActive= true;
+        runModelInvalidator(true);
     },
 });
+
+/*
+ * empty helper to open model args dialog and start model
+ */
+T.helper('runModelHelper', function() {
+    runModelInvalidator();
+    if ( !runModelActive ) return;
+
+    var model= getModel();
+    var modelArgs= getModelArgs();
+
+    if ( !model || !modelArgs ) return;
+
+    runModelActive= false;
+
+    var args= SpongeTools.buildValues(modelArgs, 'args', this);
+
+    SpongeTools.valuesInput(
+        args, {
+            title: model.name,
+            simple: false,
+            bottomTemplate: Template.modelRunArgsBottom,
+            bottomTemplateContext: model,
+            validate: function( args ) {
+                var desc= getRunModelDescription();
+                var result= []
+                if ( !desc.title ) result.push('Job title missing');
+                if ( !desc.text ) result.push('Description missing');
+                return result;
+            },
+        }, function( args ) {
+            return runModel({
+                args: args,
+            },
+            {
+                description: getRunModelDescription(),
+            });
+        }
+    );
+});
+
+
+var getRunModelDescription= function() {
+    var $base= $('#valuesInput');
+    return {
+        title: $base.find('[name="job-title"]').val(),
+        text: $base.find('[name="job-description"]').val(),
+    };
+};
 
 /**
  * TEMPLATE modelChangedRow
@@ -175,4 +251,21 @@ return;
     return SpongeTools.editableTypeMap(this, 'result', this.onChange);
 });
 
+
+/**
+ * TEMPLATE modelRunArgsBottom
+ */
+
+T.select('modelRunArgsBottom');
+
+var pad= function(v) {
+    v= String(v);
+    if ( v.length < 2 ) v= '0' + v;
+    return v;
+}
+
+T.helper('defaultJobDescription', function() {
+    var now= new Date();
+    return 'started at ' + now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+});
 

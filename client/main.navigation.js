@@ -83,7 +83,7 @@ var setSort= function( key, order ) {
 };
 
 var sortChar= function( order ) {
-    return new Handlebars.SafeString(order > 0 ? '&#9660;' : '&#9650;');
+    return new Spacebars.SafeString(order > 0 ? '&#9660;' : '&#9650;');
 };
 
 T.helper('sortDate', function() {

@@ -1,11 +1,11 @@
 
 var session= SpongeTools.localSession('global');
 
-Handlebars.registerHelper('advancedView', function() {
+UI.registerHelper('advancedView', function() {
     return SpongeTools.advancedView();
 });
 
-Handlebars.registerHelper('isAdmin', SpongeTools.isAdmin);
+UI.registerHelper('isAdmin', SpongeTools.isAdmin);
 
 SpongeTools.advancedView= function( value ) {
     if ( arguments.length ) session('advancedView', value);
@@ -15,8 +15,9 @@ SpongeTools.advancedView= function( value ) {
 SpongeTools.editorContext= function( onChange ) {
     return function( context, property ) {
         return new GuiTools.Edit({
-            get: function() { return context[property]; },
+            get: function() { return context ? context[property] : undefined; },
             set: function( newValue ) {
+                if ( !context ) return;
                 context[property]= newValue;
                 if ( onChange ) onChange(context, property);
             },
