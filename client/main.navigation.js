@@ -179,6 +179,9 @@ T.helper('selected', function() {
 T.events({
     'click a': function() {
         modelId(undefined);
+
+        // if model is current view, reset view to nothing
+        if ( session('view') === 'model' ) session('view', null);
         return false;
     }
 });

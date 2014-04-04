@@ -95,7 +95,7 @@ T.helper('inputs', function() {
     var changedFn= injectVar(this, 'changed');
     var inputChangedFn= injectVar(this, 'inputChanged');
     var model= this;
-    var inputDefs= model.definition.inputs || model.inputDefinitions;
+    var inputDefs= (model.definition || {}).inputs || model.inputDefinitions;
     if ( !inputDefs ) return;
 
     var inputInfo= (model.definition.info || {}).inputs || {};
