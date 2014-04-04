@@ -27,12 +27,16 @@ jQuery(function( $ ) {
             var lon= +$a.attr('lon');
             var infoTitle= $a.attr('info-title');
             var infoText= $a.attr('info-text');
-            var options= {};
+            var options= {
+                center: true,
+            };
             if ( infoTitle || infoText ) {
                 options.infotext= '<div class="map-infotext"><div class="title">' + (infoTitle || '') + '</div><div class="text">' + (infoText || '') + '</div></div>';
             }
-            SpongeTools.Map.show();
-            SpongeTools.Map.addMarker(lon, lat, options);
+            SpongeTools.Map.clear();
+            SpongeTools.Map.show(function() {
+                SpongeTools.Map.addMarker(lon, lat, options);
+            });
         })
         .on('click', '.accordion-toggle', function() {
             var $accordion= $(this).closest('.accordion');
