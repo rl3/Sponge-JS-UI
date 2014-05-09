@@ -162,7 +162,7 @@ T.helper('user', aclBuilder('users'));
 T.helper('group', aclBuilder('groups'));
 
 T.helper('checked', function( value ) {
-    if ( value ) return 'checked';
+    return !!value;
 });
 
 T.events({

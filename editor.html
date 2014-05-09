@@ -34,7 +34,7 @@
         <span class="valueName"><input type="text" name="name" title="Argument's name (required)" placeholder="Argument's name (required)" class="span1" value="{{value.name}}" required /></span>
         <span class="valueType"><select name="type" title="Argument's type (required)" class="span1" value="{{value.type}}" required>
             {{#each types value.type}}
-                <option {{selected}} value="{{type}}">{{type}}</option>
+                <option selected={{selected}} value="{{type}}">{{type}}</option>
             {{/each}}
         </select></span>
         {{#if value.sparse}}

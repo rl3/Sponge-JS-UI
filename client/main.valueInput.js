@@ -26,7 +26,6 @@ var tempValue= {};
 
 var arraylistInvalidator= SpongeTools.getInvalidator('arraylist');
 var rangeviewInvalidator= SpongeTools.getObjectInvalidator('rangeview');
-var singlevalueInvalidator= SpongeTools.getInvalidator('singlevalue');
 
 // maximum number of object's names to load
 var limitDataObjs= 30;
@@ -67,13 +66,24 @@ var getNewValueInit= function( type, defaultValue ) {
     return result === undefined ? value(defaultValue) : result;
 };
 
-var singleValue= {
-    get: function() {},
-    set: function() {},
-    type: undefined,
-    description: undefined,
-    newValue: undefined,
-};
+var singleValue= (function() {
+    var invalidator= SpongeTools.getInvalidator('singlevalue');
+    var value= {
+        get: function() {},
+        set: function() {},
+        type: undefined,
+        description: undefined,
+        newValue: undefined,
+    };
+    return function( newValue ) {
+        if ( !arguments.length ) {
+            invalidator();
+            return value;
+        }
+        invalidator(true);
+        value= newValue;
+    };
+})();
 
 /*
  * gets the current value to edit
@@ -187,7 +197,7 @@ T.helper('inputTypes', function() {
     }
 
     result.forEach(function( type ) {
-        if ( type.value === currentInputType ) type.checked= 'checked';
+        if ( type.value === currentInputType ) type.checked= true;
     });
 
     return result;
@@ -266,12 +276,11 @@ T.events({
 T.select('inputTypeArray');
 
 var getArrayValue= function() {
+    arraylistInvalidator();
     return getNewValueInit('array', { $array: [] });
 };
 
 T.helper('values', function() {
-    arraylistInvalidator();
-
     var currentValue= getArrayValue();
 
     return currentValue.$array.map(function( value, i ) {
@@ -284,6 +293,10 @@ T.helper('values', function() {
                 }
                 return currentValue.$array[i];
             },
+            remove: function() {
+                currentValue.$array.splice(i, 1);
+                arraylistInvalidator(true);
+            },
         };
     });
 });
@@ -294,8 +307,7 @@ T.helper('value', function() {
 
 T.events({
     'click a.remove': function( event ) {
-        getArrayValue().$array.splice(this.index, 1);
-        arraylistInvalidator(true);
+        if ( this.remove ) this.remove();
     },
     'click a.add': function( event ) {
         var array= getArrayValue().$array;
@@ -315,8 +327,7 @@ T.events({
         });
     },
     'click a.value': function() {
-        var self= this;
-        var v= self.value || function() {};
+        var v= this.value || function() {};
         showSingleValue({
             get: function() { return v(); },
             set: function( value ) { v(value); },
@@ -344,24 +355,24 @@ var buildRangeValue= function( name ) {
             rangeviewInvalidator(name, true);
             $range[name]= newValue;
         }
+        else {
+            rangeviewInvalidator(name);
+        }
         return $range[name];
     };
 };
 
 T.helper('valueFrom', function() {
-    rangeviewInvalidator('from');
     var value= buildRangeValue('from')
     return { value: value, valueText: function() { return valueToString(value()); } };
 });
 
 T.helper('valueTo', function() {
-    rangeviewInvalidator('to');
     var value= buildRangeValue('to')
     return { value: value, valueText: function() { return valueToString(value()); } };
 });
 
 T.helper('valueStep', function() {
-    rangeviewInvalidator('step');
     var value= buildRangeValue('step')
     return { value: value, valueText: function() { return valueToString(value()); } };
 });
@@ -383,19 +394,19 @@ T.events({
 T.select('singleValueInputTitle');
 
 T.helper('type', function() {
-    singlevalueInvalidator();
+    var sv= singleValue();
 
-    if ( !singleValue ) return;
+    if ( !sv ) return;
 
-    return SpongeTools.typeToString(singleValue.type);
+    return SpongeTools.typeToString(sv.type);
 });
 
 T.helper('description', function() {
-    singlevalueInvalidator();
+    var sv= singleValue();
 
-    if ( !singleValue ) return;
+    if ( !sv ) return;
 
-    return (singleValue.info || {}).description;
+    return (sv.info || {}).description;
 });
 
 /*
@@ -407,11 +418,11 @@ T.helper('description', function() {
 T.select('singleValueInputBody');
 
 T.helper('input', function() {
-    singlevalueInvalidator();
+    var sv= singleValue();
 
-    if ( !singleValue ) return null;
+    if ( !sv ) return null;
 
-    var type= singleValue.type;
+    var type= sv.type;
 
     if ( !type ) return null;
 
@@ -450,13 +461,17 @@ T.helper('input', function() {
  */
 
 var buildContextForModel= function() {
-    var result= getMatchingTypes(singleValue.type);
+    var sv= singleValue();
+
+    if ( !sv ) return;
+
+    var result= getMatchingTypes(sv.type);
 
     var typeNames= [];
 
     if ( !result ) return { typeName: typeNames };
 
-    result.requestedType= singleValue.type;
+    result.requestedType= sv.type;
 
     var setFn= function( typeName ) {
         injectVar(result, 'value')({
@@ -478,17 +493,21 @@ var buildContextForModel= function() {
 
 
 var simpleValueGet= function() {
-    return singleValue.get();
+    return singleValue().get();
 };
 
 var simpleValueEvents= {
     'change input': function( event ) {
         var newValue= event.currentTarget.value;
-        switch ( singleValue.type ) {
+        var sv= singleValue();
+
+        if ( !sv ) return;
+
+        switch ( sv.type ) {
             case 'Integer': newValue= parseInt(newValue, 10); break;
             case 'Double':  newValue= parseFloat(newValue); break;
         }
-        singleValue.newValue= newValue;
+        sv.newValue= newValue;
     },
 };
 
@@ -497,16 +516,21 @@ var singleValueCleanup= [];
 
 $(function() {
     $('body').delegate('#singleValueInput button.saveValue', 'click', function() {
-        singleValue.set(singleValue.newValue);
+        var sv= singleValue();
+
+        if ( !sv ) return;
+
+        sv.set(sv.newValue);
         $('#singleValueInput').modal('hide');
     }).delegate('#singleValueInput button.clearValue', 'click', function() {
-        singleValue.set(undefined);
+        singleValue().set(undefined);
         $('#singleValueInput').modal('hide');
     }).delegate('#singleValueInput', 'hide', function() {
         while ( singleValueCleanup.length ) {
             var $element= $(singleValueCleanup.shift())
             $element.detach();
         }
+        singleValue(undefined);
     });
 });
 
@@ -525,7 +549,11 @@ $(function() {
     T.select(templateName);
 
     T.addFn('init', function() {
-        singleValue.newValue= singleValue.get();
+        var sv= singleValue();
+
+        if ( !sv ) return;
+
+        sv.newValue= sv.get();
     });
     T.addFn('rendered', function() {
         var input= this.find('input, select');
@@ -536,48 +564,53 @@ $(function() {
 T.select('valueInputBoolean');
 T.helper('value', simpleValueGet);
 T.helper('checked', function() {
-    return simpleValueGet() ? 'checked' : '';
+    return !!simpleValueGet();
 });
 T.events({
     'change input': function( event ) {
-        singleValue.newValue= event.currentTarget.checked;
+        singleValue().newValue= event.currentTarget.checked;
     },
 });
 
 T.select('valueInputConst');
 
 T.helper('values', function() {
-    var values= (singleValue.info || {}).const;
+    var sv= singleValue();
+
+    if ( !sv ) return;
+
+    var values= (sv.info || {}).const;
     if ( !values ) return;
 
     return values.map(function( v ) {
         return {
             value: v,
-            selected: singleValue.newValue === v ? 'selected' : '',
+            selected: sv.newValue === v,
         };
     });
 });
 
 T.events({
     'change select': function( event ) {
-        singleValue.newValue= event.currentTarget.value;
+        singleValue().newValue= event.currentTarget.value;
     }
 });
 
 T.select('valueInputSet');
 
 T.addFn('init', function() {
-    var set= (singleValue.get() || []).slice();
+    var sv= singleValue();
+    var set= (sv.get() || []).slice();
 
     // if set consists of a single '*', select all values
-    if ( set.length === 1 && set[0] === '*' ) set= ((singleValue.info || {}).const || []).slice();
+    if ( set.length === 1 && set[0] === '*' ) set= ((sv.info || {}).const || []).slice();
 
-    singleValue.newValue= set;
+    sv.newValue= set;
 });
 
 var updateCBSelectAll= function( $container ) {
         var selectedCount= $container.find('input.value:checked').length;
-        var valueCount= ((singleValue.info || {}).const || []).length;
+        var valueCount= ((singleValue().info || {}).const || []).length;
 
         $cbSA= $container.find('input.select-all');
         $cbSA.prop('indeterminate', false);
@@ -593,13 +626,14 @@ T.addFn('rendered', function() {
 });
 
 T.helper('values', function() {
-    var values= (singleValue.info || {}).const;
+    var sv= singleValue();
+    var values= (sv.info || {}).const;
     if ( !values ) return;
 
     return values.map(function( v ) {
         return {
             value: v,
-            checked: singleValue.newValue.indexOf(v) >= 0 ? 'checked' : '',
+            checked: sv.newValue.indexOf(v) >= 0,
         };
     });
 });
@@ -611,22 +645,24 @@ T.events({
 
         var $parent= $cb.closest('table');
 
+        var sv= singleValue();
+
         if ( $cb.hasClass('select-all') ) {
             var checked= $cb.prop('checked');
             $parent.find('input.value').prop('checked', checked);
-            singleValue.newValue= checked ? ((singleValue.info || {}).const || []) : [];
+            sv.newValue= checked ? ((sv.info || {}).const || []) : [];
             return;
         }
 
         updateCBSelectAll($parent);
 
-        var set= singleValue.newValue;
+        var set= sv.newValue;
 
         if ( $cb.prop('checked') ) {
             if ( set.indexOf(value) < 0 ) set.push(value);
             return;
         }
-        singleValue.newValue= _.without(set, value);
+        sv.newValue= _.without(set, value);
     }
 });
 
@@ -656,14 +692,16 @@ T.addFn('rendered', function() {
     var $modal= $('#singleValueInput');
     var $input= $(this.find('input.color'));
 
-    var c= getColor(singleValue ? singleValue.get() : 0);
+    var sv= singleValue();
+
+    var c= getColor(sv ? sv.get() : 0);
 
     $input.colorpicker({
         format: 'rgba',
         color: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')',
     }).on('changeColor', function( event ) {
         var rgba= event.color.toRGB();
-        singleValue.newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.g) + hexPad(rgba.r);
+        singleValue().newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.g) + hexPad(rgba.r);
 /*
     }).on('create', function( event ) {
         event.color.setColor('rgba(' + c.r + ',' + c.g + ',' + c.b + ')');
@@ -688,7 +726,7 @@ T.addFn('rendered', function() {
         var zindex= $modal.css('z-index');
         $('.datepicker').css('z-index', zindex + 1);
     }).on('changeDate', function( event ) {
-        singleValue.newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
+        singleValue().newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
     }).on('change', (function() {
         // semaphore to prevent calling 'change' during setValue
         var running= false;
@@ -699,10 +737,10 @@ T.addFn('rendered', function() {
             $this.datepicker('setValue', $this.val());
             running= false;
             var date= $this.data('datepicker').dates.get();
-            singleValue.newValue= new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            singleValue().newValue= new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
         };
     })()).focus();
-    var startValue= singleValue.get();
+    var startValue= singleValue().get();
     if ( startValue ) {
         $input.datepicker('setValue', startValue);
     }
@@ -711,15 +749,17 @@ T.addFn('rendered', function() {
 
 T.select('valueInputLocation');
 T.helper('lat', function() {
-    return (singleValue.newValue || [])[1];
+    return (singleValue().newValue || [])[1];
 });
 T.helper('lon', function() {
-    return (singleValue.newValue || [])[0];
+    return (singleValue().newValue || [])[0];
 });
 var _genSetLocation= function( index ) {
     return function( event ) {
-        if ( !_.isArray(singleValue.newValue) ) singleValue.newValue= [];
-        singleValue.newValue[index]= parseFloat(event.currentTarget.value);
+        var sv= singleValue();
+
+        if ( !_.isArray(sv.newValue) ) sv.newValue= [];
+        sv.newValue[index]= parseFloat(event.currentTarget.value);
     };
 };
 T.events({
@@ -819,7 +859,7 @@ T.events({
 
         if ( !selectedType ) return;
 
-        singleValue.newValue= {
+        singleValue().newValue= {
             $ref: selectedType.schemas ? 'DataObj' : 'Model',
             selector: {
                 _id: new ObjectId(event.currentTarget.value),
@@ -895,13 +935,15 @@ T.helper('valueCount', function() {
 });
 
 T.helper('selected', function() {
-    if ( !singleValue.newValue ) return;
+    var sv= singleValue();
 
-    var id= (singleValue.newValue.selector || {})._id;
+    if ( !sv.newValue ) return;
+
+    var id= (sv.newValue.selector || {})._id;
     if ( !id ) return;
 
     if ( typeof id.toHexString === 'function' ) id= id.toHexString();
-    if ( id === this.id ) return 'SELECTED';
+    return id === this.id;
 });
 
 
@@ -938,7 +980,7 @@ T.helper('handler', function() {
             infotext: infotext,
             events: {
                 dblclick: function( event ) {
-                    singleValue.newValue= {
+                    singleValue().newValue= {
                         $ref: selectedType.schemas ? 'DataObj' : 'Model',
                         selector: {
                             _id: new ObjectId(o.properties._id),
@@ -977,7 +1019,7 @@ var commonNearestMapSelectedType= function( valueGetter ) {
 
         var selectorId= sel.objectType + '|' + sel.version.$in.join(',');
 
-        if ( this.id === selectorId ) return 'SELECTED';
+        return this.id === selectorId;
     };
 };
 
@@ -1045,7 +1087,7 @@ T.helper('loadingTags', function() {
 T.helper('tag', _getTags);
 
 T.helper('selectedTag', function() {
-    if ( getNearestValue().selector.tags === String(this) ) return 'SELECTED';
+    return getNearestValue().selector.tags === String(this);
 });
 
 T.events({
@@ -1110,7 +1152,7 @@ T.helper('loadingMaps', function() {
 T.helper('map', getMaps);
 
 T.helper('selectedMap', function() {
-    if ( getMapValue().selector.mapname === String(this) ) return 'SELECTED';
+    return getMapValue().selector.mapname === String(this);
 });
 
 T.events({
@@ -1123,8 +1165,7 @@ T.events({
 
 
 var showSingleValue= function( _singleValue ) {
-    singleValue= _singleValue;
-    singlevalueInvalidator(true);
+    singleValue(_singleValue);
     SpongeTools.showModal($('#singleValueInput'));
 };
 

@@ -41,7 +41,7 @@
         <td>
             {{#each inputTypes}}
                 <label class="radio">
-                    <input type="radio" name="inputTypes" value="{{value}}" {{checked}}>{{label}}
+                    <input type="radio" name="inputTypes" value="{{value}}" checked={{checked}}>{{label}}
                 </label>
             {{/each}}
         </td>
@@ -81,7 +81,7 @@
         <select class="typeName">
             <option style="display: none">Please select</option>
             {{#each typeName}}
-                <option {{selectedType}} value="{{id}}">{{label}}</option>
+                <option selected={{selectedType}} value="{{id}}">{{label}}</option>
             {{/each}}
         </select>
     {{/if}}
@@ -92,7 +92,7 @@
             <select class="tagName">
                 <option style="display: none">Please select</option>
                 {{#each tag}}
-                    <option {{selectedTag}} value="{{this}}">{{this}}</option>
+                    <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
                 {{/each}}
             </select>
         {{/if}}
@@ -108,7 +108,7 @@
         <select class="typeName">
             <option style="display: none">Please select</option>
             {{#each typeName}}
-                <option {{selectedType}} value="{{id}}">{{label}}</option>
+                <option selected={{selectedType}} value="{{id}}">{{label}}</option>
             {{/each}}
         </select>
     {{/if}}
@@ -119,7 +119,7 @@
             <select class="mapName">
                 <option style="display: none">Please select</option>
                 {{#each map}}
-                        <option {{selectedMap}} value="{{this}}">{{this}}</option>
+                        <option selected={{selectedMap}} value="{{this}}">{{this}}</option>
                 {{/each}}
             </select>
         {{/if}}
@@ -175,14 +175,14 @@
 </template>
 
 <template name="valueInputBoolean">
-    <input type="checkbox" {{checked}} />
+    <input type="checkbox" checked={{checked}} />
 </template>
 
 <template name="valueInputConst">
     <select>
         <option style="display: none">Please select</option>
         {{#each values}}
-            <option value="{{value}}" {{selected}}>{{value}}</option>
+            <option value="{{value}}" selected={{selected}}>{{value}}</option>
         {{/each}}
     </select>
 </template>
@@ -191,7 +191,7 @@
     <table>
         <tr><td><label><input type="checkbox" class="select-all" /><b>all</b></label></td></tr>
         {{#each values}}
-            <tr><td><label><input type="checkbox" class="value" value="{{value}}" {{checked}} />{{value}}</label></td></tr>
+            <tr><td><label><input type="checkbox" class="value" value="{{value}}" checked={{checked}} />{{value}}</label></td></tr>
         {{/each}}
     </table>
 </template>
@@ -252,7 +252,7 @@
                     <select class="span3">
                         <option value="" class="hidden">Please Select</option>
                         {{#each values}}
-                            <option value="{{id}}" {{selected}}>{{name}}</option>
+                            <option value="{{id}}" selected={{selected}}>{{name}}</option>
                         {{/each}}
                     </select>
                 {{else}}

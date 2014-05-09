@@ -29,7 +29,7 @@
                 <tr><th align="right">User Name:</th><td>{{#if newUser}}<input type="text" name="user-name" value="" />{{else}}{{username}}{{/if}}</td></tr>
                 <tr><th align="right">Full Name:</th><td><input type="text" name="full-name" value="{{profile.name}}" /></td></tr>
                 {{#if isAdmin}}
-                    <tr><th align="right">Change Password:</th><td><label><input type="checkbox" name="change-pw-allowed" {{chpwAllowedChecked}} /> User has right to change the password</label></td></tr>
+                    <tr><th align="right">Change Password:</th><td><label><input type="checkbox" name="change-pw-allowed" checked={{chpwAllowedChecked}} /> User has right to change the password</label></td></tr>
                 {{/if}}
                 {{#if changePasswordAllowed}}
                     {{#if needOldPassword}}

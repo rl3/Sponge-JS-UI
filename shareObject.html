@@ -26,8 +26,8 @@
                             {{#each user}}
                                 <tr>
                                     <td align="right">{{name}}</td>
-                                    <td align="middle"><input type="checkbox" data="read" {{checked read}} /></td>
-                                    <td align="middle"><input type="checkbox" data="write" {{checked write}} /></td>
+                                    <td align="middle"><input type="checkbox" data="read" checked={{checked read}} /></td>
+                                    <td align="middle"><input type="checkbox" data="write" checked={{checked write}} /></td>
                                 </tr>
                             {{/each}}
                         </table>
@@ -37,8 +37,8 @@
                             {{#each group}}
                                 <tr>
                                     <td align="right">{{name}}</td>
-                                    <td align="middle"><input type="checkbox" data="read" {{checked read}} /></td>
-                                    <td align="middle"><input type="checkbox" data="write" {{checked write}} /></td></tr>
+                                    <td align="middle"><input type="checkbox" data="read" checked={{checked read}} /></td>
+                                    <td align="middle"><input type="checkbox" data="write" checked={{checked write}} /></td></tr>
                             {{/each}}
                         </table>
                     </td></tr></table>

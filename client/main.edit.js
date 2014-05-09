@@ -1,4 +1,8 @@
+GuiTools= {};
 
+'use strict';
+
+var T= SpongeTools.Template;
 
 var Edit= function( options ) {
     this.options= options;
@@ -17,10 +21,13 @@ Edit.prototype.set= function( value ) {
     this.options.context[this.options.property]= value;
 };
 
-Template.edit.editTemplate= function() {
+T.select('edit');
+
+T.helper('editTemplate', function() {
     return Template[this.viewTemplateName || 'editViewText'] || null;
-};
-Template.edit.editTemplateContext= function() {
+});
+
+T.helper('editTemplateContext', function() {
     var self= this;
     this.tempValue= this.get();
     if ( _.isObject(this.tempValue) ) this.tempValue= _.clone(this.tempValue);
@@ -35,19 +42,21 @@ Template.edit.editTemplateContext= function() {
             self.tempValue= value;
         },
     };
-};
-Template.edit.viewTemplate= function() {
+});
+
+T.helper('viewTemplate', function() {
     return Template[this.viewTemplateName || 'editViewText'] || null;
-};
-Template.edit.viewTemplateContext= function() {
+});
+
+T.helper('viewTemplateContext', function() {
     return this.get();
-};
+});
 
-Template.edit.editMode= function() {
+T.helper('editMode', function() {
     return this.editMode();
-};
+});
 
-Template.edit.events({
+T.events({
     'click i.icon-edit, dblclick .viewMode.value': function( event ) {
         this.editMode(true);
         return false;
@@ -70,16 +79,16 @@ Template.edit.events({
 });
 
 var types= [ 'Double', 'Integer', 'String', 'Date', 'Array' ];
-Template.editEditType.types= function( currentType ) {
+T.select('editEditType');
+
+T.helper('types', function( currentType ) {
     return types.map(function( type ) {
         return {
             type: type,
-            selected: type == currentType ? 'selected' : '',
+            selected: type == currentType,
         }
     });
-}
+});
 
-GuiTools= {
-    Edit: Edit,
-};
+GuiTools.Edit= Edit;
 
