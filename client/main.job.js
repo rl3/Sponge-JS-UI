@@ -133,7 +133,7 @@ var setLogResult= function( content ) {
 T.events({
     'click button.show-log': function( event ) {
         setLogResult('');
-        SpongeTools.showModal($('#jobLog'));
+        SpongeTools.Modal.show($('#jobLog'));
 
         var jobId= SpongeTools.jobId();
         if ( !jobId ) return;
@@ -157,7 +157,7 @@ T.events({
         // FIXME: do we have the job object already?
         var id= (getJob() || {})._id;
         SpongeTools.shareObject({ type: 'Job', id: id });
-        SpongeTools.showModal($('#shareObject'));
+        SpongeTools.Modal.show($('#shareObject'));
     },
 });
 

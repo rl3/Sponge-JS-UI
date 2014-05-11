@@ -16,6 +16,7 @@ var getObjectsByLocation= function( type, versions, bounds ) {
 
 var ObjectId= SpongeTools.ObjectId;
 
+var ReactiveValue= SpongeTools.ReactiveValue;
 var injectVar= SpongeTools.injectVar;
 var injectGlobalVar= SpongeTools.injectGlobalVar;
 
@@ -66,6 +67,15 @@ var getNewValueInit= function( type, defaultValue ) {
     return result === undefined ? value(defaultValue) : result;
 };
 
+var singleValue= ReactiveValue({
+    get: function() {},
+    set: function() {},
+    type: undefined,
+    description: undefined,
+    newValue: undefined,
+});
+
+/*
 var singleValue= (function() {
     var invalidator= SpongeTools.getInvalidator('singlevalue');
     var value= {
@@ -84,6 +94,7 @@ var singleValue= (function() {
         value= newValue;
     };
 })();
+*/
 
 /*
  * gets the current value to edit
@@ -396,7 +407,7 @@ T.select('singleValueInputTitle');
 T.helper('type', function() {
     var sv= singleValue();
 
-    if ( !sv ) return;
+    if ( !sv.type ) return;
 
     return SpongeTools.typeToString(sv.type);
 });
@@ -404,7 +415,7 @@ T.helper('type', function() {
 T.helper('description', function() {
     var sv= singleValue();
 
-    if ( !sv ) return;
+    if ( !sv.info ) return;
 
     return (sv.info || {}).description;
 });
@@ -419,8 +430,6 @@ T.select('singleValueInputBody');
 
 T.helper('input', function() {
     var sv= singleValue();
-
-    if ( !sv ) return null;
 
     var type= sv.type;
 
@@ -463,7 +472,7 @@ T.helper('input', function() {
 var buildContextForModel= function() {
     var sv= singleValue();
 
-    if ( !sv ) return;
+    if ( !sv.type ) return;
 
     var result= getMatchingTypes(sv.type);
 
@@ -501,7 +510,7 @@ var simpleValueEvents= {
         var newValue= event.currentTarget.value;
         var sv= singleValue();
 
-        if ( !sv ) return;
+        if ( !sv.type ) return;
 
         switch ( sv.type ) {
             case 'Integer': newValue= parseInt(newValue, 10); break;
@@ -518,19 +527,24 @@ $(function() {
     $('body').delegate('#singleValueInput button.saveValue', 'click', function() {
         var sv= singleValue();
 
-        if ( !sv ) return;
-
         sv.set(sv.newValue);
         $('#singleValueInput').modal('hide');
     }).delegate('#singleValueInput button.clearValue', 'click', function() {
         singleValue().set(undefined);
         $('#singleValueInput').modal('hide');
     }).delegate('#singleValueInput', 'hide', function() {
+
+        // do nothing, if another dialog opens
+        if ( SpongeTools.Modal.isTempHiding() ) return;
+
         while ( singleValueCleanup.length ) {
             var $element= $(singleValueCleanup.shift())
             $element.detach();
         }
-        singleValue(undefined);
+        singleValue({
+            get: function() {},
+            set: function() {},
+        });
     });
 });
 
@@ -550,8 +564,6 @@ $(function() {
 
     T.addFn('init', function() {
         var sv= singleValue();
-
-        if ( !sv ) return;
 
         sv.newValue= sv.get();
     });
@@ -576,8 +588,6 @@ T.select('valueInputConst');
 
 T.helper('values', function() {
     var sv= singleValue();
-
-    if ( !sv ) return;
 
     var values= (sv.info || {}).const;
     if ( !values ) return;
@@ -959,7 +969,7 @@ T.helper('handler', function() {
     if ( !selectedType || !('schemas' in selectedType) ) return;
 
     var schemas= selectedType.schemas;
-    if ( !schemas.length ) return;
+    if ( !schemas || !schemas.length ) return;
 
     var type= schemas[0].objectType;
     var versions= schemas.map(function( schema ) { return schema.version });
@@ -1166,7 +1176,7 @@ T.events({
 
 var showSingleValue= function( _singleValue ) {
     singleValue(_singleValue);
-    SpongeTools.showModal($('#singleValueInput'));
+    SpongeTools.Modal.show($('#singleValueInput'));
 };
 
 SpongeTools.showSingleValueDialog= showSingleValue;

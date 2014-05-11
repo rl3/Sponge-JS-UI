@@ -190,8 +190,7 @@ var get$map= function() {
 };
 
 var showMap= function( cb ) {
-//    get$container().show();
-    SpongeTools.showModal(get$container(), function() {
+    SpongeTools.Modal.show(get$container(), function() {
         var $map= get$map();
         initialize($map[0]);
         if ( cb ) cb();

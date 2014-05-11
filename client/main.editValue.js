@@ -9,7 +9,7 @@ T.select('editValue');
 T.events({
     'click a': function( event ) {
         SpongeTools.injectGlobalVar('valueInput')(this.value);
-        SpongeTools.showModal($('#valueInput'));
+        SpongeTools.Modal.show($('#valueInput'));
         return false;
     },
 });

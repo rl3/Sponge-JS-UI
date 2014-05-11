@@ -85,7 +85,7 @@ T.events({
             return;
         }
         injectGlobalVar('valueInput')(this);
-        SpongeTools.showModal($('#valueInput'));
+        SpongeTools.Modal.show($('#valueInput'));
     },
 });
 
@@ -122,5 +122,5 @@ SpongeTools.valuesInput= function( _values, _options, _onClose ) {
     onClose= _onClose;
     options= _options || {};
     dialogInvalidator(true);
-    SpongeTools.showModal($('#valuesInput'));
+    SpongeTools.Modal.show($('#valuesInput'));
 };

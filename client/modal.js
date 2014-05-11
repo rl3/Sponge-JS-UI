@@ -1,3 +1,4 @@
+'use strict';
 
 var hidingSemaphore= false;
 
@@ -28,4 +29,7 @@ var showModal = function ( $dialog, cb ) {
     }).modal('hide');
 };
 
-SpongeTools.showModal= showModal;
+SpongeTools.Modal= {
+    show: showModal,
+    isTempHiding: function() { return hidingSemaphore; },
+};
