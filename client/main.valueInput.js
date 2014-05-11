@@ -76,27 +76,6 @@ var singleValue= ReactiveValue({
 });
 
 /*
-var singleValue= (function() {
-    var invalidator= SpongeTools.getInvalidator('singlevalue');
-    var value= {
-        get: function() {},
-        set: function() {},
-        type: undefined,
-        description: undefined,
-        newValue: undefined,
-    };
-    return function( newValue ) {
-        if ( !arguments.length ) {
-            invalidator();
-            return value;
-        }
-        invalidator(true);
-        value= newValue;
-    };
-})();
-*/
-
-/*
  * gets the current value to edit
  * if value has changed, reset temporary values
  */
