@@ -11,7 +11,7 @@ var Edit= function( options ) {
     this.asTr= options.asTr || false;
 
     this.viewTemplateName= options.viewTemplateName || 'editViewText';
-    this.editTemplateName= options.editTemplateName || 'editViewText';
+    this.editTemplateName= options.editTemplateName || 'editEditText';
     this.editMode= SpongeTools.ReactiveValue(false);
 };
 Edit.prototype.get= function() {
@@ -24,7 +24,7 @@ Edit.prototype.set= function( value ) {
 T.select('edit');
 
 T.helper('editTemplate', function() {
-    return Template[this.viewTemplateName || 'editViewText'] || null;
+    return Template[this.editTemplateName || 'editEditText'] || null;
 });
 
 T.helper('editTemplateContext', function() {
