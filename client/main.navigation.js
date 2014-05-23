@@ -289,10 +289,13 @@ var jobsToWatch= {};
 
 var jobWatchTimer= null;
 
-var addJobWatchTimer= function( job ) {
+var dependOnJob= function( job ) {
     if ( !job.invalidator ) job.invalidator= getInvalidator('jobWatch' + job.jobId);
-
     job.invalidator();
+};
+
+var addJobWatchTimer= function( job ) {
+    dependOnJob(job);
 
     jobsToWatch[job.jobId]= job.invalidator;
 
@@ -340,6 +343,8 @@ var getStatusClasses= function( job ) {
 
     if ( !job.status ) return '';
 
+    dependOnJob(job);
+
     if ( job.jobId in jobsToWatch ) delete jobsToWatch[job.jobId];
 
     if ( job.status.error )              classes.push('error');
@@ -356,6 +361,8 @@ T.helper('details', function() {
     var job= getJob(this.jobId);
 
     if ( !job ) return this;
+
+    dependOnJob(job);
 
     job.name= (job.title || '') + (job.description || '');
     job.date= job.status ? job.status.started : undefined;
