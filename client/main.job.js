@@ -55,6 +55,9 @@ var getJobResultMap= function( jobId, path, data ) {
     return _getJobResultMap(jobId, path, data);
 };
 
+// object to hold map args reactively
+var resultMapArgsCtxt= {};
+
 var _restartJob= SpongeTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
     _restartJob(jobId(), function() {
@@ -358,7 +361,7 @@ T.helper('clicked', function() {
 
     var _args= SpongeTools.buildValues(args, 'args', this);
 
-    var resultMapArgs= injectVar(this, 'resultMapArgs');
+    var resultMapArgs= injectVar(resultMapArgsCtxt, path);
 
     SpongeTools.valuesInput(
         _args, {
@@ -379,17 +382,18 @@ T.select('jobResultMapResult');
  * helper does not return anything
  * it's simply a handler to show a dialog for map arguments
  */
-T.helper('data', function() {
-    var args= injectVar(this, 'resultMapArgs', undefined);
+T.helper('templateHelper', function() {
+    var path= this.tablePath;
+    var args= injectVar(resultMapArgsCtxt, path, undefined);
 
-    if ( !args() ) return;
+    if ( !args() ) return null;
 
     var data= getJobResultMap(jobId(), this.tablePath, args());
-    if ( !data ) return true;
+    if ( !data ) return Template.loadingImage;
 
     // unset arguments to prevent running into this function again
     // (was a bug in windows-browsers, calling this function repeatedly)
-    args(undefined);
+    delete resultMapArgsCtxt[path];
 
     var fileName= data.headers['content-disposition'];
     if ( fileName ) {
@@ -403,6 +407,7 @@ T.helper('data', function() {
             fileName: fileName || 'resultMap.kml',
         },
     });
+    return null;
 });
 
 
