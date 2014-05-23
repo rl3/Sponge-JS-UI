@@ -393,7 +393,7 @@ T.helper('templateHelper', function() {
 
     // unset arguments to prevent running into this function again
     // (was a bug in windows-browsers, calling this function repeatedly)
-    delete resultMapArgsCtxt[path];
+    args(undefined);
 
     var fileName= data.headers['content-disposition'];
     if ( fileName ) {
