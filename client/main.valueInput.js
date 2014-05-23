@@ -500,8 +500,6 @@ var simpleValueEvents= {
 };
 
 
-var singleValueCleanup= [];
-
 $(function() {
     $('body').delegate('#singleValueInput button.saveValue', 'click', function() {
         var sv= singleValue();
@@ -511,15 +509,11 @@ $(function() {
     }).delegate('#singleValueInput button.clearValue', 'click', function() {
         singleValue().set(undefined);
         $('#singleValueInput').modal('hide');
-    }).delegate('#singleValueInput', 'hide', function() {
+    }).delegate('#singleValueInput', 'hidden', function() {
 
         // do nothing, if another dialog opens
         if ( SpongeTools.Modal.isTempHiding() ) return;
 
-        while ( singleValueCleanup.length ) {
-            var $element= $(singleValueCleanup.shift())
-            $element.detach();
-        }
         singleValue({
             get: function() {},
             set: function() {},
@@ -711,9 +705,9 @@ T.addFn('rendered', function() {
         format: dateFormat,
         weekStart: 1,
         viewMode: 'years',
-    }).on('show', function( event ) {
-        var zindex= $modal.css('z-index');
-        $('.datepicker').css('z-index', zindex + 1);
+//    }).on('show', function( event ) {
+//        var zindex= $modal.css('z-index');
+//        $('.datepicker').css('z-index', zindex + 1);
     }).on('changeDate', function( event ) {
         singleValue().newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
     }).on('change', (function() {
@@ -733,7 +727,6 @@ T.addFn('rendered', function() {
     if ( startValue ) {
         $input.datepicker('setValue', startValue);
     }
-    singleValueCleanup.push($input.data().datepicker.picker);
 });
 
 T.select('valueInputLocation');
