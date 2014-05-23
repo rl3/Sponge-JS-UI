@@ -282,6 +282,9 @@ T.helper('resultMap', function() {
 });
 
 T.helper('resultTables', function() {
+
+    // empty resultMapArgsCtxt to free unneeded reactive values
+    resultMapArgsCtxt= {};
     var tables= this.tables;
     if ( !tables || !tables.length ) return;
 

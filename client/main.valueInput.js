@@ -685,11 +685,6 @@ T.addFn('rendered', function() {
     }).on('changeColor', function( event ) {
         var rgba= event.color.toRGB();
         singleValue().newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.g) + hexPad(rgba.r);
-/*
-    }).on('create', function( event ) {
-        event.color.setColor('rgba(' + c.r + ',' + c.g + ',' + c.b + ')');
-        event.color.setAlpha(c.a);
-*/
     })
     .focus();
 });
@@ -705,12 +700,10 @@ T.addFn('rendered', function() {
         format: dateFormat,
         weekStart: 1,
         viewMode: 'years',
-//    }).on('show', function( event ) {
-//        var zindex= $modal.css('z-index');
-//        $('.datepicker').css('z-index', zindex + 1);
     }).on('changeDate', function( event ) {
         singleValue().newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
     }).on('change', (function() {
+
         // semaphore to prevent calling 'change' during setValue
         var running= false;
         return function( event ) {
