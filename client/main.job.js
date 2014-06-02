@@ -404,6 +404,8 @@ T.helper('templateHelper', function() {
         if ( match ) fileName= match[1];
     }
 
+    console.log('Map Link', data.url);
+
     SpongeTools.downloadLink(data.url, {
         query: {
             contentType: data.headers['content-type'],
