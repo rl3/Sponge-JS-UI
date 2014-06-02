@@ -151,6 +151,8 @@ var _authenticatedRequest= function( method, url, options, callback ) {
 
         if ( sd && sd.token ) setCookie(_options, 'RestSessionId', sd.token);
 
+console.log('API call', method, url, _options.data || '');
+
         return HTTP.call(method, baseUrl + url, _options, cb);
     };
     runCall();
@@ -161,7 +163,7 @@ var _request= function( method, url, options, callback ) {
     options= EJSON.toJSONValue(options);
 
     var cb= function( err, result ) {
-        console.log(method + ' result', url, JSON.stringify(options));
+        console.log('API result', method, url, JSON.stringify(options));
         if ( err ) console.log('error', err);
 
         result= EJSON.fromJSONValue(result || {});
