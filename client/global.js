@@ -56,7 +56,7 @@ SpongeTools.downloadLink= function( href, options, cb ) {
     }
 
     a.href = href;
-    a.target= '_new';
+    // a.target= '_new';
     a.style.display= 'none';
 
     if ( options.target ) a.target= options.target;
@@ -64,7 +64,9 @@ SpongeTools.downloadLink= function( href, options, cb ) {
     document.body.appendChild(a);
 
     a.onclick= function() {
-        document.body.removeChild(a)
+        setTimeout(function() {
+            document.body.removeChild(a);
+        }, 2000);
 
         if ( cb ) cb();
     };
