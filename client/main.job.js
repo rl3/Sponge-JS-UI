@@ -400,9 +400,11 @@ T.helper('templateHelper', function() {
 
     if ( !data.url ) return null;
 
-    console.log('Map Link', data.url);
+    var url= SpongeTools.buildApiUrl(data.url);
 
-    SpongeTools.downloadLink(SpongeTools.buildApiUrl(data.url), {
+    console.log('Map Link', url);
+
+    SpongeTools.downloadLink(url, {
         query: {
             contentType: 'application/vnd.google-earth.kml+xml',
             fileName: this.tablePath + '.kml',

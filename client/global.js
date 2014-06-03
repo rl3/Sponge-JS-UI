@@ -56,6 +56,7 @@ SpongeTools.downloadLink= function( href, options, cb ) {
     }
 
     a.href = href;
+    a.target= '_new';
     a.style.display= 'none';
 
     if ( options.target ) a.target= options.target;
