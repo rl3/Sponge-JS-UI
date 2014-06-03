@@ -398,18 +398,14 @@ T.helper('templateHelper', function() {
     // (was a bug in windows-browsers, calling this function repeatedly)
     args(undefined);
 
-    var fileName= data.headers['content-disposition'];
-    if ( fileName ) {
-        var match= fileName.match(/filename\=\"(.+)\"/); //"
-        if ( match ) fileName= match[1];
-    }
+    if ( !data.url ) return null;
 
     console.log('Map Link', data.url);
 
-    SpongeTools.downloadLink(data.url, {
+    SpongeTools.downloadLink(SpongeTools.buildApiUrl(data.url), {
         query: {
-            contentType: data.headers['content-type'],
-            fileName: fileName || 'resultMap.kml',
+            contentType: 'application/vnd.google-earth.kml+xml',
+            fileName: this.tablePath + '.kml',
         },
     });
     return null;

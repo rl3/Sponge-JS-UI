@@ -151,7 +151,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
 
         if ( sd && sd.token ) setCookie(_options, 'RestSessionId', sd.token);
 
-console.log('API call', method, url, _options.data || '');
+        if ( Debug ) console.log('API call', method, url, _options.data || '');
 
         return HTTP.call(method, baseUrl + url, _options, cb);
     };
