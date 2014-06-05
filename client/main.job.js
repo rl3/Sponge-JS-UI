@@ -364,8 +364,6 @@ T.helper('clicked', function() {
 
     var _args= SpongeTools.buildValues(args, 'args', this);
 
-    var resultMapArgs= injectVar(resultMapArgsCtxt, path);
-
     SpongeTools.valuesInput(
         _args, {
             title: 'Arguments for map "' + this.index + '"',
@@ -374,7 +372,7 @@ T.helper('clicked', function() {
             var result= { args: newArgs };
             if ( 'transient' in args ) result.transient= args.transient;
 
-            resultMapArgs(result);
+            injectVar(resultMapArgsCtxt, path)(result);
         }
     );
 });
