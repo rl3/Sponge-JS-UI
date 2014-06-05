@@ -61,7 +61,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /Point\/get/;
+// debugFilter= /Job\/getResultMap/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;
@@ -151,7 +151,11 @@ var _authenticatedRequest= function( method, url, options, callback ) {
 
         if ( sd && sd.token ) setCookie(_options, 'RestSessionId', sd.token);
 
-        if ( true || Debug ) console.log('API call', method, url, _options.data || '');
+        if ( Debug ) {
+            if ( debugFilter && url.match(debugFilter) ) {
+                console.log('API call', method, url, _options.data || '');
+            }
+        }
 
         return HTTP.call(method, baseUrl + url, _options, cb);
     };
@@ -161,6 +165,8 @@ var _authenticatedRequest= function( method, url, options, callback ) {
 var _request= function( method, url, options, callback ) {
 
     options= EJSON.toJSONValue(options);
+
+    url= SpongeTools.cleanUrl(url);
 
     var cb= function( err, result ) {
         console.log('API result', method, url, JSON.stringify(options));

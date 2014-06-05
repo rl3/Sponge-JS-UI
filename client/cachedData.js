@@ -60,7 +60,7 @@ var buildApiUrl= function( url ) {
     if ( !sd ) return '#';
 
     var append= url.match(/\?/) ? '&' : '?';
-    return sd.baseUrl + url + append + 'SessionId=' + sd.token;
+    return SpongeTools.cleanUrl(sd.baseUrl + url) + append + 'SessionId=' + sd.token;
 };
 
 SpongeTools.getCachedData= getCachedData;
