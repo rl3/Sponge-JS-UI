@@ -292,7 +292,11 @@ if ( name === 'getJobQueue' ) {
             }
 
             var lastInstance= getInstances[instanceKey];
-            delete getInstances[instanceKey];
+
+            // delete running instance after one second to allow propagation of db changes
+            setTimeout(function() {
+                delete getInstances[instanceKey];
+            }, 1000);
 
             if ( !urlData.lastInstance || key === lastInstance.key ) return;
 
