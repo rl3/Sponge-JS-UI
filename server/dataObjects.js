@@ -41,10 +41,12 @@ Meteor.startup(function() {
             }).length;
         }
     });
+
+    sessionData.remove({});
 });
 
 Meteor.publish('client-cache', function() {
-    var query= { userId: this.userId };
+    var query= { userId: this.userId, session: getMeteorSessionId(), };
     var cacheQuery= { $or: [ { userId: this.userId }, { userId: null } ] };
 
     var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
@@ -62,6 +64,13 @@ var debugFilter;
 
 // Debug= true;
 // debugFilter= /Point\/get/;
+
+// FIXME: get a unique id for this session
+var getMeteorSessionId= function() {
+    return 1;
+console.log(Meteor.user());
+    return Meteor.default_connection._lastSessionId;
+};
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;
@@ -100,7 +109,7 @@ var authenticate= function( runFn ) {
     return HTTP.call('GET', baseUrl + authUrl, { auth: auth, }, function( err, result ) {
         console.log('authenticateing done', result)
 
-        sessionData.upsert({ userId: Meteor.userId() }, { userId: Meteor.userId(), baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token }, function() {
+        sessionData.upsert({ userId: Meteor.userId(), session: getMeteorSessionId(), }, { userId: Meteor.userId(), session: getMeteorSessionId(), baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token }, function() {
             while( authenticationQueue.length ) authenticationQueue.shift()(err);
         });
     });
@@ -145,7 +154,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     var runCall= function( err ) {
         if ( err ) return callback(err);
 
-        var sd= sessionData.findOne({ userId: Meteor.userId() });
+        var sd= sessionData.findOne({ userId: Meteor.userId(), session: getMeteorSessionId(), });
 
         var _options= SpongeTools.clone(options);
 
