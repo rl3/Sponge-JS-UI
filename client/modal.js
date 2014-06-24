@@ -20,7 +20,11 @@ var showModal = function ( $dialog, cb ) {
 
     hidingSemaphore= true;
     return $currentModals.one('hidden', function () {
-        hidingSemaphore= false;
+
+        // delay reset of hidingSemaphore to allow other events to be processed
+        setTimeout(function() {
+            hidingSemaphore= false;
+        }, 1);
 
         // when they've finished hiding
         if ( cb ) $dialog.one('shown', cb);

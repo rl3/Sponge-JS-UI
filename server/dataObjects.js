@@ -63,7 +63,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /Job\/getResultMap/;
+// debugFilter= /Point\/get/;
 
 // FIXME: get a unique id for this session
 var getMeteorSessionId= function() {
