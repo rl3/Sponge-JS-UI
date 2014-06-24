@@ -68,7 +68,12 @@ var debugFilter;
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);
     if ( !options.headers ) options.headers= {};
-    options.headers['x-forwarded-for']= connection.clientAddress;
+
+    var forwardedFor= ((connection.httpHeaders || {})['x-forwarded-for'] || '').split(',');
+    forwardedFor.push(connection.clientAddress);
+
+    // use only first.
+    options.headers['x-forwarded-for']= forwardedFor.join(',');
     return options;
 };
 
