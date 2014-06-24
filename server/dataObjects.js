@@ -65,6 +65,13 @@ var debugFilter;
 // Debug= true;
 // debugFilter= /Point\/get/;
 
+var addHeaders= function( options, connection ) {
+    options= SpongeTools.clone(options);
+    if ( !options.headers ) options.headers= {};
+    options.headers['x-forwarded-for']= connection.clientAddress;
+    return options;
+};
+
 var getMeteorSessionId= function( connection ) {
     return connection.id;
 };
@@ -103,7 +110,7 @@ var authenticate= function( runFn, connection ) {
     if ( authenticationQueue.length > 1 ) return;
 
     console.log('authenticate...', auth);
-    return HTTP.call('GET', baseUrl + authUrl, { auth: auth, }, function( err, result ) {
+    return HTTP.call('GET', baseUrl + authUrl, addHeaders({ auth: auth }, connection), function( err, result ) {
         console.log('authenticateing done', result)
 
         sessionData.upsert({ userId: Meteor.userId(), session: getMeteorSessionId(connection), }, { userId: Meteor.userId(), session: getMeteorSessionId(connection), baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token }, function() {
@@ -164,11 +171,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
             }
         }
 
-        _options.headers= {
-            'x-forwarded-for': options.connection.clientAddress,
-        };
-
-        return HTTP.call(method, baseUrl + url, _options, cb);
+        return HTTP.call(method, baseUrl + url, addHeaders(_options, options.connection), cb);
     };
     runCall();
 };
@@ -205,11 +208,11 @@ var post= function( url, data, connection, callback ) {
     return _request('POST', url, { data: data || null, connection: connection }, callback);
 };
 
-var put= function( url, data, sessionId, callback ) {
+var put= function( url, data, connection, callback ) {
     return _request('PUT', url, { data: data || null, connection: connection }, callback);
 };
 
-var del= function( url, data, sessionId, callback ) {
+var del= function( url, data, connection, callback ) {
     return _request('DELETE', url, { data: data || null, connection: connection }, callback);
 };
 
@@ -217,7 +220,7 @@ var methods= {};
 
 ['Model', 'ModelTemplate'].forEach(function( type ) {
     methods['save' + type]= function( model ) {
-        return put(type + '/save', model, this.connection.id, function( err, result ) {
+        return put(type + '/save', model, this.connection, function( err, result ) {
             if ( err ) return;
 
             var id= model._id;
@@ -231,7 +234,7 @@ var methods= {};
 });
 
 methods.setJobTitle= function( data ) {
-    return put('Job/setTitle/' + data.jobId, { title: data.title }, this.connection.id, function( err, result ) {
+    return put('Job/setTitle/' + data.jobId, { title: data.title }, this.connection, function( err, result ) {
         if ( err ) return;
 
         methods.getJob(data.jobId);
@@ -239,7 +242,7 @@ methods.setJobTitle= function( data ) {
 };
 
 methods.setJobDescription= function( data ) {
-    return put('Job/setDescription/' + data.jobId, { description: data.description }, this.connection.id, function( err, result ) {
+    return put('Job/setDescription/' + data.jobId, { description: data.description }, this.connection, function( err, result ) {
         if ( err ) return;
 
         methods.getJob(data.jobId);
@@ -302,7 +305,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
             return methods[name].apply(null, lastInstance.args);
         };
 
-        return fn(urlData.url, urlData.data, this.connection.id, function( err, result ) {
+        return fn(urlData.url, urlData.data, this.connection, function( err, result ) {
             if ( err ) return finishFn();
 
             var data= urlData.dataFormat === 'plain' ? result : result.data;
