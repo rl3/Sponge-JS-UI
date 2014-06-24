@@ -61,7 +61,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /Job\/getResultMap/;
+// debugFilter= /Point\/get/;
 
 var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;

@@ -922,9 +922,7 @@ T.helper('selected', function() {
 });
 
 
-T.select('valueInputSelectFromMapHandler');
-
-T.helper('handler', function() {
+T.helper('selectFromMapHandler', function() {
     selectFromMapInvalidator();
 
     var bounds= Map.getViewRange();
