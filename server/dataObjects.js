@@ -256,6 +256,10 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
 
         var running= instanceKey in getInstances;
 
+if ( name === 'getJobQueue' ) {
+    console.log('getJobQueue. running:', running, 'instanceKey:', instanceKey);
+}
+
         getInstances[instanceKey]= urlData.lastInstance ? {
             key: key,
             args: args,
