@@ -69,11 +69,9 @@ var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);
     if ( !options.headers ) options.headers= {};
 
-    var forwardedFor= ((connection.httpHeaders || {})['x-forwarded-for'] || '').split(',');
-    forwardedFor.push(connection.clientAddress);
+    var forwardedFor= connection.httpHeaders && connection.httpHeaders['x-forwarded-for'];
 
-    // use only first.
-    options.headers['x-forwarded-for']= forwardedFor.join(',');
+    options.headers['x-forwarded-for']= (forwardedFor ? forwardedFor + ',' : '' ) + connection.clientAddress;
     return options;
 };
 
