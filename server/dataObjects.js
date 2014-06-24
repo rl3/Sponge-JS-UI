@@ -45,9 +45,29 @@ Meteor.startup(function() {
     sessionData.remove({});
 });
 
+/*
+ *  function to build user/session selector
+ *  to be called within publish and methods functions with respective 'this' object
+ */
+var buildSessionSelector= function( meteorObject, noAuth ) {
+    if ( noAuth ) return { userId: null };
+
+    return {
+        userId: meteorObject.userId,
+        session: meteorObject.connection.id,
+    };
+};
+
+var buildSessionSelectorForMethod= function( connection, noAuth ) {
+    return buildSessionSelector({
+        userId: Meteor.userId(),
+        connection: connection,
+    }, noAuth);
+};
+
 Meteor.publish('client-cache', function() {
-    var query= { userId: this.userId, session: getMeteorSessionId(this.connection.id), };
-    var cacheQuery= { $or: [ { userId: this.userId }, { userId: null } ] };
+    var query= buildSessionSelector(this);
+    var cacheQuery= { $or: [ query, { userId: null } ] };
 
     var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
 
@@ -73,10 +93,6 @@ var addHeaders= function( options, connection ) {
 
     options.headers['x-forwarded-for']= (forwardedFor ? forwardedFor + ',' : '' ) + connection.clientAddress;
     return options;
-};
-
-var getMeteorSessionId= function( connection ) {
-    return connection.id;
 };
 
 var baseUrl= SpongeTools.Config.baseurl;
@@ -112,11 +128,14 @@ var authenticate= function( runFn, connection ) {
     authenticationQueue.push(runFn);
     if ( authenticationQueue.length > 1 ) return;
 
+    var sessionSelector= buildSessionSelectorForMethod(connection);
     console.log('authenticate...', auth);
     return HTTP.call('GET', baseUrl + authUrl, addHeaders({ auth: auth }, connection), function( err, result ) {
         console.log('authenticateing done', result)
 
-        sessionData.upsert({ userId: Meteor.userId(), session: getMeteorSessionId(connection), }, { userId: Meteor.userId(), session: getMeteorSessionId(connection), baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token }, function() {
+        var data= _.extend(SpongeTools.clone(sessionSelector), { baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token });
+
+        sessionData.upsert(sessionSelector, data, function() {
             while( authenticationQueue.length ) authenticationQueue.shift()(err);
         });
     });
@@ -161,7 +180,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     var runCall= function( err ) {
         if ( err ) return callback(err);
 
-        var sd= sessionData.findOne({ userId: Meteor.userId(), session: getMeteorSessionId(options.connection), });
+        var sd= sessionData.findOne(buildSessionSelectorForMethod(options.connection));
 
         var _options= SpongeTools.clone(options);
         delete _options.connection;
@@ -223,6 +242,7 @@ var methods= {};
 
 ['Model', 'ModelTemplate'].forEach(function( type ) {
     methods['save' + type]= function( model ) {
+        var cacheSelector= buildSessionSelector(this);
         return put(type + '/save', model, this.connection, function( err, result ) {
             if ( err ) return;
 
@@ -231,7 +251,7 @@ var methods= {};
 
             var key= SpongeTools.buildCacheKey(SpongeTools.getCachedMethodData('get' + type, [id]));
 
-            updateCache(key, Meteor.userId(), model);
+            updateCache(key, cacheSelector, model);
         });
     };
 });
@@ -268,7 +288,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
 
         var key= SpongeTools.buildCacheKey(urlData);
 
-        var instanceKey= urlData.instanceKey ? (SpongeTools.getUserKeyPrefix(urlData.noAuth) + urlData.instanceKey) : key;
+        var instanceKey= urlData.instanceKey ? urlData.instanceKey : key;
 
         var userId= urlData.noAuth ? null : Meteor.userId();
 
@@ -308,6 +328,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
             return methods[name].apply(null, lastInstance.args);
         };
 
+        var cacheSelector= buildSessionSelector(this, urlData.noAuth);
         return fn(urlData.url, urlData.data, this.connection, function( err, result ) {
             if ( err ) return finishFn();
 
@@ -333,7 +354,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
                 default:
                     if ( urlData.noResult ) return finishFn();
 
-                    return updateCache(key, userId, SpongeTools.convertToMongo(data), function( err ) {
+                    return updateCache(key, cacheSelector, SpongeTools.convertToMongo(data), function( err ) {
                         return finishFn();
                     });
             }
@@ -365,12 +386,12 @@ methods.getResultTable= function( jobId, tablePath, format ) {
 
 Meteor.methods(methods);
 
-var updateCache= function( key, userId, newData, cb ) {
+var updateCache= function( key, query, newData, cb ) {
     if ( !cb ) cb= function() {};
 
     if ( newData === undefined ) newData= null;
 
-    var query= { key: key, userId: userId, };
+    query.key= key;
 
     return dataCacheMeta.upsert(query, _.extend({ timeStamp: new Date(), }, query), function() {
         // update data only if changed
