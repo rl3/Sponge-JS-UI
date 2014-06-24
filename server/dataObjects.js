@@ -46,7 +46,7 @@ Meteor.startup(function() {
 });
 
 Meteor.publish('client-cache', function() {
-    var query= { userId: this.userId, session: getMeteorSessionId(), };
+    var query= { userId: this.userId, session: getMeteorSessionId(this.connection.id), };
     var cacheQuery= { $or: [ { userId: this.userId }, { userId: null } ] };
 
     var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
@@ -65,11 +65,8 @@ var debugFilter;
 // Debug= true;
 // debugFilter= /Point\/get/;
 
-// FIXME: get a unique id for this session
-var getMeteorSessionId= function() {
-    return 1;
-console.log(Meteor.user());
-    return Meteor.default_connection._lastSessionId;
+var getMeteorSessionId= function( connection ) {
+    return connection.id;
 };
 
 var baseUrl= SpongeTools.Config.baseurl;
@@ -98,7 +95,7 @@ var async= function( fn ) {
 
 var authenticationQueue= [];
 
-var authenticate= function( runFn ) {
+var authenticate= function( runFn, connection ) {
     var auth= getAuth();
     if ( !auth ) return;
 
@@ -109,7 +106,7 @@ var authenticate= function( runFn ) {
     return HTTP.call('GET', baseUrl + authUrl, { auth: auth, }, function( err, result ) {
         console.log('authenticateing done', result)
 
-        sessionData.upsert({ userId: Meteor.userId(), session: getMeteorSessionId(), }, { userId: Meteor.userId(), session: getMeteorSessionId(), baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token }, function() {
+        sessionData.upsert({ userId: Meteor.userId(), session: getMeteorSessionId(connection), }, { userId: Meteor.userId(), session: getMeteorSessionId(connection), baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token }, function() {
             while( authenticationQueue.length ) authenticationQueue.shift()(err);
         });
     });
@@ -145,7 +142,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
         if ( err && err.response && err.response.statusCode ) {
             var auth= getAuth();
             if ( auth && err.response.statusCode == 401 && authCounter-- ) {
-                return authenticate(runCall);
+                return authenticate(runCall, options.connection);
             }
         }
         if ( callback ) return callback.call(this, err, result);
@@ -154,9 +151,10 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     var runCall= function( err ) {
         if ( err ) return callback(err);
 
-        var sd= sessionData.findOne({ userId: Meteor.userId(), session: getMeteorSessionId(), });
+        var sd= sessionData.findOne({ userId: Meteor.userId(), session: getMeteorSessionId(options.connection), });
 
         var _options= SpongeTools.clone(options);
+        delete _options.connection;
 
         if ( sd && sd.token ) setCookie(_options, 'RestSessionId', sd.token);
 
@@ -165,6 +163,10 @@ var _authenticatedRequest= function( method, url, options, callback ) {
                 console.log('API call', method, url, _options.data || '');
             }
         }
+
+        _options.headers= {
+            'x-forwarded-for': options.connection.clientAddress,
+        };
 
         return HTTP.call(method, baseUrl + url, _options, cb);
     };
@@ -178,6 +180,7 @@ var _request= function( method, url, options, callback ) {
     url= SpongeTools.cleanUrl(url);
 
     var cb= function( err, result ) {
+        delete options.connection;
         console.log('API result', method, url, JSON.stringify(options));
         if ( err ) console.log('error', err);
 
@@ -194,27 +197,27 @@ var _request= function( method, url, options, callback ) {
     return _authenticatedRequest(method, url, options, cb);
 };
 
-var get= function( url, data, callback ) {
-    return _request('GET', url, {}, callback);
+var get= function( url, data, connection, callback ) {
+    return _request('GET', url, { connection: connection }, callback);
 };
 
-var post= function( url, data, callback ) {
-    return _request('POST', url, { data: data || null }, callback);
+var post= function( url, data, connection, callback ) {
+    return _request('POST', url, { data: data || null, connection: connection }, callback);
 };
 
-var put= function( url, data, callback ) {
-    return _request('PUT', url, { data: data || null }, callback);
+var put= function( url, data, sessionId, callback ) {
+    return _request('PUT', url, { data: data || null, connection: connection }, callback);
 };
 
-var del= function( url, data, callback ) {
-    return _request('DELETE', url, { data: data || null }, callback);
+var del= function( url, data, sessionId, callback ) {
+    return _request('DELETE', url, { data: data || null, connection: connection }, callback);
 };
 
 var methods= {};
 
 ['Model', 'ModelTemplate'].forEach(function( type ) {
     methods['save' + type]= function( model ) {
-        return put(type + '/save', model, function( err, result ) {
+        return put(type + '/save', model, this.connection.id, function( err, result ) {
             if ( err ) return;
 
             var id= model._id;
@@ -228,7 +231,7 @@ var methods= {};
 });
 
 methods.setJobTitle= function( data ) {
-    return put('Job/setTitle/' + data.jobId, { title: data.title }, function( err, result ) {
+    return put('Job/setTitle/' + data.jobId, { title: data.title }, this.connection.id, function( err, result ) {
         if ( err ) return;
 
         methods.getJob(data.jobId);
@@ -236,7 +239,7 @@ methods.setJobTitle= function( data ) {
 };
 
 methods.setJobDescription= function( data ) {
-    return put('Job/setDescription/' + data.jobId, { description: data.description }, function( err, result ) {
+    return put('Job/setDescription/' + data.jobId, { description: data.description }, this.connection.id, function( err, result ) {
         if ( err ) return;
 
         methods.getJob(data.jobId);
@@ -264,10 +267,6 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
         var userId= urlData.noAuth ? null : Meteor.userId();
 
         var running= instanceKey in getInstances;
-
-if ( name === 'getJobQueue' ) {
-    console.log('getJobQueue. running:', running, 'instanceKey:', instanceKey);
-}
 
         getInstances[instanceKey]= urlData.lastInstance ? {
             key: key,
@@ -303,7 +302,7 @@ if ( name === 'getJobQueue' ) {
             return methods[name].apply(null, lastInstance.args);
         };
 
-        return fn(urlData.url, urlData.data, function( err, result ) {
+        return fn(urlData.url, urlData.data, this.connection.id, function( err, result ) {
             if ( err ) return finishFn();
 
             var data= urlData.dataFormat === 'plain' ? result : result.data;
@@ -338,20 +337,23 @@ if ( name === 'getJobQueue' ) {
 });
 
 methods.getJobLog= function( jobId ) {
+    var connection= this.connection;
     return async(function( cb ) {
-        return _authenticatedRequest('GET', 'Job/log/' + jobId, {}, cb);
+        return _authenticatedRequest('GET', 'Job/log/' + jobId, { connection: connection }, cb);
     });
 };
 
 methods.deleteJobLog= function( jobId ) {
+    var connection= this.connection;
     return async(function( cb ) {
-        return _authenticatedRequest('DELETE', 'Job/log/' + jobId, {}, cb);
+        return _authenticatedRequest('DELETE', 'Job/log/' + jobId, { connection: connection }, cb);
     });
 };
 
 methods.getResultTable= function( jobId, tablePath, format ) {
+    var connection= this.connection;
     return async(function( cb ) {
-        return _authenticatedRequest('GET', 'Job/getResultTable/' + jobId + '/' + tablePath + '?format=' + (format || 'xml'), {}, cb);
+        return _authenticatedRequest('GET', 'Job/getResultTable/' + jobId + '/' + tablePath + '?format=' + (format || 'xml'), { connection: connection }, cb);
     });
 };
 
