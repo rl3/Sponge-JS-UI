@@ -40,6 +40,11 @@ var str2Oid= SpongeTools.str2Oid;
 var runModelInvalidator= SpongeTools.getInvalidator();
 var runModelActive= false;
 
+/*
+ * Save arguments from last run of this model to preset arguments in next runModel dialog
+ */
+var lastRunModelArgs= {};
+
 var T= SpongeTools.Template;
 
 var editorContext= SpongeTools.editorContext(function( context ) {
@@ -177,7 +182,7 @@ T.helper('runModelHelper', function() {
 
     runModelActive= false;
 
-    var args= SpongeTools.buildValues(modelArgs, 'args', this);
+    var args= SpongeTools.buildValues(modelArgs, 'args', this, SpongeTools.clone(lastRunModelArgs[SpongeTools.oid2Str(model._id)]));
 
     SpongeTools.valuesInput(
         args, {
@@ -193,6 +198,8 @@ T.helper('runModelHelper', function() {
                 return result;
             },
         }, function( args ) {
+            lastRunModelArgs[SpongeTools.oid2Str(model._id)]= SpongeTools.clone(args);
+
             return runModel({
                 args: args,
             },

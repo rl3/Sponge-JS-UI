@@ -258,8 +258,10 @@ var valueSort= function( a, b ) {
     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 };
 
-var buildValues= function( args, property, valueContext ) {
+var buildValues= function( args, property, valueContext, lastValue ) {
     var info= args.info && args.info[property] || {};
+
+    if ( !lastValue ) lastValue= {};
 
     var injectPrefix= 'args.' + property + '.';
 
@@ -267,7 +269,7 @@ var buildValues= function( args, property, valueContext ) {
         return buildValue(
             name,
             args[property][name], // type
-            SpongeTools.injectVar(valueContext, injectPrefix + name, (info[name] || {}).default),
+            SpongeTools.injectVar(valueContext, injectPrefix + name, name in lastValue ? lastValue[name] : (info[name] || {}).default),
             info[name] // info
         );
     });
