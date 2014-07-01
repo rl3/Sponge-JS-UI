@@ -65,9 +65,13 @@ var buildSessionSelectorForMethod= function( connection, noAuth ) {
     }, noAuth);
 };
 
+var buildCacheSelector= function( meteorObject, noAuth ) {
+    return { userId: noAuth ? null : meteorObject.userId };
+};
+
 Meteor.publish('client-cache', function() {
     var query= buildSessionSelector(this);
-    var cacheQuery= { $or: [ query, { userId: null } ] };
+    var cacheQuery= { userId: { $in: [ null, this.userId ] } };
 
     var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
 
@@ -242,7 +246,7 @@ var methods= {};
 
 ['Model', 'ModelTemplate'].forEach(function( type ) {
     methods['save' + type]= function( model ) {
-        var cacheSelector= buildSessionSelector(this);
+        var cacheSelector= buildCacheSelector(this);
         return put(type + '/save', model, this.connection, function( err, result ) {
             if ( err ) return;
 
@@ -331,7 +335,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
             return methods[name].apply(methodSelf, lastInstance.args);
         };
 
-        var cacheSelector= buildSessionSelector(this, urlData.noAuth);
+        var cacheSelector= buildCacheSelector(this, urlData.noAuth);
         return fn(urlData.url, urlData.data, this.connection, function( err, result ) {
             if ( err ) return finishFn();
 
