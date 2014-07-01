@@ -228,6 +228,7 @@ $(function() {
 var valueToString= function( value, type ) {
     var options= {
         onLocation: function( value, options, defaultFn ) {
+console.log(defaultFn(value, options));
             return $(defaultFn(value, options)).html();
         }
     };
@@ -723,25 +724,64 @@ T.addFn('rendered', function() {
 });
 
 T.select('valueInputLocation');
-T.helper('lat', function() {
-    return (singleValue().newValue || [])[1];
-});
-T.helper('lon', function() {
-    return (singleValue().newValue || [])[0];
-});
-var _genSetLocation= function( index ) {
-    return function( event ) {
-        var sv= singleValue();
 
-        if ( !_.isArray(sv.newValue) ) sv.newValue= [];
-        sv.newValue[index]= parseFloat(event.currentTarget.value);
-    };
-};
+// lon lat -> internal representation
+var defaultLocation= [13.012574, 52.438280];
+
+T.helper('location', function() {
+    return (singleValue().newValue || []).slice().reverse().join(', ');
+});
+
+T.helper('defaultLocation', function() {
+    return defaultLocation[1] + ', ' + defaultLocation[0];
+});
+
+var setError= function( elem, error ) {
+    $(elem).closest('.control-group').addClass( error ? 'error' : 'info').removeClass( error ? 'info' : 'error' );
+}
+
 T.events({
-    'change input.lat': _genSetLocation(1),
-    'change input.lon': _genSetLocation(0),
-});
+    'change input.location': function( event ) {
+        var sv= singleValue();
+        var value= event.currentTarget.value || '';
 
+        if ( !value ) {
+            sv.newValue= [];
+            return setError(event.currentTarget, false);
+        }
+
+        var match= value.match(/^(\d*\.?\d+)\,\s*(\d*\.?\d+)$/);
+        if ( !match ) return setError(event.currentTarget, true);
+
+        setError(event.currentTarget, false);
+        sv.newValue= [ parseFloat(match[2]), parseFloat(match[1]) ];
+    },
+    'click a.by-map': function( event ) {
+        $cg= $(event.currentTarget).closest('.control-group');
+        var sv= singleValue();
+        var loc= sv.newValue;
+        Map.clear();
+
+        if ( !_.isArray(loc) || loc.length !== 2 ) loc= defaultLocation;
+
+        Map.show(function() {
+            Map.addMarker(loc, {
+                infotext: '<b>current Value</b>',
+                center: true,
+            });
+
+            Map.registerEventHandler('dblclick', function( event ) {
+                if ( event && event.latLng ) {
+                    var lon= event.latLng.lng();
+                    var lat= event.latLng.lat()
+                    sv.newValue= [ lon, lat ];
+                    $cg.find('input.location').val(lat + ', ' + lon);
+                    Map.hide();
+                }
+            });
+        });
+    },
+});
 
 
 

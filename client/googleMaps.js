@@ -9,6 +9,7 @@ var eventHandlers= {};
 var initialize= function( elem ) {
     var mapOptions = {
         zoom: 10,
+        disableDoubleClickZoom: true,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: true,
         mapTypeControlOptions: {
@@ -57,6 +58,13 @@ var initialize= function( elem ) {
 
         bounds= newBounds;
         fireEvents('bounds_changed', [bounds]);
+    });
+
+    // delegate events: https://developers.google.com/maps/documentation/javascript/reference?hl=de#Map (Events)
+    ['click', 'dblclick', 'center_changed', 'drag', 'dragend', 'dragstart'].forEach(function( ev ) {
+        google.maps.event.addListener(map, ev, function() {
+            fireEvents(ev, arguments)
+        });
     });
 
     var $closeDiv= $('<div class="maps-button"><div class="button" title="close"><div><i class="icon-remove"></i></div></div></div>');

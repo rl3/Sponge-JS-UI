@@ -201,21 +201,13 @@
 </template>
 
 <template name="valueInputLocation">
-    <div class="control-group">
+    <div class="control-group info">
         <div class="controls">
             <label class="control-label">
-                Lat:
-                <input type="text" class="double span2 lat" value="{{lat}}" />
-                <span class='help-inline on-error'>Only numbers are allowed</span>
-            </label>
-        </div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-            <label class="control-label">
-                Lon:
-                <input type="text" class="double span2 lon" value="{{lon}}" />
-                <span class='help-inline on-error'>Only numbers are allowed</span>
+                <a href='#' class='by-map'>Select from map</a><br />
+                Location:
+                <input type="text" class="location span2 lat" value="{{location}}" />
+                <span class='help-inline on-no-error'>Format: 'Lat, Lon' (example: '{{defaultLocation}}')</span>
             </label>
         </div>
     </div>

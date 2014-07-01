@@ -22,7 +22,7 @@ var timeToString= function( value, options ) {
 };
 
 var locationToString= function( value, options ) {
-    return '<a href="#" class="location" lon="' + value[0] + '" lat="' + value[1] + '">lat(' + value[1] + ')/lon(' + value[0] + ')</a>';
+    return '<a href="#" class="location" lon="' + value[0] + '" lat="' + value[1] + '">' + value.slice().reverse().join(', ') + '</a>';
 };
 
 var _getObject= {
