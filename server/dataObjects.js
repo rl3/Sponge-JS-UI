@@ -257,18 +257,20 @@ var methods= {};
 });
 
 methods.setJobTitle= function( data ) {
+    var self= this;
     return put('Job/setTitle/' + data.jobId, { title: data.title }, this.connection, function( err, result ) {
         if ( err ) return;
 
-        methods.getJob(data.jobId);
+        methods.getJob.call(self, data.jobId);
     });
 };
 
 methods.setJobDescription= function( data ) {
+    var self= this;
     return put('Job/setDescription/' + data.jobId, { description: data.description }, this.connection, function( err, result ) {
         if ( err ) return;
 
-        methods.getJob(data.jobId);
+        methods.getJob.call(self, data.jobId);
     });
 };
 
@@ -280,6 +282,7 @@ var getInstances= {};
 
 SpongeTools.getCachedMethodNames().forEach(function( name ) {
     methods[name]= function( /* arguments */ ) {
+        var methodSelf= this;
         var args= Array.prototype.slice.call(arguments);
         var urlData= SpongeTools.getCachedMethodData(name, args);
 
@@ -325,7 +328,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
 
             if ( !urlData.lastInstance || key === lastInstance.key ) return;
 
-            return methods[name].apply(null, lastInstance.args);
+            return methods[name].apply(methodSelf, lastInstance.args);
         };
 
         var cacheSelector= buildSessionSelector(this, urlData.noAuth);
@@ -338,7 +341,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
             if ( name in onAfterMethod) {
                 var afterArgs= args.slice();
                 afterArgs.push(data);
-                data= onAfterMethod[name].apply(null, afterArgs);
+                data= onAfterMethod[name].apply(methodSelf, afterArgs);
             }
 
             switch ( urlData.dataStore ) {
@@ -406,13 +409,13 @@ var updateCache= function( key, query, newData, cb ) {
 onAfterMethod.restartJob=
 onAfterMethod.removeJob= function( jobId ) {
 console.log('invalidate', jobId)
-    methods.getJob(jobId);
+    methods.getJob.call(this, jobId);
 };
 
 onAfterMethod.addAcl=
 onAfterMethod.removeAcl= function( collection, id, acls ) {
 console.log('invalidate ACLs', collection, id)
-    methods.getAcl(collection, id);
+    methods.getAcl.call(this, collection, id);
 };
 
 
