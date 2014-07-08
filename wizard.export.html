@@ -1,0 +1,52 @@
+
+<template name="wizExport">
+    {{> wizard wizardData}}
+</template>
+
+<template name="wizExportStep1Expand">
+    ObjectType:
+    <select>
+        {{#each objectTypes}}
+            <option value="{{type}}">{{type}}</option>
+        {{/each}}
+    </select>
+</template>
+<template name="wizExportStep1Compressed">
+    ObjectType: {{type}}
+</template>
+
+<template name="wizExportStep2Expand">
+    {{> valueInput data}}
+</template>
+<template name="wizExportStep2Compressed">
+    Object: {{name}}
+</template>
+
+<template name="wizExportStep3Expand">
+    <label><input type="radio" value="1" name="exportType" />single value</label><br />
+    <label><input type="radio" value="2" name="exportType" />sequence of values</label><br />
+    <label><input type="radio" value="3" name="exportType" />raw data</label><br />
+</template>
+<template name="wizExportStep3Compressed">
+    Export:
+    {{#if isSingle}}single value{{/if}}
+    {{#if isSequence}}sequence of values{{/if}}
+    {{#if isRaw}}raw data{{/if}}
+</template>
+
+<template name="wizExportStep4Expand">
+    <label>Start: <input type="text" name="start" value="{{start}}" /></label><br />
+    <label>End: <input type="text" name="end" value="{{end}}" /></label><br />
+    <label>Step: <input type="text" name="step" value="{{step}}" /></label><br />
+</template>
+<template name="wizExportStep4Compressed">
+    Range: {{start}} - {{end}} (Step: {{step}})
+</template>
+
+<template name="wizExportStep5Expand">
+    <button>submit</button>
+</template>
+<template name="wizExportStep5Compressed">
+    Finished
+</template>
+

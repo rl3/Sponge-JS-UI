@@ -1,0 +1,18 @@
+
+<template name="wizardBody">
+    {{> wizardStep firstStepData}}
+</template>
+
+
+<template name="wizardStep">
+    {{#if isOpen}}
+        <div class="wizard-content">
+            {{> content data}}
+        </div>
+    {{else}}
+        <div class="wizard-content-compressed">
+            {{> contentCompressed data}}
+        </div>
+        {{> nextStep nextStepData}}
+    {{/if}}
+</template>
