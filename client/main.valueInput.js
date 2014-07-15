@@ -875,7 +875,7 @@ T.events({
         if ( !selectedType ) return;
 
         singleValue().newValue= {
-            $ref: selectedType.schemas ? 'DataObj' : 'Model',
+            type: selectedType.schemas ? 'DataObj' : 'Model',
             selector: {
                 _id: new ObjectId(event.currentTarget.value),
             },
@@ -994,7 +994,7 @@ T.helper('selectFromMapHandler', function() {
             events: {
                 dblclick: function( event ) {
                     singleValue().newValue= {
-                        $ref: selectedType.schemas ? 'DataObj' : 'Model',
+                        type: selectedType.schemas ? 'DataObj' : 'Model',
                         selector: {
                             _id: new ObjectId(o.properties._id),
                         },

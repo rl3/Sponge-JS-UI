@@ -31,7 +31,7 @@ var _getObject= {
 };
 
 var dataObjectToString= function( value, options ) {
-    var collection= value.$ref;
+    var collection= value.type || value.$ref;
     var id= (value.selector || {})._id;
 
     var name;
@@ -191,7 +191,8 @@ var getHandler= function( value, options ) {
                                         return 'onMap';
     if ( String(value.type).toLowerCase() === 'nearest' )
                                         return 'onNearest';
-    if ( '$ref' in value )              return 'onDataObject';
+    if ( '$ref' in value || 'type' in value )
+                                        return 'onDataObject';
     if ( value.constructor === Object ) return 'onObject';
 
     return 'onString';
@@ -204,7 +205,7 @@ var _valueToString= function( value, options ) {
 
     // transform complete data objects to references
     if ( typeof value === 'object' && '_id' in value && 'type' in value ) {
-        value= { $ref: value.type, selector: { _id: value._id, }, };
+        value= { type: value.type, selector: { _id: value._id, }, };
     }
 
     var onName= getHandler(value, options);
