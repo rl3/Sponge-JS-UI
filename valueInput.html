@@ -3,7 +3,7 @@
     <div id="valueInput" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="valueInputLabel" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="valueInputLabel">{{> valueInputTitle}}</h3>
+            {{> valueInputTitle}}
         </div>
         <div class="modal-body">
             {{> valueInputBody}}
@@ -32,7 +32,7 @@
 </body>
 
 <template name="valueInputTitle">
-    {{title}}
+    <h3 id="valueInputLabel">{{title}}</h3>
     <div class="description">{{description}}</div>
 </template>
 
