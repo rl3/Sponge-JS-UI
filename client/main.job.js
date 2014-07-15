@@ -107,11 +107,15 @@ T.helper('status', function() {
 });
 
 T.helper('startTime', function() {
-    return this.status && this.status.started && this.status.started.toLocaleString();
+    if ( this.status && this.status.started ) {
+        return SpongeTools.dateToString(this.status.started) + ' ' + SpongeTools.timeToString(this.status.started);
+    }
 });
 
 T.helper('finishTime', function() {
-    return this.status && this.status.finished && this.status.finished.toLocaleString();
+    if ( this.status && this.status.finished ) {
+        return SpongeTools.dateToString(this.status.finished) + ' ' + SpongeTools.timeToString(this.status.finished);
+    }
 });
 
 T.helper('model', function() {
