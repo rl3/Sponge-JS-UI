@@ -9,12 +9,16 @@
     </div>
     <div id="main-content">
         {{#if currentUser}}
-            <div id="main-left-content">
-                {{> mainNavigation}}
-            </div>
-            <div id="main-right-content">
-                {{> mainRightContent}}
-            </div>
+            {{#if isExportMode}}
+                {{> wizExport}}
+            {{else}}
+                <div id="main-left-content">
+                    {{> mainNavigation}}
+                </div>
+                <div id="main-right-content">
+                    {{> mainRightContent}}
+                </div>
+            {{/if}}
         {{else}}
             {{> loginPanel}}
         {{/if}}

@@ -1,34 +1,38 @@
 
 <template name="wizExport">
-    {{> wizard wizardData}}
+    {{> wizardBody wizardData}}
 </template>
 
 <template name="wizExportStep1Expand">
     ObjectType:
-    <select>
-        {{#each objectTypes}}
-            <option value="{{type}}">{{type}}</option>
-        {{/each}}
-    </select>
+    {{#if loading}}
+        {{> loadingSmall}}
+    {{else}}
+        <select>
+            {{#each objectTypes}}
+                <option value="{{type}}">{{type}}</option>
+            {{/each}}
+        </select>
+    {{/if}}
 </template>
 <template name="wizExportStep1Compressed">
-    ObjectType: {{type}}
+    ObjectType: {{wizardData.getData.type}}
 </template>
 
 <template name="wizExportStep2Expand">
-    {{> valueInput data}}
+    {{> valueInput}}
 </template>
 <template name="wizExportStep2Compressed">
-    Object: {{name}}
+    Object: {{objectName}}
 </template>
 
 <template name="wizExportStep3Expand">
-    <label><input type="radio" value="1" name="exportType" />single value</label><br />
-    <label><input type="radio" value="2" name="exportType" />sequence of values</label><br />
-    <label><input type="radio" value="3" name="exportType" />raw data</label><br />
+    <label><input type="radio" value="single" name="exportType" />single value</label><br />
+    <label><input type="radio" value="sequence" name="exportType" />sequence of values</label><br />
+    <label><input type="radio" value="raw" name="exportType" />raw data</label><br />
 </template>
 <template name="wizExportStep3Compressed">
-    Export:
+    Export Type:
     {{#if isSingle}}single value{{/if}}
     {{#if isSequence}}sequence of values{{/if}}
     {{#if isRaw}}raw data{{/if}}

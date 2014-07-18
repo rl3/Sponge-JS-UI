@@ -7,6 +7,10 @@ UI.registerHelper('advancedView', function() {
 
 UI.registerHelper('isAdmin', SpongeTools.isAdmin);
 
+UI.registerHelper('isExportMode', function() {
+    return SpongeTools.Mode === 'exportWizard';
+});
+
 SpongeTools.advancedView= function( value ) {
     if ( arguments.length ) session('advancedView', value);
     return session('advancedView');

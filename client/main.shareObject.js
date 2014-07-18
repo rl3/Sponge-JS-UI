@@ -21,18 +21,22 @@ var getAcls= function() {
     var allGroups= getAllGroups();
 
     if ( !allUsers || !allGroups ) return;
+console.log('have allUsers');
 
     var data= dataObj();
 
     if ( !data ) {
+console.log('no data');
         acls= owner= null;
         aclInvalidator(true);
         return;
     }
+console.log('have data');
 
-    if ( acls && _.isEqual(oldData, data) ) return acls;
+//    if ( acls && _.isEqual(oldData, data) ) return acls;
+console.log('data changed');
 
-    oldData= data;
+    oldData= SpongeTools.clone(data);
     acls= owner= null;
     aclInvalidator(true);
 
@@ -41,6 +45,7 @@ var getAcls= function() {
     var rawAcls= _getAcls(data.type, data.id);
 
     if ( !rawAcls ) return;
+console.log('have rawAcls');
 
     acls= {
         users: {},

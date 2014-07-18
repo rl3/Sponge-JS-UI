@@ -284,6 +284,22 @@ var onAfterMethod= {};
 
 var getInstances= {};
 
+/*
+ * remove all cache instances for a given method for all users
+ */
+var removeFromCache= function() {
+    var methodSelf= this;
+    var args= Array.prototype.slice.call(arguments);
+    var name= args.shift();
+    var urlData= SpongeTools.getCachedMethodData(name, args);
+
+    var key= SpongeTools.buildCacheKey(urlData);
+
+    dataCacheMeta.remove({ key: key });
+    dataCache.remove({ key: key });
+    return;
+};
+
 SpongeTools.getCachedMethodNames().forEach(function( name ) {
     methods[name]= function( /* arguments */ ) {
         var methodSelf= this;
@@ -291,7 +307,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
         var urlData= SpongeTools.getCachedMethodData(name, args);
 
         // run onBeforeMethod with options and return on false
-        if ( name in onBeforeMethod && !onBeforeMethod[name].apply(null, args) ) return;
+        if ( name in onBeforeMethod && !onBeforeMethod[name].apply(this, args) ) return;
 
         var key= SpongeTools.buildCacheKey(urlData);
 
@@ -413,13 +429,15 @@ var updateCache= function( key, query, newData, cb ) {
 onAfterMethod.restartJob=
 onAfterMethod.removeJob= function( jobId ) {
 console.log('invalidate', jobId)
-    methods.getJob.call(this, jobId);
+    removeFromCache('getJob', jobId);
+//    methods.getJob.call(this, jobId);
 };
 
 onAfterMethod.addAcl=
 onAfterMethod.removeAcl= function( collection, id, acls ) {
 console.log('invalidate ACLs', collection, id)
-    methods.getAcl.call(this, collection, id);
+    removeFromCache('getAcl', collection, id);
+//    methods.getAcl.call(this, collection, id);
 };
 
 

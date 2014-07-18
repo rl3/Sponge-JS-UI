@@ -228,7 +228,6 @@ $(function() {
 var valueToString= function( value, type ) {
     var options= {
         onLocation: function( value, options, defaultFn ) {
-console.log(defaultFn(value, options));
             return $(defaultFn(value, options)).html();
         }
     };
@@ -485,6 +484,14 @@ var simpleValueGet= function() {
     return singleValue().get();
 };
 
+var singleValueSetTemp= function( value ) {
+    var sv= singleValue();
+    if ( !sv ) return;
+
+    sv.newValue= value;
+    if ( sv.setTemp ) sv.setTemp(value);
+};
+
 var simpleValueEvents= {
     'change input': function( event ) {
         var newValue= event.currentTarget.value;
@@ -496,7 +503,7 @@ var simpleValueEvents= {
             case 'Integer': newValue= parseInt(newValue, 10); break;
             case 'Double':  newValue= parseFloat(newValue); break;
         }
-        sv.newValue= newValue;
+        singleValueSetTemp(newValue);
     },
 };
 
@@ -554,7 +561,7 @@ T.helper('checked', function() {
 });
 T.events({
     'change input': function( event ) {
-        singleValue().newValue= event.currentTarget.checked;
+        singleValueSetTemp(event.currentTarget.checked);
     },
 });
 
@@ -576,7 +583,7 @@ T.helper('values', function() {
 
 T.events({
     'change select': function( event ) {
-        singleValue().newValue= event.currentTarget.value;
+        singleValueSetTemp(event.currentTarget.value);
     }
 });
 
@@ -589,7 +596,7 @@ T.addFn('init', function() {
     // if set consists of a single '*', select all values
     if ( set.length === 1 && set[0] === '*' ) set= ((sv.info || {}).const || []).slice();
 
-    sv.newValue= set;
+    singleValueSetTemp(set);
 });
 
 var updateCBSelectAll= function( $container ) {
@@ -634,7 +641,7 @@ T.events({
         if ( $cb.hasClass('select-all') ) {
             var checked= $cb.prop('checked');
             $parent.find('input.value').prop('checked', checked);
-            sv.newValue= checked ? ((sv.info || {}).const || []) : [];
+            singleValueSetTemp(checked ? ((sv.info || {}).const || []) : []);
             return;
         }
 
@@ -646,7 +653,7 @@ T.events({
             if ( set.indexOf(value) < 0 ) set.push(value);
             return;
         }
-        sv.newValue= _.without(set, value);
+        singleValueSetTemp(_.without(set, value));
     }
 });
 
@@ -685,7 +692,7 @@ T.addFn('rendered', function() {
         color: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')',
     }).on('changeColor', function( event ) {
         var rgba= event.color.toRGB();
-        singleValue().newValue= hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.g) + hexPad(rgba.r);
+        singleValueSetTemp(hexPad(rgba.a * 255) + hexPad(rgba.b) + hexPad(rgba.g) + hexPad(rgba.r));
     })
     .focus();
 });
@@ -702,7 +709,7 @@ T.addFn('rendered', function() {
         weekStart: 1,
         viewMode: 'years',
     }).on('changeDate', function( event ) {
-        singleValue().newValue= new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate()));
+        singleValueSetTemp(new Date(Date.UTC(event.date.getFullYear(), event.date.getMonth(), event.date.getDate())));
     }).on('change', (function() {
 
         // semaphore to prevent calling 'change' during setValue
@@ -714,7 +721,7 @@ T.addFn('rendered', function() {
             $this.datepicker('setValue', $this.val());
             running= false;
             var date= $this.data('datepicker').dates.get();
-            singleValue().newValue= new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            singleValueSetTemp(new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())));
         };
     })()).focus();
     var startValue= singleValue().get();
@@ -746,7 +753,7 @@ T.events({
         var value= event.currentTarget.value || '';
 
         if ( !value ) {
-            sv.newValue= [];
+            singleValueSetTemp([]);
             return setError(event.currentTarget, false);
         }
 
@@ -754,7 +761,7 @@ T.events({
         if ( !match ) return setError(event.currentTarget, true);
 
         setError(event.currentTarget, false);
-        sv.newValue= [ parseFloat(match[2]), parseFloat(match[1]) ];
+        singleValueSetTemp([ parseFloat(match[2]), parseFloat(match[1]) ]);
     },
     'click a.by-map': function( event ) {
         $cg= $(event.currentTarget).closest('.control-group');
@@ -774,7 +781,7 @@ T.events({
                 if ( event && event.latLng ) {
                     var lon= event.latLng.lng();
                     var lat= event.latLng.lat()
-                    sv.newValue= [ lon, lat ];
+                    singleValueSetTemp([ lon, lat ]);
                     $cg.find('input.location').val(lat + ', ' + lon);
                     Map.hide();
                 }
@@ -809,6 +816,10 @@ T.events({
 });
 
 var getCompatibleTypes= function() {
+    var sv= singleValue();
+
+    if ( sv && sv.getCompatibleTypes ) return sv.getCompatibleTypes();
+
     var value= getValue();
 
     if ( !value ) return;
@@ -874,12 +885,12 @@ T.events({
 
         if ( !selectedType ) return;
 
-        singleValue().newValue= {
+        singleValueSetTemp({
             type: selectedType.schemas ? 'DataObj' : 'Model',
             selector: {
                 _id: new ObjectId(event.currentTarget.value),
             },
-       };
+       });
     },
     'click a.select-from-map': function( event ) {
         var objects= getCompatibleObjects() || [].filter(function( o ) { return 'location' in o; });
@@ -993,12 +1004,12 @@ T.helper('selectFromMapHandler', function() {
             infotext: infotext,
             events: {
                 dblclick: function( event ) {
-                    singleValue().newValue= {
+                    singleValueSetTemp({
                         type: selectedType.schemas ? 'DataObj' : 'Model',
                         selector: {
                             _id: new ObjectId(o.properties._id),
                         },
-                    };
+                    });
                     Map.hide();
                     $('#singleValueInput button.saveValue').click();
                 },
@@ -1183,3 +1194,22 @@ var showSingleValue= function( _singleValue ) {
 };
 
 SpongeTools.showSingleValueDialog= showSingleValue;
+
+
+// export singleValue for 
+SpongeTools.valueInput= {
+    singleValue: function( data ) {
+        singleValue({
+            get: data.get,
+            set: data.set,
+            setTemp: data.setTemp,
+            type: data.type,
+            description: data.description,
+            newValue: data.value,
+            getCompatibleTypes: data.getCompatibleTypes,
+        });
+    },
+    buildContextForModel: buildContextForModel,
+};
+
+

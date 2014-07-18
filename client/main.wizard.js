@@ -1,9 +1,9 @@
 
 var T= SpongeTools.Template;
 
-var ReaktiveValue= SpongeTools.ReactiveValue;
+var ReactiveValue= SpongeTools.ReactiveValue;
 
-var CallFn= function( fn ) {
+var callFn= function( fn ) {
     return typeof fn === 'function' ? fn.apply(null, Array.prototype.slice.call(arguments, 1)) : null;
 }
 
@@ -25,10 +25,10 @@ var newStep= function( nextStep, newDataFn ) {
     var newData= callFn(newDataFn) || {};
     state(nextStep, 'open');
     callFn(newData.onFinished, function() {
-        state(nextStep, CallFn(newData.isFinished) ? 'closed' : 'open');
+        state(nextStep, callFn(newData.isFinished) ? 'closed' : 'open');
     });
     return {
-        data: newData || {},
+        wizardData: newData || {},
         step: nextStep,
     };
 }
@@ -46,21 +46,21 @@ T.helper('isOpen', function() {
 });
 
 T.helper('content', function() {
-    return CallFn(this.data.getContentTemplate);
+    var templateName= callFn(this.wizardData.getContentTemplate);
+    if ( templateName in Template ) return Template[templateName];
+    return null;
 });
 
 T.helper('contentCompressed', function() {
-    return CallFn(this.data.getContentCompressedTemplate);
-});
-
-T.helper('data', function() {
-    return CallFn(this.data.getData) || {};
+    var templateName= callFn(this.wizardData.getContentCompressedTemplate);
+    if ( templateName in Template ) return Template[templateName];
+    return null;
 });
 
 T.helper('nextStep', function() {
-    return CallFn(this.data.isFinished) && callFn(this.data.hasNext) ? 'wizardStep' : null;
+    return this.wizardData && this.wizardData.isFinished && this.wizardData.hasNext ? Template.wizardStep : null;
 });
 
 T.helper('nextStepData', function() {
-    return newStep(this.step + 1, this.data.nextStepData);
+    return callFn(this.wizardData.isFinished) && callFn(this.wizardData.hasNext) ? newStep(this.step + 1, this.wizardData.nextStepData) : undefined;
 });

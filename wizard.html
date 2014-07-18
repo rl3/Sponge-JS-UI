@@ -7,11 +7,11 @@
 <template name="wizardStep">
     {{#if isOpen}}
         <div class="wizard-content">
-            {{> content data}}
+            {{> content}}
         </div>
     {{else}}
         <div class="wizard-content-compressed">
-            {{> contentCompressed data}}
+            {{> contentCompressed}}
         </div>
         {{> nextStep nextStepData}}
     {{/if}}
