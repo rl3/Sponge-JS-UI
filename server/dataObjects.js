@@ -86,8 +86,8 @@ Meteor.publish('client-cache', function() {
 var Debug= false;
 var debugFilter;
 
-// Debug= true;
-// debugFilter= /Point\/get/;
+//Debug= true;
+//debugFilter= /Model\/getCompa/;
 
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);

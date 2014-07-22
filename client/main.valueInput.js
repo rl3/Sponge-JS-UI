@@ -886,7 +886,7 @@ T.events({
         if ( !selectedType ) return;
 
         singleValueSetTemp({
-            type: selectedType.schemas ? 'DataObj' : 'Model',
+            _ref: selectedType.schemas ? 'DataObj' : 'Model',
             selector: {
                 _id: new ObjectId(event.currentTarget.value),
             },
@@ -1005,7 +1005,7 @@ T.helper('selectFromMapHandler', function() {
             events: {
                 dblclick: function( event ) {
                     singleValueSetTemp({
-                        type: selectedType.schemas ? 'DataObj' : 'Model',
+                        _ref: selectedType.schemas ? 'DataObj' : 'Model',
                         selector: {
                             _id: new ObjectId(o.properties._id),
                         },
