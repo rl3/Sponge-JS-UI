@@ -66,6 +66,7 @@ console.log('have rawAcls');
 
     owner= null;
 
+console.log('typeof rawAcls:', typeof rawAcls, 'isArray:', _.isArray(rawAcls));
     rawAcls.forEach(function( acl ) {
         var o;
         switch (acl[1]) {
