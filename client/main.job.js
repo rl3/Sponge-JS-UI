@@ -55,9 +55,6 @@ var getJobResultMap= function( jobId, path, data, format ) {
     return _getJobResultMap(jobId, path, data, format);
 };
 
-// object to hold map args reactively
-var resultMapArgsCtxt= {};
-
 var _restartJob= SpongeTools.getCachedData('restartJob', 2000);
 var restartJob= function() {
     _restartJob(jobId(), function() {
@@ -332,6 +329,99 @@ T.helper('keys', function() {
     });
 });
 
+T.helper('loading', function() {
+    if ( !this.mapLoadingInvalidator ) {
+        this.mapLoadingInvalidator= SpongeTools.getInvalidator('jobMapResult');
+    }
+    this.mapLoadingInvalidator();
+
+    var jobId= this.jobId;
+    var path= this.tablePath;
+
+    var formats= ['kml', 'xml', 'csv'];
+    for ( var i in formats ) {
+        var format= formats[i];
+        if (
+            SpongeTools.lazyHelper.jobRunning('args:' + jobId + ':' + path + ':' + format)
+            || SpongeTools.lazyHelper.jobRunning('link:' + jobId + ':' + path + ':' + format)
+        ) return Template.loadingImage;
+    }
+    return null
+});
+
+var clickEvent= function( format ) {
+    return function( event ) {
+        var self= this;
+        var jobId= this.jobId;
+        var path= this.tablePath;
+
+        if ( !this.mapLoadingInvalidator ) {
+            this.mapLoadingInvalidator= SpongeTools.getInvalidator('jobMapResult');
+        }
+        var loadingInvalidator= this.mapLoadingInvalidator;
+
+        var lazyJobId= 'args:' + jobId + ':' + path + ':' + format;
+        SpongeTools.lazyHelper.addInvalidator(lazyJobId, loadingInvalidator);
+        SpongeTools.lazyHelper.addJob(lazyJobId, function() {
+
+            // if clicked, get map args
+            var args= getJobResultMapArgs(jobId, path);
+            if ( args === undefined ) return true;
+
+            var _args= SpongeTools.buildValues(args, 'args', self);
+
+            SpongeTools.valuesInput(
+                _args, {
+                    title: 'Arguments for map "' + self.index + '"',
+                    simple: true,
+                }, function( newArgs ) {
+                    var result= { args: newArgs };
+                    if ( 'transient' in args ) result.transient= args.transient;
+
+                    var lazyJobId= 'link:' + jobId + ':' + path + ':' + format;
+                    SpongeTools.lazyHelper.addInvalidator(lazyJobId, loadingInvalidator);
+                    SpongeTools.lazyHelper.addJob(lazyJobId, function() {
+                        var data= getJobResultMap(jobId, path, result, format);
+
+                        // while no data keep lazy job
+                        if ( !data ) return true;
+
+                        // if no url, remove lazyJob
+                        if ( !data.url ) return false;
+
+                        var url= SpongeTools.buildApiUrl(data.url);
+
+console.log('Map Link', url);
+
+                        var contentType, target;
+                        switch ( format ) {
+                            case 'csv': contentType= 'text/comma-separated-values'; break;
+                            case 'xml': contentType= 'text/xml'; target= '_new'; break;
+                            default: contentType= 'application/vnd.google-earth.kml+xml'; break;
+                        }
+
+                        SpongeTools.downloadLink(url, {
+                            query: {
+                                contentType: contentType,
+                                fileName: path + '.' + format,
+                            },
+                            target: target,
+                        });
+
+                        // remove lazyJob
+                        return false;
+                    });
+                }
+            );
+
+            // remove lazyJob
+            return false;
+        });
+        return false;
+    };
+};
+
+
 T.events({
     'click .result.toggle': function( event ) {
         $(event.currentTarget)
@@ -341,109 +431,8 @@ T.events({
         ;
         return false;
     },
-    'click a.resultMapKml': function( event ) {
-        injectVar(this, 'clicked')('kml');
-        return false;
-    },
-    'click a.resultMapXml': function( event ) {
-        injectVar(this, 'clicked')('xml');
-        return false;
-    },
-    'click a.resultMapCsv': function( event ) {
-        injectVar(this, 'clicked')('csv');
-        return false;
-    },
+    'click a.resultMapKml': clickEvent('kml'),
+    'click a.resultMapXml': clickEvent('xml'),
+    'click a.resultMapCsv': clickEvent('csv'),
 });
-
-T.select('jobResultMapLink');
-
-/**
- * helper does not return anything
- * it's simply a handler to show a dialog for map arguments
- */
-T.helper('clicked', function() {
-    var clicked= injectVar(this, 'clicked', false);
-
-    var format= clicked();
-
-    if ( !format ) return;
-
-    if ( typeof format !== 'string' ) format= kml;
-
-    var _jobId= jobId();
-    var path= this.tablePath;
-
-    // if clicked, get map args
-    var args= getJobResultMapArgs(_jobId, path);
-    if ( args === undefined ) return;
-
-    // on result reset 'clicked'-status
-    clicked(false);
-
-    var _args= SpongeTools.buildValues(args, 'args', this);
-
-    SpongeTools.valuesInput(
-        _args, {
-            title: 'Arguments for map "' + this.index + '"',
-            simple: true,
-        }, function( newArgs ) {
-            var result= { args: newArgs, format: format };
-            if ( 'transient' in args ) result.transient= args.transient;
-
-            injectVar(resultMapArgsCtxt, path)(result);
-        }
-    );
-});
-
-T.select('jobResultMapResult');
-
-/**
- * helper does not return anything
- * it's simply a handler to show a dialog for map arguments
- */
-T.helper('templateHelper', function() {
-    var path= this.tablePath;
-    var args= injectVar(resultMapArgsCtxt, path, undefined);
-
-    var _args= args();
-
-    if ( !_args ) return null;
-
-    format= _args.format;
-    delete _args._format;
-
-    var data= getJobResultMap(jobId(), this.tablePath, _args, format);
-    if ( !data ) return Template.loadingImage;
-
-    // unset arguments to prevent running into this function again
-    // (was a bug in windows-browsers, calling this function repeatedly)
-    args(undefined);
-
-    if ( !data.url ) {
-console.log('!data.url', data);
-        return null;
-    }
-
-    var url= SpongeTools.buildApiUrl(data.url);
-
-    console.log('Map Link', url);
-
-    var contentType, target;
-    switch ( format ) {
-        case 'csv': contentType= 'text/comma-separated-values'; break;
-        case 'xml': contentType= 'text/xml'; target= '_new'; break;
-        default: contentType= 'application/vnd.google-earth.kml+xml'; break;
-    }
-
-console.log(url);
-    SpongeTools.downloadLink(url, {
-        query: {
-            contentType: contentType,
-            fileName: this.tablePath + '.' + format,
-        },
-        target: target,
-    });
-    return null;
-});
-
 

@@ -105,8 +105,15 @@
                                         <tr><th align="right">{{index}}{{> valueInfo info}}:</th><td>
                                             <a class="resultTable" href="{{hrefXml}}" target="_new">XML</a>
                                             <a class="resultTable" href="{{hrefCsv}}" target="_new">CSV</a>
-                                            {{> jobResultMapLink}}
-                                            {{> jobResultMapResult}}
+                                            <div class="map-hover">
+                                                <div class="head">
+                                                    <a class="resultMapKml" href="#">Map</a>{{> loading}}
+                                                </div>
+                                                <div class="additional">
+                                                    <a class="resultMapCsv" href="#">Map (CSV)</a><br />
+                                                    <a class="resultMapXml" href="#">Map (XML)</a>
+                                                </div>
+                                            </div>
                                         </td></tr>
                                     {{/each}}
                                 </table>
@@ -119,20 +126,3 @@
     {{/each}}
 </template>
 
-
-<template name="jobResultMapLink">
-    {{clicked}}
-    <div class="map-hover">
-        <div class="head">
-            <a class="resultMapKml" href="#">Map</a>
-        </div>
-        <div class="additional">
-            <a class="resultMapCsv" href="#">Map (CSV)</a><br />
-            <a class="resultMapXml" href="#">Map (XML)</a>
-        </div>
-    </div>
-</template>
-
-<template name="jobResultMapResult">
-    {{> templateHelper}}
-</template>
