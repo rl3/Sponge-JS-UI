@@ -122,7 +122,15 @@
 
 <template name="jobResultMapLink">
     {{clicked}}
-    <a class="resultMap" href="#">Map</a>
+    <div class="map-hover">
+        <div class="head">
+            <a class="resultMapKml" href="#">Map</a>
+        </div>
+        <div class="additional">
+            <a class="resultMapCsv" href="#">Map (CSV)</a><br />
+            <a class="resultMapXml" href="#">Map (XML)</a>
+        </div>
+    </div>
 </template>
 
 <template name="jobResultMapResult">

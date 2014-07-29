@@ -612,3 +612,25 @@ a.value-info {
     color: red;
     font-weight: bold;
 }
+
+.map-hover {
+    display: inline-block;
+    padding: 0 .3em;
+    margin-right: 5em;
+
+    .additional {
+        display: none;
+        position: absolute;
+        margin-left: 1em;
+        padding: 0 .3em;
+    }
+
+    &:hover {
+        background-color: #ddddff;
+
+        .additional {
+            background-color: #ddddff;
+            display: block;
+        }
+    }
+}

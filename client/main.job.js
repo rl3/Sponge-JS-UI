@@ -51,8 +51,8 @@ var getJobResultMapArgs= function( jobId, path ) {
 };
 
 var _getJobResultMap= SpongeTools.getCachedData('getJobResultMap', 2000);
-var getJobResultMap= function( jobId, path, data ) {
-    return _getJobResultMap(jobId, path, data);
+var getJobResultMap= function( jobId, path, data, format ) {
+    return _getJobResultMap(jobId, path, data, format);
 };
 
 // object to hold map args reactively
@@ -339,8 +339,16 @@ T.events({
         ;
         return false;
     },
-    'click a.resultMap': function( event ) {
-        injectVar(this, 'clicked')(true);
+    'click a.resultMapKml': function( event ) {
+        injectVar(this, 'clicked')('kml');
+        return false;
+    },
+    'click a.resultMapXml': function( event ) {
+        injectVar(this, 'clicked')('xml');
+        return false;
+    },
+    'click a.resultMapCsv': function( event ) {
+        injectVar(this, 'clicked')('csv');
         return false;
     },
 });
@@ -354,7 +362,11 @@ T.select('jobResultMapLink');
 T.helper('clicked', function() {
     var clicked= injectVar(this, 'clicked', false);
 
-    if ( !clicked() ) return;
+    var format= clicked();
+
+    if ( !format ) return;
+
+    if ( typeof format !== 'string' ) format= kml;
 
     var _jobId= jobId();
     var path= this.tablePath;
@@ -373,7 +385,7 @@ T.helper('clicked', function() {
             title: 'Arguments for map "' + this.index + '"',
             simple: true,
         }, function( newArgs ) {
-            var result= { args: newArgs };
+            var result= { args: newArgs, format: format };
             if ( 'transient' in args ) result.transient= args.transient;
 
             injectVar(resultMapArgsCtxt, path)(result);
@@ -391,9 +403,14 @@ T.helper('templateHelper', function() {
     var path= this.tablePath;
     var args= injectVar(resultMapArgsCtxt, path, undefined);
 
-    if ( !args() ) return null;
+    var _args= args();
 
-    var data= getJobResultMap(jobId(), this.tablePath, args());
+    if ( !_args ) return null;
+
+    format= _args.format;
+    delete _args._format;
+
+    var data= getJobResultMap(jobId(), this.tablePath, _args, format);
     if ( !data ) return Template.loadingImage;
 
     // unset arguments to prevent running into this function again
@@ -406,11 +423,20 @@ T.helper('templateHelper', function() {
 
     console.log('Map Link', url);
 
+    var contentType, target;
+    switch ( format ) {
+        case 'csv': contentType= 'text/comma-separated-values'; break;
+        case 'xml': contentType= 'text/xml'; target= '_new'; break;
+        default: contentType= 'application/vnd.google-earth.kml+xml'; break;
+    }
+
+console.log(url);
     SpongeTools.downloadLink(url, {
         query: {
-            contentType: 'application/vnd.google-earth.kml+xml',
-            fileName: this.tablePath + '.kml',
+            contentType: contentType,
+            fileName: this.tablePath + '.' + format,
         },
+        target: target,
     });
     return null;
 });
