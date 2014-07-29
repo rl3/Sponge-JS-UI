@@ -417,7 +417,10 @@ T.helper('templateHelper', function() {
     // (was a bug in windows-browsers, calling this function repeatedly)
     args(undefined);
 
-    if ( !data.url ) return null;
+    if ( !data.url ) {
+console.log('!data.url', data);
+        return null;
+    }
 
     var url= SpongeTools.buildApiUrl(data.url);
 
