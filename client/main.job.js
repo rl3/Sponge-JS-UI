@@ -93,6 +93,7 @@ var T= SpongeTools.Template;
 T.select('job');
 
 T.helper('statusClass', function() {
+    if ( !this.status ) return;
     if ( this.status.error )     return 'error';
     if ( this.status.success )   return 'success';
     if ( !this.status.finished ) return 'running';
@@ -100,6 +101,7 @@ T.helper('statusClass', function() {
 });
 
 T.helper('status', function() {
+    if ( !this.status ) return;
     if ( this.status.error )     return new Spacebars.SafeString('Error:<br /><code>' + this.status.error + '</code>');
     if ( this.status.success )   return 'Successfully finished';
     if ( !this.status.finished ) return 'Running';
