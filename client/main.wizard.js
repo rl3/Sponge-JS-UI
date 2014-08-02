@@ -42,6 +42,10 @@ T.helper('firstStepData', function() {
 
 T.select('wizardStep');
 
+T.helper('enabled', function() {
+    return this.wizardData.isEnabled ? this.wizardData.isEnabled() : true;
+});
+
 T.helper('isOpen', function() {
     return state(this.step) === 'open';
 });
@@ -64,4 +68,10 @@ T.helper('nextStep', function() {
 
 T.helper('nextStepData', function() {
     return callFn(this.wizardData.isFinished) && callFn(this.wizardData.hasNext) ? newStep(this.step + 1, this.wizardData.nextStepData) : undefined;
+});
+
+T.events({
+    'click a.edit-step': function( event ) {
+        state(this.step, 'open');
+    },
 });

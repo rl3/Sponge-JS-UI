@@ -9,6 +9,7 @@
         {{> loadingSmall}}
     {{else}}
         <select>
+            <option value="" style="display:none">Select one</option>
             {{#each objectTypes}}
                 <option value="{{type}}">{{type}}</option>
             {{/each}}
@@ -27,9 +28,9 @@
 </template>
 
 <template name="wizExportStep3Expand">
-    <label><input type="radio" value="single" name="exportType" />single value</label><br />
-    <label><input type="radio" value="sequence" name="exportType" />sequence of values</label><br />
-    <label><input type="radio" value="raw" name="exportType" />raw data</label><br />
+    <label><input type="radio" value="single" name="exportType" />single value</label>
+    <label><input type="radio" value="sequence" name="exportType" />sequence of values</label>
+    <label><input type="radio" value="raw" name="exportType" />raw data</label>
 </template>
 <template name="wizExportStep3Compressed">
     Export Type:
@@ -39,18 +40,54 @@
 </template>
 
 <template name="wizExportStep4Expand">
-    <label>Start: <input type="text" name="start" value="{{start}}" /></label><br />
-    <label>End: <input type="text" name="end" value="{{end}}" /></label><br />
-    <label>Step: <input type="text" name="step" value="{{step}}" /></label><br />
+    {{title}}:
+    <a href="#" class="start-value">
+        {{#each iteratorValues}}
+            {{valueName}}={{value}}
+        {{/each}}
+    </a>
 </template>
 <template name="wizExportStep4Compressed">
-    Range: {{start}} - {{end}} (Step: {{step}})
+    {{title}}:
+    {{#each iteratorValues}}
+        {{valueName}}={{value}}
+    {{/each}}
 </template>
 
 <template name="wizExportStep5Expand">
-    <button>submit</button>
+    Iterator end:
+    <a href="#" class="end-value">
+        {{#each iteratorValues}}
+            {{valueName}}={{value}}
+        {{/each}}
+    </a>
 </template>
 <template name="wizExportStep5Compressed">
+    Iterator end:
+    {{#each iteratorValues}}
+        {{valueName}}={{value}}
+    {{/each}}
+</template>
+
+<template name="wizExportStep6Expand">
+    Step:
+    <a href="#" class="step-value">
+        {{#each iteratorValues}}
+            {{valueName}}={{value}}
+        {{/each}}
+    </a>
+</template>
+<template name="wizExportStep6Compressed">
+    Step:
+    {{#each iteratorValues}}
+        {{valueName}}={{value}}
+    {{/each}}
+</template>
+
+<template name="wizExportStep7Expand">
+    <button>submit</button>
+</template>
+<template name="wizExportStep7Compressed">
     Finished
 </template>
 

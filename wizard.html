@@ -1,18 +1,29 @@
 
 <template name="wizardBody">
-    {{> wizardStep firstStepData}}
+    <table class="table">
+        {{> wizardStep firstStepData}}
+    </table>
 </template>
 
 
 <template name="wizardStep">
-    {{#if isOpen}}
-        <div class="wizard-content">
-            {{> content}}
-        </div>
+    {{#if enabled}}
+        {{#if isOpen}}
+            <tr>
+                <td class="wizard-content span6">
+                    {{> content}}
+                </td>
+            </tr>
+        {{else}}
+            <tr>
+                <td class="wizard-content-compressed span6">
+                    {{> contentCompressed}}
+                    <a class="edit-step btn" href="#"><i class="icon-pencil"></i></a>
+                </td>
+            </tr>
+            {{> nextStep nextStepData}}
+        {{/if}}
     {{else}}
-        <div class="wizard-content-compressed">
-            {{> contentCompressed}}
-        </div>
         {{> nextStep nextStepData}}
     {{/if}}
 </template>
