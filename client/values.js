@@ -31,6 +31,8 @@ var _getObject= {
 };
 
 var dataObjectToString= function( value, options ) {
+    if ( 'name' in value ) return value.name;
+
     var collection= value._ref;
     var id= (value.selector || {})._id;
 
