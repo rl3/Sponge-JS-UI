@@ -872,7 +872,8 @@ T.helper('currentLabel', function() {
     var value= getTempValue('modelVariant')();
 
     var typeNames= buildTypeNames();
-    if ( !value || !_.contains(typeNames, value) ) {
+
+    if ( !value || !_.contains(typeNames.map(function( name ) { return name.label }), value.label) ) {
         value= typeNames[0];
         getTempValue('modelVariant')(value);
     }
