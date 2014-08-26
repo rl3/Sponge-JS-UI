@@ -843,14 +843,14 @@ var buildTypeNames= function() {
 
     var typeNames= {};
 
-    if ( compatibleTypes.models.length ) {
-        typeNames.Model= undefined;
-    }
-
     compatibleTypes.schemas.forEach(function( schema ) {
         if ( !(schema.objectType in typeNames) ) typeNames[schema.objectType]= [];
         typeNames[schema.objectType].push(schema);
     });
+
+    if ( compatibleTypes.models.length ) {
+        typeNames.Model= undefined;
+    }
 
     return Object.keys(typeNames).map(function( name ) {
         return {
