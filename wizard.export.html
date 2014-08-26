@@ -11,7 +11,7 @@
         <select>
             <option value="" style="display:none">Select one</option>
             {{#each objectTypes}}
-                <option value="{{type}}">{{type}}</option>
+                <option value="{{type}}" selected={{selected}}>{{type}}</option>
             {{/each}}
         </select>
     {{/if}}
@@ -28,9 +28,9 @@
 </template>
 
 <template name="wizExportStep3Expand">
-    <label><input type="radio" value="single" name="exportType" />single value</label>
-    <label><input type="radio" value="sequence" name="exportType" />sequence of values</label>
-    <label><input type="radio" value="raw" name="exportType" />raw data</label>
+    <label><input type="radio" value="single" name="exportType" checked={{checked single}} />single value</label>
+    <label><input type="radio" value="sequence" name="exportType" checked={{checked sequence}} />sequence of values</label>
+    <label><input type="radio" value="raw" name="exportType" checked={{checked raw}} />raw data</label>
 </template>
 <template name="wizExportStep3Compressed">
     Export Type:

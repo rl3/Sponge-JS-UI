@@ -25,6 +25,10 @@ var getSchema= function() {
 };
 
 
+var _getRawDataValues= SpongeTools.getCachedData('exportRawByDataObjId');
+var _getSingleDataValue= SpongeTools.getCachedData('exportSingleByDataObjId');
+var _getDataValues= SpongeTools.getCachedData('exportByDataObjId');
+
 T.select('wizExport');
 
 var data= [];
@@ -49,6 +53,23 @@ var defaultData= [
         step: {},
     },
     {},
+];
+
+var nextFns= [
+    //0
+    function( data ) { return data.type },
+    // 1
+    function( data ) { return data.object },
+    // 2
+    function( data ) { return data.exportType },
+    // 3
+    function( data ) { return Object.keys(data.start).length },
+    // 4
+    function( data ) { return Object.keys(data.end).length },
+    // 5
+    function( data ) { return Object.keys(data.step).length },
+    // 6
+    function( data ) { return false },
 ];
 
 var getStepData= function( step ) {
@@ -83,15 +104,22 @@ var createContextData= function( step ) {
         getContentCompressedTemplate: function() { return 'wizExportStep' + (step + 1) + 'Compressed'; },
         getData: function() { return _data.data },
         isEnabled: function() {
-            if ( step === 4 || step === 5 ) {
+            if ( step === 4 ) {
                 exportInvalidator();
                 return getStepData(2).exportType !== 'single';
+            };
+            if ( step === 5 ) {
+                exportInvalidator();
+                return getStepData(2).exportType === 'sequence';
             };
             return true;
         },
         isFinished: function() { return _data.finished; },
         onFinished: function( fn ) {
             if ( typeof fn === 'function' ) onFinished.push(fn);
+        },
+        nextAllowed: function() {
+            return nextFns[step](_data.data);
         },
         finish: function() {
             _data.finished= true;
@@ -131,6 +159,10 @@ T.helper('objectTypes', function() {
     if ( !typeVersions ) return;
 
     return Object.keys(typeVersions).map(function( type ) { return { type: type }; });
+});
+
+T.helper('selected', function() {
+    return this.type === getStepData(0).type;
 });
 
 T.events({
@@ -181,6 +213,13 @@ T.helper('objectName', function() {
 
 T.select('wizExportStep3Expand');
 
+T.helper('checked', function( value ) {
+    return this.wizardData.getData().exportType === value;
+});
+T.helper('single',   function() { return 'single'   });
+T.helper('sequence', function() { return 'sequence' });
+T.helper('raw',      function() { return 'raw'      });
+
 T.events({
     'click input': function( event ) {
         var value= $(event.currentTarget).val();
@@ -225,13 +264,32 @@ var _getValues= function( property ) {
     };
 };
 
-var _editValues= function( property, invalidator ) {
+var _editValues= function( property, invalidator, forStep ) {
     return function( event ) {
         var schema= getSchema();
         if ( !schema ) return;
 
         var self= this;
-        var args= SpongeTools.buildValues(schema.definition, 'args', this, SpongeTools.clone(this.wizardData.getData()[property]));
+
+        var definition= _.clone(schema.definition);
+        if ( forStep && definition.args ) {
+            definition.args= _.clone(definition.args);
+
+            if ( !definition.info ) definition.info= {};
+            if ( definition.info.args ) 
+            definition.info.args= definition.info.args ? _.clone(definition.info.args) : {};
+
+            for ( var name in definition.args ) {
+                if ( definition.args[name] !== 'Date' ) continue;
+
+                definition.args[name]= 'Const';
+
+                definition.info.args[name]= definition.info.args[name] ? _.clone(definition.info.args[name]) : {};
+                definition.info.args[name].const= ['second', 'minute', 'hour', 'day', 'month', 'year'];
+            }
+        }
+
+        var args= SpongeTools.buildValues(definition, 'args', this, SpongeTools.clone(this.wizardData.getData()[property]));
 
         SpongeTools.valuesInput(
             args, {
@@ -317,7 +375,7 @@ T.helper('iteratorValues', function() {
 });
 
 T.events({
-    'click a.step-value': _editValues('step', stepIterator.invalidator),
+    'click a.step-value': _editValues('step', stepIterator.invalidator, true),
 });
 
 T.select('wizExportStep6Compressed');
@@ -325,5 +383,64 @@ T.select('wizExportStep6Compressed');
 T.helper('iteratorValues', function() {
     stepIterator.invalidator();
     return stepIterator.getValues.apply(this);
+});
+
+T.select('wizExportStep7Expand');
+
+T.events({
+    'click button': function( event ) {
+        var exportType= getStepData(2).exportType;
+        var fn, args;
+
+        var format= 'xml';
+        switch ( exportType ) {
+            case 'single':
+                fn= _getSingleDataValue;
+                args= [ getStepData(1).object.selector._id, getStepData(3).start ];
+                break;
+            case 'sequence':
+                fn= _getDataValues;
+                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end, getStepData(5).step ];
+                break;
+            case 'raw':
+                fn= _getRawDataValues;
+                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end ];
+                break;
+        }
+
+        var jobId= 'export:' + JSON.stringify(EJSON.toJSONValue(args));
+
+        SpongeTools.lazyHelper.addJob(jobId, function() {
+
+            var result= fn.apply(null, args);
+
+            // while no data keep lazy job
+            if ( !result ) return true;
+
+            // if no url, remove lazyJob
+            if ( !result.url ) return false;
+
+            var url= SpongeTools.buildApiUrl(result.url);
+
+            var contentType, target;
+            switch ( format ) {
+                case 'csv': contentType= 'text/comma-separated-values'; break;
+                case 'xml': contentType= 'text/xml'; target= '_new'; break;
+                default: contentType= 'application/vnd.google-earth.kml+xml'; break;
+            }
+
+            SpongeTools.downloadLink(url, {
+                query: {
+                    contentType: contentType,
+                    fileName: 'result.' + format,
+                },
+            });
+
+            // remove lazyJob
+            return false;
+        });
+
+        return true;
+    },
 });
 

@@ -62,16 +62,23 @@ T.helper('contentCompressed', function() {
     return null;
 });
 
+T.helper('nextAllowed', function() {
+    return this.wizardData && callFn(this.wizardData.nextAllowed);
+});
+
 T.helper('nextStep', function() {
-    return this.wizardData && this.wizardData.isFinished && this.wizardData.hasNext ? Template.wizardStep : null;
+    return this.wizardData && callFn(this.wizardData.hasNext) ? Template.wizardStep : null;
 });
 
 T.helper('nextStepData', function() {
-    return callFn(this.wizardData.isFinished) && callFn(this.wizardData.hasNext) ? newStep(this.step + 1, this.wizardData.nextStepData) : undefined;
+    return (callFn(this.wizardData.isFinished) || !callFn(this.wizardData.isEnabled)) && callFn(this.wizardData.hasNext) ? newStep(this.step + 1, this.wizardData.nextStepData) : undefined;
 });
 
 T.events({
     'click a.edit-step': function( event ) {
         state(this.step, 'open');
+    },
+    'click button.next': function() {
+        callFn(this.wizardData.finish);
     },
 });

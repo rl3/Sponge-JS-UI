@@ -13,10 +13,15 @@
                 <td class="wizard-content span6">
                     {{> content}}
                 </td>
+                <td>
+                    {{#if nextAllowed}}
+                        <button class="next">Next</button>
+                    {{/if}}
+                </td>
             </tr>
         {{else}}
             <tr>
-                <td class="wizard-content-compressed span6">
+                <td class="wizard-content-compressed span6" colspan="2">
                     {{> contentCompressed}}
                     <a class="edit-step btn" href="#"><i class="icon-pencil"></i></a>
                 </td>
