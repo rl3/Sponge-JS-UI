@@ -56,29 +56,24 @@ var defaultData= [
 ];
 
 var nextFns= [
-    //0
+    // 0 - ObjectType
     function( data ) { return data.type },
-    // 1
+    // 1 - DataObject
     function( data ) { return data.object },
-    // 2
+    // 2 - export type
     function( data ) { return data.exportType },
-    // 3
-    function( data ) { return Object.keys(data.start).length },
-    // 4
+    // 3 - start/single
+    function( data ) { return Object.keys(data.start).length || getStepData(2).exportType === 'raw' },
+    // 4 - end
     function( data ) { return Object.keys(data.end).length },
-    // 5
+    // 5 - step
     function( data ) { return Object.keys(data.step).length },
-    // 6
+    // 6 - submit
     function( data ) { return false },
 ];
 
 var getStepData= function( step ) {
     return (data[step] || {}).data || {};
-};
-
-var stepDisabled= function( step ) {
-    if ( (step === 4 || step === 5) && getStepData(2).exportType === 'single' ) return true;
-    return false;
 };
 
 var lastStep= defaultData.length;
@@ -106,7 +101,9 @@ var createContextData= function( step ) {
         isEnabled: function() {
             if ( step === 4 ) {
                 exportInvalidator();
-                return getStepData(2).exportType !== 'single';
+                var exportType= getStepData(2).exportType
+                if ( exportType === 'raw' && Object.keys(getStepData(3).start).length === 0 ) return false;
+                return exportType !== 'single';
             };
             if ( step === 5 ) {
                 exportInvalidator();
@@ -216,8 +213,17 @@ T.select('wizExportStep3Expand');
 T.helper('checked', function( value ) {
     return this.wizardData.getData().exportType === value;
 });
+T.helper('singleInfo', function() {
+    return { description: 'Export a single ParameterSet with a given Iterator Value' };
+});
 T.helper('single',   function() { return 'single'   });
+T.helper('sequenceInfo', function() {
+    return { description: 'Export a sequence of ParameterSets with Iterator Values from Start to End by Step' };
+});
 T.helper('sequence', function() { return 'sequence' });
+T.helper('rawInfo', function() {
+    return { description: 'Export raw ParameterSets. Optionally with given Start and End' };
+});
 T.helper('raw',      function() { return 'raw'      });
 
 T.events({
@@ -271,28 +277,25 @@ var _editValues= function( property, invalidator, forStep ) {
 
         var self= this;
 
-        var definition= _.clone(schema.definition);
-        if ( forStep && definition.args ) {
-            definition.args= _.clone(definition.args);
+        var args= {};
+        var info= {};
+        if ( schema.definition.args ) {
+            for ( var name in schema.definition.args ) {
+                args[name]= schema.definition.args[name];
+                info[name]= schema.definition.info.args[name] ? _.clone(schema.definition.info.args[name]) : {};
+                info[name].optional= !forStep;
 
-            if ( !definition.info ) definition.info= {};
-            if ( definition.info.args ) 
-            definition.info.args= definition.info.args ? _.clone(definition.info.args) : {};
+                if ( !forStep || args[name] !== 'Date' ) continue;
 
-            for ( var name in definition.args ) {
-                if ( definition.args[name] !== 'Date' ) continue;
-
-                definition.args[name]= 'Const';
-
-                definition.info.args[name]= definition.info.args[name] ? _.clone(definition.info.args[name]) : {};
-                definition.info.args[name].const= ['second', 'minute', 'hour', 'day', 'month', 'year'];
+                args[name]= 'Const';
+                info[name].const= ['second', 'minute', 'hour', 'day', 'month', 'year'];
             }
         }
 
-        var args= SpongeTools.buildValues(definition, 'args', this, SpongeTools.clone(this.wizardData.getData()[property]));
+        var _args= SpongeTools.buildValues({ args: args, info: { args: info }}, 'args', this, SpongeTools.clone(this.wizardData.getData()[property]));
 
         SpongeTools.valuesInput(
-            args, {
+            _args, {
                 title: 'Iterator',
                 simple: true,
                 bottomTemplate: null,

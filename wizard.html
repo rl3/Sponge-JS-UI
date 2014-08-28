@@ -1,6 +1,6 @@
 
 <template name="wizardBody">
-    <table class="table">
+    <table class="table table-bordered wizard">
         {{> wizardStep firstStepData}}
     </table>
 </template>
@@ -12,18 +12,16 @@
             <tr>
                 <td class="wizard-content span6">
                     {{> content}}
-                </td>
-                <td>
                     {{#if nextAllowed}}
-                        <button class="next">Next</button>
+                        <button class="next btn pull-right">Next</button>
                     {{/if}}
                 </td>
             </tr>
         {{else}}
             <tr>
-                <td class="wizard-content-compressed span6" colspan="2">
+                <td class="wizard-content-compressed span6">
                     {{> contentCompressed}}
-                    <a class="edit-step btn" href="#"><i class="icon-pencil"></i></a>
+                    <button class="edit-step btn pull-right" href="#"><i class="icon-pencil"></i></button>
                 </td>
             </tr>
             {{> nextStep nextStepData}}

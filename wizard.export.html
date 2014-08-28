@@ -1,9 +1,12 @@
 
 <template name="wizExport">
-    {{> wizardBody wizardData}}
+    <div class="export-wizard well well-small">
+        {{> wizardBody wizardData}}
+    </div>
 </template>
 
 <template name="wizExportStep1Expand">
+    Select an object type:<br />
     ObjectType:
     {{#if loading}}
         {{> loadingSmall}}
@@ -17,26 +20,30 @@
     {{/if}}
 </template>
 <template name="wizExportStep1Compressed">
-    ObjectType: {{wizardData.getData.type}}
+    ObjectType: <b>{{wizardData.getData.type}}</b>
 </template>
 
 <template name="wizExportStep2Expand">
+    Select an data object:<br />
     {{> valueInput}}
 </template>
 <template name="wizExportStep2Compressed">
-    Object: {{objectName}}
+    Object: <b>{{objectName}}</b>
 </template>
 
 <template name="wizExportStep3Expand">
-    <label><input type="radio" value="single" name="exportType" checked={{checked single}} />single value</label>
-    <label><input type="radio" value="sequence" name="exportType" checked={{checked sequence}} />sequence of values</label>
-    <label><input type="radio" value="raw" name="exportType" checked={{checked raw}} />raw data</label>
+    Select type of data to export
+    <label><input type="radio" value="single" name="exportType" checked={{checked single}} />single value {{> valueInfo singleInfo}}</label>
+    <label><input type="radio" value="sequence" name="exportType" checked={{checked sequence}} />sequence of values {{> valueInfo sequenceInfo}}</label>
+    <label><input type="radio" value="raw" name="exportType" checked={{checked raw}} />raw data {{> valueInfo rawInfo}}</label>
 </template>
 <template name="wizExportStep3Compressed">
     Export Type:
-    {{#if isSingle}}single value{{/if}}
-    {{#if isSequence}}sequence of values{{/if}}
-    {{#if isRaw}}raw data{{/if}}
+    <b>
+        {{#if isSingle}}single value{{/if}}
+        {{#if isSequence}}sequence of values{{/if}}
+        {{#if isRaw}}raw data{{/if}}
+    </b>
 </template>
 
 <template name="wizExportStep4Expand">
@@ -44,14 +51,18 @@
     <a href="#" class="start-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
+        {{else}}
+            {{> loadingLineImage}}
         {{/each}}
     </a>
 </template>
 <template name="wizExportStep4Compressed">
     {{title}}:
-    {{#each iteratorValues}}
-        {{valueName}}={{value}}
-    {{/each}}
+    <b>
+        {{#each iteratorValues}}
+            {{valueName}}={{value}}
+        {{/each}}
+    </b>
 </template>
 
 <template name="wizExportStep5Expand">
@@ -59,14 +70,18 @@
     <a href="#" class="end-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
+        {{else}}
+            {{> loadingLineImage}}
         {{/each}}
     </a>
 </template>
 <template name="wizExportStep5Compressed">
     Iterator end:
-    {{#each iteratorValues}}
-        {{valueName}}={{value}}
-    {{/each}}
+    <b>
+        {{#each iteratorValues}}
+            {{valueName}}={{value}}
+        {{/each}}
+    </b>
 </template>
 
 <template name="wizExportStep6Expand">
@@ -74,18 +89,22 @@
     <a href="#" class="step-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
+        {{else}}
+            {{> loadingLineImage}}
         {{/each}}
     </a>
 </template>
 <template name="wizExportStep6Compressed">
     Step:
-    {{#each iteratorValues}}
-        {{valueName}}={{value}}
-    {{/each}}
+    <b>
+        {{#each iteratorValues}}
+            {{valueName}}={{value}}
+        {{/each}}
+    </b>
 </template>
 
 <template name="wizExportStep7Expand">
-    <button>submit</button>
+    <button class="btn-primary">submit</button>
 </template>
 <template name="wizExportStep7Compressed">
     Finished

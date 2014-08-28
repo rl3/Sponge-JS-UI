@@ -51,6 +51,7 @@ var buildHeader= function( title, object, property ) {
 };
 
 T.helper('header', function() {
+    if ( SpongeTools.Mode === 'exportWizard' ) return buildHeader('Export Wizard', '');
     switch ( session('view') ) {
         case 'model': return buildHeader('Model', getModel(modelId()), 'name');
         case 'job': return buildHeader('Job', getJob(jobId()), 'description.title');
