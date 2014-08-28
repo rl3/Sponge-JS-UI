@@ -213,17 +213,8 @@ T.select('wizExportStep3Expand');
 T.helper('checked', function( value ) {
     return this.wizardData.getData().exportType === value;
 });
-T.helper('singleInfo', function() {
-    return { description: 'Export a single ParameterSet with a given Iterator Value' };
-});
 T.helper('single',   function() { return 'single'   });
-T.helper('sequenceInfo', function() {
-    return { description: 'Export a sequence of ParameterSets with Iterator Values from Start to End by Step' };
-});
 T.helper('sequence', function() { return 'sequence' });
-T.helper('rawInfo', function() {
-    return { description: 'Export raw ParameterSets. Optionally with given Start and End' };
-});
 T.helper('raw',      function() { return 'raw'      });
 
 T.events({
@@ -237,14 +228,8 @@ T.events({
 
 T.select('wizExportStep3Compressed');
 
-T.helper('isSingle', function() {
-    return this.wizardData.getData().exportType === 'single';
-});
-T.helper('isSequence', function() {
-    return this.wizardData.getData().exportType === 'sequence';
-});
-T.helper('isRaw', function() {
-    return this.wizardData.getData().exportType === 'raw';
+T.helper('is', function( type ) {
+    return this.wizardData.getData().exportType === type;
 });
 
 

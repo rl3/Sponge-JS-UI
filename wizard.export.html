@@ -33,16 +33,25 @@
 
 <template name="wizExportStep3Expand">
     Select type of data to export
-    <label><input type="radio" value="single" name="exportType" checked={{checked single}} />single value {{> valueInfo singleInfo}}</label>
-    <label><input type="radio" value="sequence" name="exportType" checked={{checked sequence}} />sequence of values {{> valueInfo sequenceInfo}}</label>
-    <label><input type="radio" value="raw" name="exportType" checked={{checked raw}} />raw data {{> valueInfo rawInfo}}</label>
+    <label>
+        <input type="radio" value="single" name="exportType" checked={{checked "single"}} />
+        single value {{> valueInfo description="Export a single ParameterSet with a given Iterator Value"}}
+    </label>
+    <label>
+        <input type="radio" value="sequence" name="exportType" checked={{checked "sequence"}} />
+        sequence of values {{> valueInfo description="Export a sequence of ParameterSets with Iterator Values from Start to End by Step"}}
+    </label>
+    <label>
+        <input type="radio" value="raw" name="exportType" checked={{checked "raw"}} />
+        raw data {{> valueInfo description="Export raw ParameterSets. Optionally with given Start and End"}}
+    </label>
 </template>
 <template name="wizExportStep3Compressed">
     Export Type:
     <b>
-        {{#if isSingle}}single value{{/if}}
-        {{#if isSequence}}sequence of values{{/if}}
-        {{#if isRaw}}raw data{{/if}}
+        {{#if is "single"}}single value{{/if}}
+        {{#if is "sequence"}}sequence of values{{/if}}
+        {{#if is "raw"}}raw data{{/if}}
     </b>
 </template>
 
