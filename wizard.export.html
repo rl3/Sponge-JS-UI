@@ -113,7 +113,7 @@
 </template>
 
 <template name="wizExportStep7Expand">
-    <button class="btn-primary">submit</button>
+    <button class="btn-primary">submit</button> {{#if loading}}{{> loadingLineImage}}{{/if}}
 </template>
 <template name="wizExportStep7Compressed">
     Finished

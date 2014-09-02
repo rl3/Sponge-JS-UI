@@ -375,10 +375,18 @@ T.helper('iteratorValues', function() {
 
 T.select('wizExportStep7Expand');
 
+
+var step7Loading= ReactiveValue(false);
+T.helper('loading', function() {
+    return step7Loading();
+})
+
 T.events({
     'click button': function( event ) {
         var exportType= getStepData(2).exportType;
         var fn, args;
+
+        step7Loading(true);
 
         var format= 'xml';
         switch ( exportType ) {
@@ -423,6 +431,8 @@ T.events({
                     fileName: 'result.' + format,
                 },
             });
+
+            step7Loading(false);
 
             // remove lazyJob
             return false;
