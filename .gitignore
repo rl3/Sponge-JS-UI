@@ -7,6 +7,8 @@ lib-cov
 *.pid
 *.gz
 
+0.js
+
 pids
 logs
 results
