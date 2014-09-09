@@ -635,4 +635,40 @@ a.value-info {
     }
 }
 
+.export-wizard {
+    width: 800px;
+    margin: 10% auto 0;
+}
 
+table.wizard {
+    margin: 0;
+}
+
+.loading-animation {
+    -webkit-animation: loading .5s infinite alternate; /* Chrome, Safari, Opera */
+    animation: loading .5s infinite alternate;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes loading {
+    from {
+        filter: alpha(opacity=100);
+        opacity: 1;
+    }
+    to {
+        filter: alpha(opacity=0);
+        opacity: 0;
+    }
+}
+
+/* Standard syntax */
+@keyframes loading {
+    from {
+        filter: alpha(opacity=100);
+        opacity: 1;
+    }
+    to {
+        filter: alpha(opacity=0);
+        opacity: 0;
+    }
+}

@@ -56,29 +56,24 @@ var defaultData= [
 ];
 
 var nextFns= [
-    //0
+    // 0 - ObjectType
     function( data ) { return data.type },
-    // 1
+    // 1 - DataObject
     function( data ) { return data.object },
-    // 2
+    // 2 - export type
     function( data ) { return data.exportType },
-    // 3
-    function( data ) { return Object.keys(data.start).length },
-    // 4
+    // 3 - start/single
+    function( data ) { return Object.keys(data.start).length || getStepData(2).exportType === 'raw' },
+    // 4 - end
     function( data ) { return Object.keys(data.end).length },
-    // 5
+    // 5 - step
     function( data ) { return Object.keys(data.step).length },
-    // 6
+    // 6 - submit
     function( data ) { return false },
 ];
 
 var getStepData= function( step ) {
     return (data[step] || {}).data || {};
-};
-
-var stepDisabled= function( step ) {
-    if ( (step === 4 || step === 5) && getStepData(2).exportType === 'single' ) return true;
-    return false;
 };
 
 var lastStep= defaultData.length;
@@ -106,7 +101,9 @@ var createContextData= function( step ) {
         isEnabled: function() {
             if ( step === 4 ) {
                 exportInvalidator();
-                return getStepData(2).exportType !== 'single';
+                var exportType= getStepData(2).exportType
+                if ( exportType === 'raw' && Object.keys(getStepData(3).start).length === 0 ) return false;
+                return exportType !== 'single';
             };
             if ( step === 5 ) {
                 exportInvalidator();
@@ -231,14 +228,8 @@ T.events({
 
 T.select('wizExportStep3Compressed');
 
-T.helper('isSingle', function() {
-    return this.wizardData.getData().exportType === 'single';
-});
-T.helper('isSequence', function() {
-    return this.wizardData.getData().exportType === 'sequence';
-});
-T.helper('isRaw', function() {
-    return this.wizardData.getData().exportType === 'raw';
+T.helper('is', function( type ) {
+    return this.wizardData.getData().exportType === type;
 });
 
 
@@ -271,28 +262,25 @@ var _editValues= function( property, invalidator, forStep ) {
 
         var self= this;
 
-        var definition= _.clone(schema.definition);
-        if ( forStep && definition.args ) {
-            definition.args= _.clone(definition.args);
+        var args= {};
+        var info= {};
+        if ( schema.definition.args ) {
+            for ( var name in schema.definition.args ) {
+                args[name]= schema.definition.args[name];
+                info[name]= schema.definition.info.args[name] ? _.clone(schema.definition.info.args[name]) : {};
+                info[name].optional= !forStep;
 
-            if ( !definition.info ) definition.info= {};
-            if ( definition.info.args ) 
-            definition.info.args= definition.info.args ? _.clone(definition.info.args) : {};
+                if ( !forStep || args[name] !== 'Date' ) continue;
 
-            for ( var name in definition.args ) {
-                if ( definition.args[name] !== 'Date' ) continue;
-
-                definition.args[name]= 'Const';
-
-                definition.info.args[name]= definition.info.args[name] ? _.clone(definition.info.args[name]) : {};
-                definition.info.args[name].const= ['second', 'minute', 'hour', 'day', 'month', 'year'];
+                args[name]= 'Const';
+                info[name].const= ['second', 'minute', 'hour', 'day', 'month', 'year'];
             }
         }
 
-        var args= SpongeTools.buildValues(definition, 'args', this, SpongeTools.clone(this.wizardData.getData()[property]));
+        var _args= SpongeTools.buildValues({ args: args, info: { args: info }}, 'args', this, SpongeTools.clone(this.wizardData.getData()[property]));
 
         SpongeTools.valuesInput(
-            args, {
+            _args, {
                 title: 'Iterator',
                 simple: true,
                 bottomTemplate: null,
@@ -387,10 +375,18 @@ T.helper('iteratorValues', function() {
 
 T.select('wizExportStep7Expand');
 
+
+var step7Loading= ReactiveValue(false);
+T.helper('loading', function() {
+    return step7Loading();
+})
+
 T.events({
     'click button': function( event ) {
         var exportType= getStepData(2).exportType;
         var fn, args;
+
+        step7Loading(true);
 
         var format= 'xml';
         switch ( exportType ) {
@@ -435,6 +431,8 @@ T.events({
                     fileName: 'result.' + format,
                 },
             });
+
+            step7Loading(false);
 
             // remove lazyJob
             return false;

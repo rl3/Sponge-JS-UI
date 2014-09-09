@@ -75,7 +75,7 @@ T.helper('nextStepData', function() {
 });
 
 T.events({
-    'click a.edit-step': function( event ) {
+    'click button.edit-step': function( event ) {
         state(this.step, 'open');
     },
     'click button.next': function() {
