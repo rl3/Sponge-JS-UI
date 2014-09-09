@@ -1,4 +1,13 @@
 
+$(function( $ ) {
+    switch ( SpongeTools.Mode ) {
+        case 'exportWizard': window.document.title= 'Export-Wizard'; break;
+        default: window.document.title= 'Agrohyd-Farmmodell'; break;
+    }
+});
+
+
+
 var session= SpongeTools.localSession('global');
 
 UI.registerHelper('advancedView', function() {
@@ -77,3 +86,5 @@ SpongeTools.downloadLink= function( href, options, cb ) {
 
     a.click();
 };
+
+
