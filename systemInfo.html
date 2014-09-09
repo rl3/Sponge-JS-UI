@@ -1,11 +1,14 @@
 
 <template name="systemInfo">
-    <div class="btn-group">
-        <a href="#" class="btn btn-small dropdown-toggle" data-toggle="dropdown">{{> jobCount}}</a>
-        <ul class="dropdown-menu pull-right">
-            {{> jobQueue}}
-        </ul>
-    </div>
+    {{#if isExportMode}}
+    {{else}}
+        <div class="btn-group">
+            <a href="#" class="btn btn-small dropdown-toggle" data-toggle="dropdown">{{> jobCount}}</a>
+            <ul class="dropdown-menu pull-right">
+                {{> jobQueue}}
+            </ul>
+        </div>
+    {{/if}}
 </template>
 
 <template name="jobCount">
@@ -15,9 +18,9 @@
 <template name="jobQueue">
     {{#each jobs}}
         <li>
-                <i class="state {{state}}" title="{{stateText}}"></i>
-                <span class="job-name" title="{{description}}">{{name}}</span>
-                <button class="btn btn-mini job-remove"><i class="icon-remove"></i></button>
+            <i class="state {{state}}" title="{{stateText}}"></i>
+            <span class="job-name" title="{{description}}">{{name}}</span>
+            <button class="btn btn-mini job-remove"><i class="icon-remove"></i></button>
         </li>
     {{else}}
         <li><a>job queue is empty</a></li>
