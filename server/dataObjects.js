@@ -87,7 +87,7 @@ var Debug= false;
 var debugFilter;
 
 //Debug= true;
-//debugFilter= /Model\/getCompa/;
+//debugFilter= /Job\/getJobs/;
 
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);
