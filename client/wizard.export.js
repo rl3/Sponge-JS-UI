@@ -336,6 +336,7 @@ T.select('wizExportStep5Expand');
 
 T.helper('iteratorValues', function() {
     endIterator.invalidator();
+    var _ei= endIterator.getValues.apply(this);
     return endIterator.getValues.apply(this);
 });
 
@@ -381,30 +382,29 @@ T.helper('loading', function() {
     return step7Loading();
 })
 
-T.events({
-    'click button': function( event ) {
+var clickEventGen= function( format ) {
+    return function( event ) {
         var exportType= getStepData(2).exportType;
         var fn, args;
 
         step7Loading(true);
 
-        var format= 'xml';
         switch ( exportType ) {
             case 'single':
                 fn= _getSingleDataValue;
-                args= [ getStepData(1).object.selector._id, getStepData(3).start ];
+                args= [ getStepData(1).object.selector._id, getStepData(3).start, format ];
                 break;
             case 'sequence':
                 fn= _getDataValues;
-                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end, getStepData(5).step ];
+                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end, getStepData(5).step, format ];
                 break;
             case 'raw':
                 fn= _getRawDataValues;
-                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end ];
+                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end, format ];
                 break;
         }
 
-        var jobId= 'export:' + JSON.stringify(EJSON.toJSONValue(args));
+        var jobId= 'export-' + format + ':' + JSON.stringify(EJSON.toJSONValue(args));
 
         SpongeTools.lazyHelper.addJob(jobId, function() {
 
@@ -422,6 +422,7 @@ T.events({
             switch ( format ) {
                 case 'csv': contentType= 'text/comma-separated-values'; break;
                 case 'xml': contentType= 'text/xml'; target= '_new'; break;
+                case 'xlsx': contentType= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; target= '_new'; break;
                 default: contentType= 'application/vnd.google-earth.kml+xml'; break;
             }
 
@@ -439,6 +440,11 @@ T.events({
         });
 
         return true;
-    },
+    }
+};
+
+T.events({
+    'click button.export-xml': clickEventGen('xml'),
+    'click button.export-xlsx': clickEventGen('xlsx'),
 });
 

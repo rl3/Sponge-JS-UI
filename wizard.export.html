@@ -6,13 +6,13 @@
 </template>
 
 <template name="wizExportStep1Expand">
-    Select an object type:<br />
-    ObjectType:
+    select type of data to export:<br />
+    data type:
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
         <select>
-            <option value="" style="display:none">Select one</option>
+            <option value="" style="display:none">select one</option>
             {{#each objectTypes}}
                 <option value="{{type}}" selected={{selected}}>{{type}}</option>
             {{/each}}
@@ -20,43 +20,43 @@
     {{/if}}
 </template>
 <template name="wizExportStep1Compressed">
-    ObjectType: <b>{{wizardData.getData.type}}</b>
+    data type: <b>{{wizardData.getData.type}}</b>
 </template>
 
 <template name="wizExportStep2Expand">
-    Select an data object:<br />
+    select data object:<br />
     {{> valueInput}}
 </template>
 <template name="wizExportStep2Compressed">
-    Object: <b>{{objectName}}</b>
+    data object: <b>{{objectName}}</b>
 </template>
 
 <template name="wizExportStep3Expand">
-    Select type of data to export
+    select range of data to export:
     <label>
         <input type="radio" value="single" name="exportType" checked={{checked "single"}} />
-        single value {{> valueInfo description="Export a single ParameterSet with a given Iterator Value"}}
+        single data set {{> valueInfo description="Export a single data set at a specific date, day, depth etc."}}
     </label>
     <label>
         <input type="radio" value="sequence" name="exportType" checked={{checked "sequence"}} />
-        sequence of values {{> valueInfo description="Export a sequence of ParameterSets with Iterator Values from Start to End by Step"}}
+        sequence of data sets {{> valueInfo description="Export a sequence of data sets. Begin at start value, increment by step until end value."}}
     </label>
     <label>
         <input type="radio" value="raw" name="exportType" checked={{checked "raw"}} />
-        raw data {{> valueInfo description="Export raw ParameterSets. Optionally with given Start and End"}}
+        raw data {{> valueInfo description="Export all raw uncorrected data associated with object. Optionally export can be restricted by start and end values."}}
     </label>
 </template>
 <template name="wizExportStep3Compressed">
-    Export Type:
+    export type:
     <b>
-        {{#if is "single"}}single value{{/if}}
-        {{#if is "sequence"}}sequence of values{{/if}}
+        {{#if is "single"}}single data set{{/if}}
+        {{#if is "sequence"}}sequence of data sets{{/if}}
         {{#if is "raw"}}raw data{{/if}}
     </b>
 </template>
 
 <template name="wizExportStep4Expand">
-    {{title}}:
+    export start:
     <a href="#" class="start-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -66,7 +66,7 @@
     </a>
 </template>
 <template name="wizExportStep4Compressed">
-    {{title}}:
+    export start:
     <b>
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -75,7 +75,7 @@
 </template>
 
 <template name="wizExportStep5Expand">
-    Iterator end:
+    export end:
     <a href="#" class="end-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -85,7 +85,7 @@
     </a>
 </template>
 <template name="wizExportStep5Compressed">
-    Iterator end:
+    export end:
     <b>
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -94,7 +94,7 @@
 </template>
 
 <template name="wizExportStep6Expand">
-    Step:
+    step:
     <a href="#" class="step-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -104,7 +104,7 @@
     </a>
 </template>
 <template name="wizExportStep6Compressed">
-    Step:
+    step:
     <b>
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -113,9 +113,9 @@
 </template>
 
 <template name="wizExportStep7Expand">
-    <button class="btn-primary">submit</button> {{#if loading}}{{> loadingLineImage}}{{/if}}
+    <button class="btn-primary export-xml">export XML</button> <button class="btn-primary export-xlsx">export Excel</button> {{#if loading}}{{> loadingLineImage}}{{/if}}
 </template>
 <template name="wizExportStep7Compressed">
-    Finished
+    finished
 </template>
 

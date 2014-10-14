@@ -9,9 +9,9 @@
             {{> valueInputBody}}
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button class="btn btn-primary saveValue">Save changes</button>
-            <button class="btn clearValue">Clear Value</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">close</button>
+            <button class="btn btn-primary saveValue">save changes</button>
+            <button class="btn clearValue">clear value</button>
         </div>
     </div>
 
@@ -24,9 +24,9 @@
             {{> singleValueInputBody}}
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button class="btn btn-primary saveValue">Save changes</button>
-            <button class="btn clearValue">Clear Value</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">close</button>
+            <button class="btn btn-primary saveValue">save changes</button>
+            <button class="btn clearValue">clear value</button>
         </div>
     </div>
 </body>
@@ -79,7 +79,7 @@
         {{> loadingSmall}}
     {{else}}
         <select class="typeName">
-            <option style="display: none">Please select</option>
+            <option style="display: none">please select</option>
             {{#each typeName}}
                 <option selected={{selectedType}} value="{{id}}">{{label}}</option>
             {{/each}}
@@ -90,7 +90,7 @@
             {{> loadingSmall}}
         {{else}}
             <select class="tagName">
-                <option style="display: none">Please select</option>
+                <option style="display: none">please select</option>
                 {{#each tag}}
                     <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
                 {{/each}}
@@ -106,7 +106,7 @@
         {{> loadingSmall}}
     {{else}}
         <select class="typeName">
-            <option style="display: none">Please select</option>
+            <option style="display: none">please select</option>
             {{#each typeName}}
                 <option selected={{selectedType}} value="{{id}}">{{label}}</option>
             {{/each}}
@@ -117,7 +117,7 @@
             {{> loadingSmall}}
         {{else}}
             <select class="mapName">
-                <option style="display: none">Please select</option>
+                <option style="display: none">please select</option>
                 {{#each map}}
                         <option selected={{selectedMap}} value="{{this}}">{{this}}</option>
                 {{/each}}
@@ -135,7 +135,7 @@
 
 <template name="singleValueInputTitle">
     <div id="singleValueInputLabel">
-        <span class="title">Value</span> <span class="type">{{type}}</span>
+        <span class="title">value</span> <span class="type">{{type}}</span>
         <div class="description">{{description}}</div>
     </div>
 </template>
@@ -149,7 +149,7 @@
         <div class="controls">
             <label class="control-label">
                 <input type="text" class="double" value="{{value}}" />
-                <span class='help-inline on-error'>Only numbers are allowed</span>
+                <span class='help-inline on-error'>only numbers are allowed, use dot as decimal separator</span>
             </label>
         </div>
     </div>
@@ -180,7 +180,7 @@
 
 <template name="valueInputConst">
     <select>
-        <option style="display: none">Please select</option>
+        <option style="display: none">please select</option>
         {{#each values}}
             <option value="{{value}}" selected={{selected}}>{{value}}</option>
         {{/each}}
@@ -216,7 +216,7 @@
 <template name="valueInputModel">
     {{> valueInputModelSelector}}
     <div>
-        <label>Name Filter: <input type="text" /></label>
+        <label>type to search: <input type="text" /></label>
     </div>
 </template>
 
@@ -242,13 +242,13 @@
             {{else}}
                 {{#if values}}
                     <select class="span3">
-                        <option value="" class="hidden">Please Select</option>
+                        <option value="" class="hidden">please select</option>
                         {{#each values}}
                             <option value="{{id}}" selected={{selected}}>{{name}}</option>
                         {{/each}}
                     </select>
                 {{else}}
-                    <select class="span3" disabled><option selected>No Item Available</option></select>
+                    <select class="span3" disabled><option selected>no item available</option></select>
                 {{/if}}
                 <span class="add-on">{{valueCount}}</span>
             {{/if}}
