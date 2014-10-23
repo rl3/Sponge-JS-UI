@@ -308,8 +308,9 @@ T.helper('resultTables', function() {
                 tablePath: tablePath,
                 jobId: jobId(),
                 info: info[index] || {},
-                hrefXml: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
-                hrefCsv: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
+                hrefXml:  SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
+                hrefCsv:  SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
+                hrefXlsx: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xlsx'),
             });
         }
     });
@@ -434,5 +435,6 @@ T.events({
     'click a.resultMapKml': clickEvent('kml'),
     'click a.resultMapXml': clickEvent('xml'),
     'click a.resultMapCsv': clickEvent('csv'),
+    'click a.resultMapXlsx': clickEvent('xlsx'),
 });
 
