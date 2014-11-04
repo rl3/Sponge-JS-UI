@@ -97,9 +97,16 @@ T.helper('statusClass', function() {
     return '';
 });
 
+var correctError= function( error ) {
+    error= error.replace(/([^\\])\\'/g, '$1').replace(/(^|[^\\])'/g, '$1');
+    error= error.replace(/\\+'/g, '\'').replace(/\\+n/g, '<br/>\n');
+    error= error.replace(/ /g, '&nbsp;');
+    return error;
+}
+
 T.helper('status', function() {
     if ( !this.status ) return;
-    if ( this.status.error )     return new Spacebars.SafeString('Error:<br /><code>' + this.status.error + '</code>');
+    if ( this.status.error )     return new Spacebars.SafeString('Error:<br /><code>' + correctError(this.status.error) + '</code>');
     if ( this.status.success )   return 'Successfully finished';
     if ( !this.status.finished ) return 'Running';
     return '';
