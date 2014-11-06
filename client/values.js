@@ -11,14 +11,22 @@ var $rangeToString= function( value, options ) {
         + ' Step: ' + _valueToString(value.$range.step, options);
 };
 
-var pad= function( value ) {
-    return +value < 10 ? "0" + value : String(value);
+var pad= function( value, count ) {
+    if ( !count ) count= 2;
+    value= String(value);
+    while ( value.length < count ) value= '0' + value;
+    return value;
 };
+
 var dateToString= function( value, options ) {
-    return pad(value.getUTCDate()) + '.' + pad(value.getUTCMonth() + 1) + '.' + value.getUTCFullYear();
+    return pad(value.getUTCFullYear(), 4) + '-' + pad(value.getUTCMonth() + 1) + '-' + pad(value.getUTCDate());
 };
 var timeToString= function( value, options ) {
-    return pad(value.getHours()) + ':' + pad(value.getMinutes()) + ':' + pad(value.getSeconds());
+    return pad(value.getUTCHours()) + ':' + pad(value.getUTCMinutes()) + ':' + pad(value.getUTCSeconds());
+};
+
+var _dateToString= function( value, options ) {
+    return dateToString(value, options) + ' ' + timeToString(value, options);
 };
 
 var locationToString= function( value, options ) {
@@ -153,7 +161,7 @@ var setToString= function( value, options ) {
 }
 
 var defaultHandler= {
-    onDate:     dateToString,
+    onDate:     _dateToString,
     onObjectId: function( value ) { return 'ObjectId("' + value + '")'; },
     onLocation: locationToString,
     onArray:    arrayToString,
