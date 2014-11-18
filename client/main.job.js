@@ -226,12 +226,12 @@ T.events({
 T.select('jobResult');
 
 var filterTables= function( obj, tables, path ) {
-    if ( obj.tables ) {
+    if ( obj.tableFields ) {
         tables.push({
             path: path.join('.').split('.'),
-            tables: obj.tables,
+            tables: obj.tableFields,
         });
-        delete obj.tables;
+        delete obj.tableFields;
     }
     for ( var name in obj ) {
         if ( obj[name] && typeof obj[name] === 'object' && obj[name].constructor === Object ) {
