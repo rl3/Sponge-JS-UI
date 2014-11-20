@@ -108,20 +108,22 @@
                                         <tr><th align="right">{{index}}{{> valueInfo info}}:</th><td>
                                             <a class="resultTable" href="{{hrefXlsx}}" target="_new">Excel</a>
                                             <span class="more-options">
-                                                <a class="btn btn-mini show-more"><i class="icon-plus"></i></a>
+                                                <a class="show-more">more...</a>
                                                 <a class="resultTable" href="{{hrefXml}}" target="_new">XML</a>
                                                 <a class="resultTable" href="{{hrefCsv}}" target="_new">CSV</a>
                                             </span>
-                                            <div class="map-hover">
-                                                <div class="head">
-                                                    <a class="resultMapKml" href="#">Map</a>{{> loading}}
+                                            {{#if isMap}}
+                                                <div class="map-hover">
+                                                    <div class="head">
+                                                        <a class="resultMapKml" href="#">Map</a>{{> loading}}
+                                                    </div>
+                                                    <div class="additional">
+                                                        <a class="resultMapCsv" href="#">Map (CSV)</a><br />
+                                                        <a class="resultMapXml" href="#">Map (XML)</a><br />
+                                                        <a class="resultMapXlsx" href="#">Map (Excel)</a>
+                                                    </div>
                                                 </div>
-                                                <div class="additional">
-                                                    <a class="resultMapCsv" href="#">Map (CSV)</a><br />
-                                                    <a class="resultMapXml" href="#">Map (XML)</a><br />
-                                                    <a class="resultMapXlsx" href="#">Map (Excel)</a>
-                                                </div>
-                                            </div>
+                                            {{/if}}
                                         </td></tr>
                                     {{/each}}
                                 </table>

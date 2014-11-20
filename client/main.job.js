@@ -309,6 +309,9 @@ T.helper('resultMap', function() {
 
 T.helper('resultTables', function() {
 
+    // hack: remove 'show' .more-options due to too efficient reuse of DOM objects
+    $('.more-options').removeClass('show');
+
     // empty resultMapArgsCtxt to free unneeded reactive values
     resultMapArgsCtxt= {};
     var tables= this.tables;
@@ -331,6 +334,7 @@ T.helper('resultTables', function() {
                 tablePath: tablePath,
                 jobId: jobId(),
                 info: info[index] || {},
+                isMap: tableList.tables[id].indexOf('polygonKey') >= 0,
                 hrefXml:  SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xml'),
                 hrefCsv:  SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=csv'),
                 hrefXlsx: SpongeTools.buildApiUrl('/Job/getResultTable/' + jobId() + '/' + tablePath + '?format=xlsx'),
