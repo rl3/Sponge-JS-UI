@@ -75,10 +75,10 @@
 <template name="jobResult">
     {{#each result}}
         <tr valign="top">
-            <td align="center" colspan="2" class="result-title">Result "{{id}}"</td>
+            <td align="center" colspan="2" class="result-title">Result "{{id}}" <span class="addition">({{time}})</span></td>
         </tr>
         {{> jobArgs}}
-        <tr valign="top">
+        <tr valign="top" class="result-list {{hiddenClass}}">
             <th align="right">Result:</th>
             <td class="job-result">
                 <table width="100%">

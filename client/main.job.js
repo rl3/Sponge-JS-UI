@@ -250,17 +250,32 @@ T.helper('result', function() {
 
     if ( !jobResult ) return;
 
-    return Object.keys(jobResult).map(function( id ) {
+    var results= Object.keys(jobResult).map(function( id ) {
         var result= jobResult[id].result;
         var tables= [];
         if ( result ) filterTables(result, tables, [id, 'result']);
         return {
             id: id,
+            time: SpongeTools.valueToString(jobResult[id].time),
             args: (jobResult[id].args || {}).args,
             result: result,
             tables: tables,
         };
     });
+
+
+    if (results.length) {
+
+        // sort descending
+        results.sort(function( a, b ) { return String(b.time).localeCompare(String(a.time)); });
+        results[0].first= true;
+    }
+
+    return results;
+});
+
+T.helper('hiddenClass', function() {
+    if ( !this.first ) return 'hidden';
 });
 
 var onObject= function( value, options, defaultFn ) {

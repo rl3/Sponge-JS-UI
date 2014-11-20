@@ -44,6 +44,11 @@ jQuery(function( $ ) {
             $accordion.find('.collapse').collapse('hide');
             $($(this).attr('href')).collapse('show');
         })
+        .on('click', '.result-title', function( event ) {
+            var $tr= $(event.currentTarget).closest('tr');
+            var $result= $tr.next().next();
+            $result.toggleClass('hidden');
+        })
     ;
 });
 
