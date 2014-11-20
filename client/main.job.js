@@ -38,6 +38,7 @@ var getJob= function( _jobId ) {
 // var getJobLog= SpongeTools.getCachedData('getJobLog', 2000);
 var getJobLog= SpongeTools.postData('getJobLog');
 var deleteJobLog= SpongeTools.postData('deleteJobLog');
+var deleteResult= SpongeTools.postData('deleteResult');
 
 var _getJobResult= SpongeTools.getCachedData('getJobResult', 2000);
 var getJobResult= function( jobId, path ) {
@@ -458,5 +459,9 @@ T.events({
     'click a.resultMapXml': clickEvent('xml'),
     'click a.resultMapCsv': clickEvent('csv'),
     'click a.resultMapXlsx': clickEvent('xlsx'),
+    'click a.delete-result': function( event ) {
+        deleteResult(jobId(), this.id)
+        return false;
+    },
 });
 

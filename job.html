@@ -75,7 +75,10 @@
 <template name="jobResult">
     {{#each result}}
         <tr valign="top">
-            <td align="center" colspan="2" class="result-title">Result "{{id}}" <span class="addition">({{time}})</span></td>
+            <td align="center" colspan="2" class="result-title">
+                Result "{{id}}" <span class="addition">({{time}})</span>
+                <a class="btn btn-mini btn-warning right delete-result" href="#" title="delete result"><i class="icon-trash"></i></a>
+            </td>
         </tr>
         {{> jobArgs}}
         <tr valign="top" class="result-list {{hiddenClass}}">
