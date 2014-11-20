@@ -106,9 +106,12 @@
                                     <tr><th colspan="2">Tables</th></tr>
                                     {{#each this}}
                                         <tr><th align="right">{{index}}{{> valueInfo info}}:</th><td>
-                                            <a class="resultTable" href="{{hrefXml}}" target="_new">XML</a>
-                                            <a class="resultTable" href="{{hrefCsv}}" target="_new">CSV</a>
                                             <a class="resultTable" href="{{hrefXlsx}}" target="_new">Excel</a>
+                                            <span class="more-options">
+                                                <a class="btn btn-mini show-more"><i class="icon-plus"></i></a>
+                                                <a class="resultTable" href="{{hrefXml}}" target="_new">XML</a>
+                                                <a class="resultTable" href="{{hrefCsv}}" target="_new">CSV</a>
+                                            </span>
                                             <div class="map-hover">
                                                 <div class="head">
                                                     <a class="resultMapKml" href="#">Map</a>{{> loading}}

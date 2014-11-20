@@ -463,5 +463,8 @@ T.events({
         deleteResult(jobId(), this.id)
         return false;
     },
+    'click a.show-more': function( event ) {
+        $(event.currentTarget).closest('.more-options').addClass('show');
+    },
 });
 
