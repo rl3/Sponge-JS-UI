@@ -86,8 +86,8 @@ Meteor.publish('client-cache', function() {
 var Debug= false;
 var debugFilter;
 
-//Debug= true;
-//debugFilter= /Job\/getJobs/;
+// Debug= true;
+// debugFilter= /Model\/getComp/;
 
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);
@@ -438,6 +438,10 @@ onAfterMethod.removeAcl= function( collection, id, acls ) {
 console.log('invalidate ACLs', collection, id)
     removeFromCache('getAcl', collection, id);
 //    methods.getAcl.call(this, collection, id);
+};
+
+onAfterMethod.deleteResult= function( jobId, resultId ) {
+    removeFromCache('getJobResult', jobId);
 };
 
 
