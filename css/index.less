@@ -617,7 +617,7 @@ a.value-info {
 .map-hover {
     display: inline-block;
     padding: 0 .3em;
-    margin-right: 5em;
+//    margin-right: 5em;
 
     .additional {
         display: none;
@@ -632,6 +632,11 @@ a.value-info {
         .additional {
             background-color: #ddddff;
             display: block;
+            font-size: xx-small;
+
+            a::before {
+                content: "as ";
+            }
         }
     }
 }
@@ -674,23 +679,3 @@ table.wizard {
     }
 }
 
-.more-options {
-    display: inline;
-    .resultTable {
-        display: none;
-    }
-    .show-more {
-        font-size: xx-small;
-        text-decoration: none;
-        color: #CCC;
-        cursor: pointer;
-    }
-    &.show {
-        .resultTable {
-            display: inline;
-        }
-        .show-more {
-            display: none;
-        }
-    }
-}
