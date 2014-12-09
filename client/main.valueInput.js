@@ -1101,6 +1101,7 @@ var _getTags= function() {
     var tags= getTags(sel.objectType, version);
     if ( !tags || tags.length === 0 ) return;
 
+    tags.sort();
     return tags;
 };
 
@@ -1166,6 +1167,7 @@ var getMaps= function() {
     var maps= getMapnames(sel.objectType, versions);
     if ( !maps || maps.length === 0 ) return;
 
+    maps.sort();
     return maps;
 };
 
