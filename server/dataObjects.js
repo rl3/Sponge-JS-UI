@@ -133,13 +133,18 @@ var authenticate= function( runFn, connection ) {
     if ( authenticationQueue.length > 1 ) return;
 
     var sessionSelector= buildSessionSelectorForMethod(connection);
-    console.log('authenticate...', auth);
+    console.log('authenticate...', auth.replace(/:.+$/, ':********'));
     return HTTP.call('GET', baseUrl + authUrl, addHeaders({ auth: auth }, connection), function( err, result ) {
-        console.log('authenticateing done', result)
+        if ( err ) {
+            console.error('authentication FAILED. Error:', err);
+        }
+        else {
+            console.log('authentication done. Token:', result.data.token);
+        }
 
         var data= _.extend(SpongeTools.clone(sessionSelector), { baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token });
 
-        sessionData.upsert(sessionSelector, data, function() {
+        return sessionData.upsert(sessionSelector, data, function() {
             while( authenticationQueue.length ) authenticationQueue.shift()(err);
         });
     });
@@ -175,6 +180,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
         if ( err && err.response && err.response.statusCode ) {
             var auth= getAuth();
             if ( auth && err.response.statusCode == 401 && authCounter-- ) {
+                console.log('Permission denied. Trying to (re-)authenticate...');
                 return authenticate(runCall, options.connection);
             }
         }
