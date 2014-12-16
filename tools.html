@@ -1,8 +1,10 @@
 
 <body>
+    <div id="global-error-messages"></div>
     {{> lazyHelper}}
 </body>
 
 <template name="lazyHelper">
     {{doJob}}
+    {{showErrors}}
 </template>

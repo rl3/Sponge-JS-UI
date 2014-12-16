@@ -411,7 +411,13 @@ var clickEventGen= function( format ) {
             var result= fn.apply(null, args);
 
             // while no data keep lazy job
-            if ( !result ) return true;
+            if ( !result ) {
+                if ( result === null ) {
+                    step7Loading(false);
+                    return false;
+                }
+                return true;
+            }
 
             // if no url, remove lazyJob
             if ( !result.url ) return false;

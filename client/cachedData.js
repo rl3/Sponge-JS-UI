@@ -36,10 +36,15 @@ var getCachedData= function( name, timeout ) {
             Meteor.apply(name, args);
         }
 
-        // return old data (if present), because we don't get informed, when only metaData is updated
+        // return old data (if present), because we don't get informed, when only metaData is updated but data stays the same
         // function will be called again on data change
         return data ? data.data : undefined;
     };
+};
+
+var getError= function() {
+    var data= SpongeTools.convertFromMongo(dataCache.findOne({ key: SpongeTools.ErrorCacheKey }));
+    return data ? data.data : undefined;
 };
 
 var postData= function( id, timeout ) {
@@ -65,5 +70,6 @@ var buildApiUrl= function( url ) {
 
 SpongeTools.getCachedData= getCachedData;
 SpongeTools.postData= postData;
+SpongeTools.getError= getError;
 
 SpongeTools.buildApiUrl= buildApiUrl;

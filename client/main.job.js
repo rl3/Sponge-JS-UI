@@ -432,11 +432,11 @@ var clickEvent= function( format ) {
 
                     var lazyJobId= 'link:' + jobId + ':' + path + ':' + format;
                     SpongeTools.lazyHelper.addInvalidator(lazyJobId, loadingInvalidator);
-                    SpongeTools.lazyHelper.addJob(lazyJobId, function() {
+                    return SpongeTools.lazyHelper.addJob(lazyJobId, function() {
                         var data= getJobResultMap(jobId, path, result, format);
 
-                        // while no data keep lazy job
-                        if ( !data ) return true;
+                        // while no data keep lazy job (return false for empty result)
+                        if ( !data ) return data !== null;
 
                         // if no url, remove lazyJob
                         if ( !data.url ) return false;

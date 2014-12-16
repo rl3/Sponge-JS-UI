@@ -46,7 +46,7 @@ var addInvalidator= function( id, invalidator ) {
 T.select('lazyHelper');
 
 /**
- * run ever helper function
+ * run every helper function
  * if helper function returns NOT TRUE, call invalidator and remove job
  */
 T.helper('doJob', function() {
@@ -60,6 +60,36 @@ T.helper('doJob', function() {
 
         delete lazyJobs[id];
     });
+});
+
+var errorInitialized= false;
+T.helper('showErrors', function() {
+    var error= SpongeTools.getError();
+
+    if ( !error || !errorInitialized ) {
+        setTimeout(function() {
+            errorInitialized= true;
+        }, 1000);
+        return;
+    }
+
+    var time= SpongeTools.valueToString(error.date || 'unknown');
+
+    var $message= $(
+        '<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button><div class="time">' + time + '</div><div class="message">' + SpongeTools.valueToString(error.error) + '</div></div>'
+    );
+
+    var hide= function() {
+        $message.hide(function() {
+            $message.remove();
+        });
+    };
+
+    $message.on('click', 'a', hide);
+
+    $('#global-error-messages').append($message.show(function() {
+//        setTimeout(hide, 20000);
+    }));
 });
 
 SpongeTools.lazyHelper= {

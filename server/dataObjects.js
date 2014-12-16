@@ -254,14 +254,14 @@ var methods= {};
     methods['save' + type]= function( model ) {
         var cacheSelector= buildCacheSelector(this);
         return put(type + '/save', model, this.connection, function( err, result ) {
-            if ( err ) return;
+            if ( err ) return updateCacheError(null, cacheSelector, err);
 
             var id= model._id;
             if ( !id ) return;
 
             var key= SpongeTools.buildCacheKey(SpongeTools.getCachedMethodData('get' + type, [id]));
 
-            updateCache(key, cacheSelector, model);
+            return updateCache(key, cacheSelector, model);
         });
     };
 });
@@ -359,7 +359,11 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
 
         var cacheSelector= buildCacheSelector(this, urlData.noAuth);
         return fn(urlData.url, urlData.data, this.connection, function( err, result ) {
-            if ( err ) return finishFn();
+            if ( err ) {
+                return updateCacheError(key, buildCacheSelector(this), err, function( err ) {
+                    return finishFn();
+                });
+            }
 
             var data= urlData.dataFormat === 'plain' ? result : result.data;
 
@@ -428,6 +432,26 @@ var updateCache= function( key, query, newData, cb ) {
         if ( oldData && _.isEqual(oldData.data, newData) ) return cb();
 
         return dataCache.upsert(query, _.extend({ data: newData, }, query), cb);
+    });
+};
+
+var updateCacheError= function( key, query, err, cb ) {
+    var data= {
+        date: new Date(),
+        error: {},
+    };
+    if ( typeof err === 'object' && err && err.response ) {
+        if ( err.response.data ) data.error= err.response.data;
+        if ( err.response.statusCode ) data.error.statusCode= err.response.statusCode;
+    }
+    else {
+        data.error= err;
+    }
+
+    return updateCache(SpongeTools.ErrorCacheKey, query, SpongeTools.convertToMongo(data), function( err ) {
+        if ( err ) return cb(err);
+
+        return cb();
     });
 };
 
