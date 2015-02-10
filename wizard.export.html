@@ -5,7 +5,7 @@
     </div>
 </template>
 
-<template name="wizExportStep1Expand">
+<template name="wizExportObjectTypeExpand">
     select type of data to export:<br />
     data type:
     {{#if loading}}
@@ -19,19 +19,86 @@
         </select>
     {{/if}}
 </template>
-<template name="wizExportStep1Compressed">
+<template name="wizExportObjectTypeCompressed">
     data type: <b>{{wizardData.getData.type}}</b>
 </template>
 
-<template name="wizExportStep2Expand">
+<template name="wizExportSelectorTypeExpand">
+    select type of object's selection:<br />
+    <label>
+        <input type="radio" value="object" name="selectorType" checked={{checked "object"}} />
+        select a single object
+    </label>
+    <label>
+        <input type="radio" value="nearest" name="selectorType" checked={{checked "nearest"}} />
+        select valid data from nearest object by tag
+    </label>
+    <label>
+        <input type="radio" value="map" name="selectorType" checked={{checked "map"}} />
+        select valid data from nearest object by map name
+    </label>
+</template>
+<template name="wizExportSelectorTypeCompressed">
+    select type:
+    <b>
+        {{#if is "object"}}select a single object{{/if}}
+        {{#if is "nearest"}}select valid data from nearest object by tag{{/if}}
+        {{#if is "map"}}select valif data from nearest object by map name{{/if}}
+    </b>
+</template>
+
+<template name="wizExportObjectExpand">
     select data object:<br />
     {{> valueInput}}
 </template>
-<template name="wizExportStep2Compressed">
+<template name="wizExportObjectCompressed">
     data object: <b>{{objectName}}</b>
 </template>
 
-<template name="wizExportStep3Expand">
+<template name="wizExportNearestExpand">
+    select tag:<br />
+    {{#if loadingTags}}
+        {{> loadingSmall}}
+    {{else}}
+        <select class="tagName">
+            <option style="display: none">please select</option>
+            {{#each tag}}
+                <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
+    {{/if}}
+</template>
+<template name="wizExportNearestCompressed">
+    tag: <b>{{wizardData.getData.tag}}</b>
+</template>
+
+<template name="wizExportMapExpand">
+    select map:<br />
+    {{#if loadingTags}}
+        {{> loadingSmall}}
+    {{else}}
+        <select class="mapName">
+            <option style="display: none">please select</option>
+            {{#each map}}
+                <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
+    {{/if}}
+</template>
+<template name="wizExportMapCompressed">
+    tag: <b>{{wizardData.getData.mapname}}</b>
+</template>
+
+
+<template name="wizExportLocationExpand">
+    select location: <a href="#">{{value}}</a>
+</template>
+<template name="wizExportLocationCompressed">
+    location: <b>{{location}}</b>
+</template>
+
+
+<template name="wizExportExportTypeExpand">
     select range of data to export:
     <label>
         <input type="radio" value="single" name="exportType" checked={{checked "single"}} />
@@ -46,7 +113,7 @@
         raw data {{> valueInfo description="Export all raw uncorrected data associated with object. Optionally export can be restricted by start and end values."}}
     </label>
 </template>
-<template name="wizExportStep3Compressed">
+<template name="wizExportExportTypeCompressed">
     export type:
     <b>
         {{#if is "single"}}single data set{{/if}}
@@ -55,7 +122,7 @@
     </b>
 </template>
 
-<template name="wizExportStep4Expand">
+<template name="wizExportStartExpand">
     export start:
     <a href="#" class="start-value">
         {{#each iteratorValues}}
@@ -65,7 +132,7 @@
         {{/each}}
     </a>
 </template>
-<template name="wizExportStep4Compressed">
+<template name="wizExportStartCompressed">
     export start:
     <b>
         {{#each iteratorValues}}
@@ -74,7 +141,7 @@
     </b>
 </template>
 
-<template name="wizExportStep5Expand">
+<template name="wizExportEndExpand">
     export end:
     <a href="#" class="end-value">
         {{#each iteratorValues}}
@@ -84,7 +151,7 @@
         {{/each}}
     </a>
 </template>
-<template name="wizExportStep5Compressed">
+<template name="wizExportEndCompressed">
     export end:
     <b>
         {{#each iteratorValues}}
@@ -93,7 +160,7 @@
     </b>
 </template>
 
-<template name="wizExportStep6Expand">
+<template name="wizExportStepExpand">
     step:
     <a href="#" class="step-value">
         {{#each iteratorValues}}
@@ -103,7 +170,7 @@
         {{/each}}
     </a>
 </template>
-<template name="wizExportStep6Compressed">
+<template name="wizExportStepCompressed">
     step:
     <b>
         {{#each iteratorValues}}
@@ -112,10 +179,10 @@
     </b>
 </template>
 
-<template name="wizExportStep7Expand">
+<template name="wizExportSubmitExpand">
     <button class="btn-primary export-xml">export XML</button> <button class="btn-primary export-xlsx">export Excel</button> {{#if loading}}{{> loadingLineImage}}{{/if}}
 </template>
-<template name="wizExportStep7Compressed">
+<template name="wizExportStep6Compressed">
     finished
 </template>
 

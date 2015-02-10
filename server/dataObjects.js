@@ -180,7 +180,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
         if ( err && err.response && err.response.statusCode ) {
             var auth= getAuth();
             if ( auth && err.response.statusCode == 401 && authCounter-- ) {
-                console.log('Permission denied. Trying to (re-)authenticate...');
+                console.log('Permission denied. Trying to (re-)authenticate...', url);
                 return authenticate(runCall, options.connection);
             }
         }

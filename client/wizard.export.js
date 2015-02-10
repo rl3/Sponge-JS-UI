@@ -9,7 +9,7 @@ var getAllSchemas= SpongeTools.getCachedData('getAllSchemas');
 
 var _getDataObject= SpongeTools.getCachedData('getDataObject');
 var getDataObject= function() {
-    var id= ((getStepData(1).object || {}).selector || {})._id;
+    var id= ((exportWizardData.object || {}).selector || {})._id;
 
     if ( !id ) return;
 
@@ -24,6 +24,8 @@ var getSchema= function() {
     return _getSchema({ type: object.objectType, version: object.version });
 };
 
+var getTags= SpongeTools.getCachedData('getTagsByTypeVersion');
+var getMapnames= SpongeTools.getCachedData('getMapnamesByTypeVersion');
 
 var _getRawDataValues= SpongeTools.getCachedData('exportRawByDataObjId');
 var _getSingleDataValue= SpongeTools.getCachedData('exportSingleByDataObjId');
@@ -31,120 +33,123 @@ var _getDataValues= SpongeTools.getCachedData('exportByDataObjId');
 
 T.select('wizExport');
 
-var data= [];
+var exportWizardData= {};
 
-var defaultData= [
-    { // 0
-        type: null,
+var steps= {
+    objectType: {
+        templatePrefix: 'wizExportObjectType',
+        isValid: function() { return exportWizardData.type; },
+        getNextStepName: function() { return 'selectorType'; },
+//        getNextStepName: function() { return 'object'; },
     },
-    { // 1
-        object: null,
+    selectorType: {
+        templatePrefix: 'wizExportSelectorType',
+        isValid: function() { return exportWizardData.selectorType; },
+        getNextStepName: function() {
+            switch ( exportWizardData.selectorType ) {
+                case 'object':  return 'object';
+                case 'nearest': return 'nearest';
+                case 'map':     return 'map';
+            }
+        },
     },
-    { // 2
-        exportType: null,
+    object: {
+        templatePrefix: 'wizExportObject',
+        isValid: function() { return exportWizardData.object; },
+        getNextStepName: function() { return 'exportType' },
     },
-    { // 3
-        start: {},
+    nearest: {
+        templatePrefix: 'wizExportNearest',
+        isValid: function() { return exportWizardData.tag; },
+        getNextStepName: function() { return 'location' },
     },
-    { // 4
-        end: {},
+    map: {
+        templatePrefix: 'wizExportMap',
+        isValid: function() { return exportWizardData.mapname; },
+        getNextStepName: function() { return 'location' },
     },
-    { // 5
-        step: {},
+    location: {
+        templatePrefix: 'wizExportLocation',
+        isValid: function() { return exportWizardData.location; },
+        getNextStepName: function() { return 'exportType' },
     },
-    {},
-];
-
-var nextFns= [
-    // 0 - ObjectType
-    function( data ) { return data.type },
-    // 1 - DataObject
-    function( data ) { return data.object },
-    // 2 - export type
-    function( data ) { return data.exportType },
-    // 3 - start/single
-    function( data ) { return Object.keys(data.start).length || getStepData(2).exportType === 'raw' },
-    // 4 - end
-    function( data ) { return Object.keys(data.end).length },
-    // 5 - step
-    function( data ) { return Object.keys(data.step).length },
-    // 6 - submit
-    function( data ) { return false },
-];
-
-var getStepData= function( step ) {
-    return (data[step] || {}).data || {};
+    exportType: {
+        templatePrefix: 'wizExportExportType',
+        isValid: function() { return exportWizardData.exportType; },
+        getNextStepName: function() { return 'start' },
+    },
+    start: {
+        templatePrefix: 'wizExportStart',
+        isValid: function() { return exportWizardData.start || exportWizardData.exportType === 'raw'; },
+        getNextStepName: function() { 
+        return exportWizardData.exportType === 'single' || (exportWizardData.exportType === 'raw' && !exportWizardData.start) ? 'submit' : 'end'; },
+    },
+    end: {
+        templatePrefix: 'wizExportEnd',
+        isValid: function() { return exportWizardData.end || exportWizardData.exportType === 'raw'; },
+        getNextStepName: function() { return exportWizardData.exportType === 'raw' ? 'submit' : 'step'; },
+    },
+    step: {
+        templatePrefix: 'wizExportStep',
+        isValid: function() { return exportWizardData.step; },
+        getNextStepName: function() { return 'submit'; },
+    },
+    submit: {
+        templatePrefix: 'wizExportSubmit',
+        isValid: function() { return false; },
+        getNextStepName: function() {},
+    },
 };
-
-var lastStep= defaultData.length;
 
 var exportInvalidator= SpongeTools.getInvalidator('exportType');
 
-var createContextData= function( step ) {
-    if ( !data[step] ) data[step]= { data: defaultData[step] };
-    var _data= data[step];
+var createContextData= function( stepName ) {
+    var finished= false;
 
-    _data.finished= false;
+    var stepData= steps[stepName];
+    if ( !stepData ) return {};
 
     var onFinished= [];
     var context= {
+        name: stepName,
         nextStepData: function() {
-            var nextStep= step + 1;
-            if ( nextStep >= lastStep ) return null;
-            var data= createContextData(nextStep);
-            context.nextStepData= function() { return data; };
-            return data;
+            var nextStepName= stepData.getNextStepName();
+            return createContextData(nextStepName);
         },
-        getContentTemplate: function() { return 'wizExportStep' + (step + 1) + 'Expand'; },
-        getContentCompressedTemplate: function() { return 'wizExportStep' + (step + 1) + 'Compressed'; },
-        getData: function() { return _data.data },
-        isEnabled: function() {
-            if ( step === 4 ) {
-                exportInvalidator();
-                var exportType= getStepData(2).exportType
-                if ( exportType === 'raw' && Object.keys(getStepData(3).start).length === 0 ) return false;
-                return exportType !== 'single';
-            };
-            if ( step === 5 ) {
-                exportInvalidator();
-                return getStepData(2).exportType === 'sequence';
-            };
-            return true;
-        },
-        isFinished: function() { return _data.finished; },
+        getContentTemplate: function() { return stepData.templatePrefix + 'Expand'; },
+        getContentCompressedTemplate: function() { return stepData.templatePrefix + 'Compressed'; },
+        getData: function() { return exportWizardData; },
+        isFinished: function() { return finished; },
         onFinished: function( fn ) {
             if ( typeof fn === 'function' ) onFinished.push(fn);
         },
         nextAllowed: function() {
-            return nextFns[step](_data.data);
+            return stepData.isValid();
         },
         finish: function() {
-            _data.finished= true;
+            finished= true;
             for ( var i in onFinished ) {
                 onFinished[i]();
             };
         },
-        hasNext: function() { return step < lastStep; },
+        hasNext: function() { return stepData.getNextStepName(); },
     };
     return context;
 };
 
 T.helper('wizardData', function() {
     invalidator();
-    data= [];
+
+    var data= createContextData('objectType');
 
     var context= {
-        firstStepData: function() {
-            var data= createContextData(0);
-            context.fistStepData= function() { return data; };
-            return data;
-        }
+        firstStepData: function() { return data; },
     };
     return context;
 });
 
 
-T.select('wizExportStep1Expand');
+T.select('wizExportObjectTypeExpand');
 
 T.helper('loading', function() {
     return !getTypeVersions() || false;
@@ -159,7 +164,7 @@ T.helper('objectTypes', function() {
 });
 
 T.helper('selected', function() {
-    return this.type === getStepData(0).type;
+    return this.type === exportWizardData.type;
 });
 
 T.events({
@@ -169,11 +174,34 @@ T.events({
     },
 });
 
-T.select('wizExportStep2Expand');
+
+T.select('wizExportSelectorTypeExpand');
+
+T.helper('checked', function( value ) {
+    return this.wizardData.getData().selectorType === value;
+});
+
+T.events({
+    'click input': function( event ) {
+        var value= $(event.currentTarget).val();
+        exportInvalidator(true);
+        this.wizardData.getData().selectorType= value;
+        this.wizardData.finish();
+    },
+});
+
+T.select('wizExportSelectorTypeCompressed');
+
+T.helper('is', function( type ) {
+    return this.wizardData.getData().selectorType === type;
+});
+
+
+T.select('wizExportObjectExpand');
 
 T.helper('valueInput', function() {
     var self= this;
-    var type= getStepData(0).type;
+    var type= exportWizardData.type;
     var setValue= function( value ) {
         self.wizardData.getData().object= value;
         self.wizardData.finish();
@@ -202,13 +230,109 @@ T.helper('valueInput', function() {
     return Template.valueInputModel;
 });
 
-T.select('wizExportStep2Compressed');
+T.select('wizExportObjectCompressed');
 
 T.helper('objectName', function() {
     return SpongeTools.valueToString(this.wizardData.getData().object);
 });
 
-T.select('wizExportStep3Expand');
+
+T.select('wizExportNearestExpand');
+
+var _getTags= function() {
+
+    var typeVersions= getTypeVersions();
+
+    if ( !typeVersions ) return;
+
+    var type= exportWizardData.type;
+
+    var tags= getTags(type, typeVersions[type]);
+
+    if ( !tags || tags.length === 0 ) return;
+
+    tags.sort();
+    return tags;
+};
+
+T.helper('loading', function( value ) {
+    return !_getTags();
+});
+
+T.helper('tag', function() {
+    return _getTags();
+});
+
+
+T.events({
+    'change select': function( event ) {
+        var value= $(event.currentTarget).val();
+        exportInvalidator(true);
+        this.wizardData.getData().tag= value;
+        this.wizardData.finish();
+    },
+});
+
+
+T.select('wizExportMapExpand');
+
+var _getMaps= function() {
+
+    var typeVersions= getTypeVersions();
+
+    if ( !typeVersions ) return;
+
+    var type= exportWizardData.type;
+
+    var maps= getMapnames(type, typeVersions[type]);
+
+    if ( !maps || maps.length === 0 ) return;
+
+    maps.sort();
+    return maps;
+};
+
+T.helper('loading', function( value ) {
+    return !_getMaps();
+});
+
+T.helper('map', function() {
+    return _getMaps();
+});
+
+
+T.events({
+    'change select': function( event ) {
+        var value= $(event.currentTarget).val();
+        exportInvalidator(true);
+        this.wizardData.getData().mapname= value;
+        this.wizardData.finish();
+    },
+});
+
+
+T.select('wizExportLocationExpand');
+
+T.helper('value', function() {
+    return SpongeTools.valueToString(this.wizardData.getData().location || '&lt;not set&gt;');
+});
+
+T.events({
+    'click a': function( event ) {
+        exportInvalidator(true);
+        this.wizardData.getData().location= [1, 1];
+        this.wizardData.finish();
+    },
+});
+
+T.select('wizExportLocationCompressed');
+
+T.helper('location', function( type ) {
+    return SpongeTools.valueToString(this.wizardData.getData().location);
+});
+
+
+T.select('wizExportExportTypeExpand');
 
 T.helper('checked', function( value ) {
     return this.wizardData.getData().exportType === value;
@@ -226,7 +350,7 @@ T.events({
     },
 });
 
-T.select('wizExportStep3Compressed');
+T.select('wizExportExportTypeCompressed');
 
 T.helper('is', function( type ) {
     return this.wizardData.getData().exportType === type;
@@ -245,6 +369,8 @@ var _getValues= function( property ) {
         var info= (schema.definition.info || {}).args;
 
         var value= this.wizardData.getData()[property];
+        if ( !value ) value= {};
+
         return Object.keys(args).map(function( name ) {
             if ( !name in value ) value[name]= undefined;
             return {
@@ -299,10 +425,10 @@ var startIterator= {
     getValues: _getValues('start')
 };
 
-T.select('wizExportStep4Expand');
+T.select('wizExportStartExpand');
 
 T.helper('title', function() {
-    if ( getStepData(2).exportType === 'single' ) return 'Iterator';
+    if ( exportWizardData.exportType === 'single' ) return 'Iterator';
     return 'Iterator start';
 });
 
@@ -315,10 +441,10 @@ T.events({
     'click a.start-value': _editValues('start', startIterator.invalidator),
 });
 
-T.select('wizExportStep4Compressed');
+T.select('wizExportStartCompressed');
 
 T.helper('title', function() {
-    if ( getStepData(2).exportType === 'single' ) return 'Iterator';
+    if ( exportWizardData.exportType === 'single' ) return 'Iterator';
     return 'Iterator start';
 });
 
@@ -332,7 +458,7 @@ var endIterator= {
     getValues: _getValues('end')
 };
 
-T.select('wizExportStep5Expand');
+T.select('wizExportEndExpand');
 
 T.helper('iteratorValues', function() {
     endIterator.invalidator();
@@ -344,7 +470,7 @@ T.events({
     'click a.end-value': _editValues('end', endIterator.invalidator),
 });
 
-T.select('wizExportStep5Compressed');
+T.select('wizExportEndCompressed');
 
 T.helper('iteratorValues', function() {
     endIterator.invalidator();
@@ -356,7 +482,7 @@ var stepIterator= {
     getValues: _getValues('step')
 };
 
-T.select('wizExportStep6Expand');
+T.select('wizExportStepExpand');
 
 T.helper('iteratorValues', function() {
     stepIterator.invalidator();
@@ -367,14 +493,14 @@ T.events({
     'click a.step-value': _editValues('step', stepIterator.invalidator, true),
 });
 
-T.select('wizExportStep6Compressed');
+T.select('wizExportStepCompressed');
 
 T.helper('iteratorValues', function() {
     stepIterator.invalidator();
     return stepIterator.getValues.apply(this);
 });
 
-T.select('wizExportStep7Expand');
+T.select('wizExportSubmitExpand');
 
 
 var step7Loading= ReactiveValue(false);
@@ -384,7 +510,7 @@ T.helper('loading', function() {
 
 var clickEventGen= function( format ) {
     return function( event ) {
-        var exportType= getStepData(2).exportType;
+        var exportType= exportWizardData.exportType;
         var fn, args;
 
         step7Loading(true);
@@ -392,15 +518,15 @@ var clickEventGen= function( format ) {
         switch ( exportType ) {
             case 'single':
                 fn= _getSingleDataValue;
-                args= [ getStepData(1).object.selector._id, getStepData(3).start, format ];
+                args= [ exportWizardData.object.selector._id, exportWizardData.start, format ];
                 break;
             case 'sequence':
                 fn= _getDataValues;
-                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end, getStepData(5).step, format ];
+                args= [ exportWizardData.object.selector._id, exportWizardData.start, exportWizardData.end, exportWizardData.step, format ];
                 break;
             case 'raw':
                 fn= _getRawDataValues;
-                args= [ getStepData(1).object.selector._id, getStepData(3).start, getStepData(4).end, format ];
+                args= [ exportWizardData.object.selector._id, exportWizardData.start, exportWizardData.end, format ];
                 break;
         }
 

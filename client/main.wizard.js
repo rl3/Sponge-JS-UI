@@ -67,6 +67,7 @@ T.helper('nextAllowed', function() {
 });
 
 T.helper('nextStep', function() {
+    return this.wizardData ? Template.wizardStep : null;
     return this.wizardData && callFn(this.wizardData.hasNext) ? Template.wizardStep : null;
 });
 
