@@ -180,14 +180,14 @@
 </template>
 
 <template name="mainNavigationUsers">
-            {{#each users}}
-                <div class="nav-list">
+            <div class="nav-list">
+                {{#each users}}
                     <div class="nav-row user link edit {{rowClass}}">
                         <div class="user-name">{{username}}</div>
                         <div class="full-name">{{profile.name}}</div>
                     </div>
-                </div>
-            {{/each}}
+                {{/each}}
+            </div>
             <div class="nav-row user link new">create new</div>
 </template>
 
