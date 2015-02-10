@@ -87,7 +87,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /Model\/getComp/;
+// debugFilter= /Point\/getByTagType/;
 
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);

@@ -1004,6 +1004,12 @@ T.helper('selectFromMapHandler', function() {
         if ( o.properties.description ) {
             infotext+= '<br />' + o.properties.description;
         }
+        if ( o.properties.start ) {
+            infotext+= '<br /><b>Start:</b> ' + o.properties.start;
+        }
+        if ( o.properties.end ) {
+            infotext+= '<br /><b>End:</b> ' + o.properties.end;
+        }
 
         Map.addMarker(o.placemark, {
             infotext: infotext,
