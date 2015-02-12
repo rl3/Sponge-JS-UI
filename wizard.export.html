@@ -57,7 +57,7 @@
 
 <template name="wizExportNearestExpand">
     select tag:<br />
-    {{#if loadingTags}}
+    {{#if loading}}
         {{> loadingSmall}}
     {{else}}
         <select class="tagName">
@@ -74,7 +74,7 @@
 
 <template name="wizExportMapExpand">
     select map:<br />
-    {{#if loadingTags}}
+    {{#if loading}}
         {{> loadingSmall}}
     {{else}}
         <select class="mapName">
