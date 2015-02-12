@@ -187,7 +187,10 @@
 </template>
 
 <template name="wizExportSubmitExpand">
-    <button class="btn-primary export-xml">export XML</button> <button class="btn-primary export-xlsx">export Excel</button> {{#if loading}}{{> loadingLineImage}}{{/if}}
+    <button class="btn-primary export-xml">export XML</button>
+    <button class="btn-primary export-xlsx">export Excel</button>
+    <button class="btn-primary export-zalf">export Monica-CSV</button>
+    {{#if loading}}{{> loadingLineImage}}{{/if}}
 </template>
 <template name="wizExportStep6Compressed">
     finished

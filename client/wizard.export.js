@@ -591,6 +591,7 @@ var clickEventGen= function( format ) {
                 case 'csv': contentType= 'text/comma-separated-values'; break;
                 case 'xml': contentType= 'text/xml'; target= '_new'; break;
                 case 'xlsx': contentType= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; target= '_new'; break;
+                case 'xlsx': contentType= 'application/zip'; target= '_new'; break;
                 default: contentType= 'application/vnd.google-earth.kml+xml'; break;
             }
 
@@ -614,5 +615,6 @@ var clickEventGen= function( format ) {
 T.events({
     'click button.export-xml': clickEventGen('xml'),
     'click button.export-xlsx': clickEventGen('xlsx'),
+    'click button.export-zalf': clickEventGen('zalf'),
 });
 
