@@ -91,7 +91,12 @@
 
 
 <template name="wizExportLocationExpand">
-    select location: <a href="#">{{value}}</a>
+    <div class="left">
+        <div class="left">select location:&nbsp;</div>
+        <div class="right">{{> locationInput}}</div>
+    </div>
+
+    <!--table border=0><tr><td>select location:</td><td>{{> locationInput}}</td></tr></table-->
 </template>
 <template name="wizExportLocationCompressed">
     location: <b>{{location}}</b>
@@ -108,10 +113,12 @@
         <input type="radio" value="sequence" name="exportType" checked={{checked "sequence"}} />
         sequence of data sets {{> valueInfo description="Export a sequence of data sets. Begin at start value, increment by step until end value."}}
     </label>
-    <label>
-        <input type="radio" value="raw" name="exportType" checked={{checked "raw"}} />
-        raw data {{> valueInfo description="Export all raw uncorrected data associated with object. Optionally export can be restricted by start and end values."}}
-    </label>
+    {{#if rawEnabled}}
+        <label>
+            <input type="radio" value="raw" name="exportType" checked={{checked "raw"}} />
+            raw data {{> valueInfo description="Export all raw uncorrected data associated with object. Optionally export can be restricted by start and end values."}}
+        </label>
+    {{/if}}
 </template>
 <template name="wizExportExportTypeCompressed">
     export type:

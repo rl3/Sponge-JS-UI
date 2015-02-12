@@ -18,10 +18,18 @@ var getDataObject= function() {
 
 var _getSchema= SpongeTools.getCachedData('getSchemaByTypeVersion');
 var getSchema= function() {
-    var object= getDataObject();
-    if ( !object ) return;
+    if ( exportWizardData.selectorType === 'object' ) {
+        var object= getDataObject();
+        if ( !object ) return;
 
-    return _getSchema({ type: object.objectType, version: object.version });
+        return _getSchema({ type: object.objectType, version: object.version });
+    }
+
+    var type= exportWizardData.type;
+    var typeVersions= getTypeVersions();
+    if ( !typeVersions || !typeVersions[type] ) return;
+
+    return _getSchema({ type: type, version: typeVersions[type][0] });
 };
 
 var getTags= SpongeTools.getCachedData('getTagsByTypeVersion');
@@ -30,6 +38,8 @@ var getMapnames= SpongeTools.getCachedData('getMapnamesByTypeVersion');
 var _getRawDataValues= SpongeTools.getCachedData('exportRawByDataObjId');
 var _getSingleDataValue= SpongeTools.getCachedData('exportSingleByDataObjId');
 var _getDataValues= SpongeTools.getCachedData('exportByDataObjId');
+var _getNearestDataValues= SpongeTools.getCachedData('exportByTagTypeLocation');
+var _getMapDataValues= SpongeTools.getCachedData('exportByMapTypeLocation');
 
 T.select('wizExport');
 
@@ -75,7 +85,7 @@ var steps= {
     },
     exportType: {
         templatePrefix: 'wizExportExportType',
-        isValid: function() { return exportWizardData.exportType; },
+        isValid: function() { return exportWizardData.exportType && ( exportWizardData.exportType !== 'raw' || exportWizardData.selectorType === 'object' ); },
         getNextStepName: function() { return 'start' },
     },
     start: {
@@ -313,16 +323,22 @@ T.events({
 
 T.select('wizExportLocationExpand');
 
-T.helper('value', function() {
-    return SpongeTools.valueToString(this.wizardData.getData().location || '&lt;not set&gt;');
-});
-
-T.events({
-    'click a': function( event ) {
-        exportInvalidator(true);
-        this.wizardData.getData().location= [1, 1];
+T.helper('locationInput', function() {
+    var setValue= function( value ) {
+        this.wizardData.getData().location= value;
         this.wizardData.finish();
-    },
+    }.bind(this);
+
+    SpongeTools.valueInput.singleValue({
+        get: function() {
+            return this.wizardData.getData().location;
+        }.bind(this),
+        set: setValue,
+        setTemp: setValue,
+        type: 'Location',
+        description: 'Location to find object near by',
+    });
+    return Template.valueInputLocation;
 });
 
 T.select('wizExportLocationCompressed');
@@ -518,15 +534,35 @@ var clickEventGen= function( format ) {
         switch ( exportType ) {
             case 'single':
                 fn= _getSingleDataValue;
-                args= [ exportWizardData.object.selector._id, exportWizardData.start, format ];
+                args= [ exportWizardData.start, null, null, format ];
                 break;
             case 'sequence':
                 fn= _getDataValues;
-                args= [ exportWizardData.object.selector._id, exportWizardData.start, exportWizardData.end, exportWizardData.step, format ];
+                args= [ exportWizardData.start, exportWizardData.end, exportWizardData.step, format ];
                 break;
             case 'raw':
                 fn= _getRawDataValues;
-                args= [ exportWizardData.object.selector._id, exportWizardData.start, exportWizardData.end, format ];
+                args= [ exportWizardData.start, exportWizardData.end, format ];
+                break;
+        }
+
+        switch ( exportWizardData.selectorType ) {
+            case 'object':
+                args.unshift(exportWizardData.object.selector._id);
+                break;
+            case 'nearest':
+                fn= _getNearestDataValues;
+                args.unshift(exportWizardData.location[1]);
+                args.unshift(exportWizardData.location[0]);
+                args.unshift(exportWizardData.type);
+                args.unshift(exportWizardData.tag);
+                break;
+            case 'map':
+                fn= _getMapDataValues;
+                args.unshift(exportWizardData.location[1]);
+                args.unshift(exportWizardData.location[0]);
+                args.unshift(exportWizardData.type);
+                args.unshift(exportWizardData.mapname);
                 break;
         }
 

@@ -736,7 +736,7 @@ T.select('valueInputLocation');
 var defaultLocation= [13.012574, 52.438280];
 
 T.helper('location', function() {
-    return (singleValue().newValue || []).slice().reverse().join(', ');
+    return (singleValue().newValue || singleValue().get() || []).slice().reverse().join(', ');
 });
 
 T.helper('defaultLocation', function() {
