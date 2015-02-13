@@ -92,16 +92,21 @@ var steps= {
         templatePrefix: 'wizExportStart',
         isValid: function() { return exportWizardData.start || exportWizardData.exportType === 'raw'; },
         getNextStepName: function() { 
-        return exportWizardData.exportType === 'single' || (exportWizardData.exportType === 'raw' && !exportWizardData.start) ? 'submit' : 'end'; },
+        return exportWizardData.exportType === 'single' || (exportWizardData.exportType === 'raw' && !exportWizardData.start) ? 'format' : 'end'; },
     },
     end: {
         templatePrefix: 'wizExportEnd',
         isValid: function() { return exportWizardData.end || exportWizardData.exportType === 'raw'; },
-        getNextStepName: function() { return exportWizardData.exportType === 'raw' ? 'submit' : 'step'; },
+        getNextStepName: function() { return exportWizardData.exportType === 'raw' ? 'format' : 'step'; },
     },
     step: {
         templatePrefix: 'wizExportStep',
         isValid: function() { return exportWizardData.step; },
+        getNextStepName: function() { return 'format'; },
+    },
+    format: {
+        templatePrefix: 'wizExportFormat',
+        isValid: function() { return exportWizardData.format && ( exportWizardData.format !== 'zalf' || exportWizardData.type === 'climate' ); },
         getNextStepName: function() { return 'submit'; },
     },
     submit: {
@@ -356,6 +361,7 @@ T.helper('checked', function( value ) {
 T.helper('single',   function() { return 'single'   });
 T.helper('sequence', function() { return 'sequence' });
 T.helper('raw',      function() { return 'raw'      });
+T.helper('rawEnabled', function() { return this.wizardData.getData().selectorType === 'object'});
 
 T.events({
     'click input': function( event ) {
@@ -516,17 +522,43 @@ T.helper('iteratorValues', function() {
     return stepIterator.getValues.apply(this);
 });
 
-T.select('wizExportSubmitExpand');
+T.select('wizExportFormatExpand');
 
+T.helper('checked', function( value ) {
+    return this.wizardData.getData().format === value;
+});
+T.helper('xml',   function() { return 'xml'   });
+T.helper('xlsx',  function() { return 'xlsx'  });
+T.helper('zalf',  function() { return 'zalf'  });
+T.helper('zalfEnabled', function() { return this.wizardData.getData().type === 'climate'; });
+
+T.events({
+    'click input': function( event ) {
+        var value= $(event.currentTarget).val();
+        exportInvalidator(true);
+        this.wizardData.getData().format= value;
+        this.wizardData.finish();
+    },
+});
+
+T.select('wizExportFormatCompressed');
+
+T.helper('is', function( type ) {
+    return this.wizardData.getData().format === type;
+});
+
+T.select('wizExportSubmitExpand');
 
 var step7Loading= ReactiveValue(false);
 T.helper('loading', function() {
     return step7Loading();
-})
+});
 
-var clickEventGen= function( format ) {
-    return function( event ) {
+T.events({
+    'click button': function( event ) {
         var exportType= exportWizardData.exportType;
+        var format= exportWizardData.format;
+
         var fn, args;
 
         step7Loading(true);
@@ -609,12 +641,6 @@ var clickEventGen= function( format ) {
         });
 
         return true;
-    }
-};
-
-T.events({
-    'click button.export-xml': clickEventGen('xml'),
-    'click button.export-xlsx': clickEventGen('xlsx'),
-    'click button.export-zalf': clickEventGen('zalf'),
+    },
 });
 

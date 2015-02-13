@@ -186,10 +186,34 @@
     </b>
 </template>
 
+<template name="wizExportFormatExpand">
+    select format to export in:
+    <label>
+        <input type="radio" value="xml" name="format" checked={{checked "xml"}} />
+         XML
+    </label>
+    <label>
+        <input type="radio" value="xlsx" name="format" checked={{checked "xlsx"}} />
+        Excel
+    </label>
+    {{#if zalfEnabled}}
+        <label>
+            <input type="radio" value="zalf" name="format" checked={{checked "zalf"}} />
+            MONICA-CSV {{> valueInfo description="Export data as ZALF-ZIP"}}
+        </label>
+    {{/if}}
+</template>
+<template name="wizExportFormatCompressed">
+    export type:
+    <b>
+        {{#if is "xml"}}XML{{/if}}
+        {{#if is "xlsx"}}Excel (xlsx){{/if}}
+        {{#if is "zalf"}}MONICA-CSV{{/if}}
+    </b>
+</template>
+
 <template name="wizExportSubmitExpand">
-    <button class="btn-primary export-xml">export XML</button>
-    <button class="btn-primary export-xlsx">export Excel</button>
-    <button class="btn-primary export-zalf">export Monica-CSV</button>
+    <button class="btn-primary">export</button>
     {{#if loading}}{{> loadingLineImage}}{{/if}}
 </template>
 <template name="wizExportStep6Compressed">
