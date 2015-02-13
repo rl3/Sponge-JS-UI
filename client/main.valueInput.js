@@ -75,6 +75,10 @@ var singleValue= ReactiveValue({
     newValue: undefined,
 });
 
+singleValue.add(function() {
+    tempValue= {};
+});
+
 /*
  * gets the current value to edit
  * if value has changed, reset temporary values
@@ -859,6 +863,10 @@ var buildTypeNames= function() {
         };
     });
 };
+
+T.helper('modelName', function() {
+    return getTempValue('modelName')();
+});
 
 T.select('valueInputModelSelector');
 
