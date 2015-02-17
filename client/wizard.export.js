@@ -527,14 +527,12 @@ T.select('wizExportFormatExpand');
 T.helper('checked', function( value ) {
     return this.wizardData.getData().format === value;
 });
-T.helper('xml',   function() { return 'xml'   });
-T.helper('xlsx',  function() { return 'xlsx'  });
-T.helper('zalf',  function() { return 'zalf'  });
 T.helper('zalfEnabled', function() { return this.wizardData.getData().type === 'climate'; });
 
 T.events({
     'click input': function( event ) {
         var value= $(event.currentTarget).val();
+console.log('click', event.currentTarget, value)
         exportInvalidator(true);
         this.wizardData.getData().format= value;
         this.wizardData.finish();
@@ -623,7 +621,7 @@ T.events({
                 case 'csv': contentType= 'text/comma-separated-values'; break;
                 case 'xml': contentType= 'text/xml'; target= '_new'; break;
                 case 'xlsx': contentType= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; target= '_new'; break;
-                case 'xlsx': contentType= 'application/zip'; target= '_new'; break;
+                case 'zalf': contentType= 'application/zip'; target= '_new'; break;
                 default: contentType= 'application/vnd.google-earth.kml+xml'; break;
             }
 
