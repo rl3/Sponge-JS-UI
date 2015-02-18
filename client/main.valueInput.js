@@ -75,9 +75,11 @@ var singleValue= ReactiveValue({
     newValue: undefined,
 });
 
+/*
 singleValue.add(function() {
     tempValue= {};
 });
+*/
 
 /*
  * gets the current value to edit
@@ -1220,6 +1222,7 @@ SpongeTools.showSingleValueDialog= showSingleValue;
 // export singleValue for 
 SpongeTools.valueInput= {
     singleValue: function( data ) {
+        tempValue= {};
         singleValue({
             get: data.get,
             set: data.set,
