@@ -50,7 +50,7 @@ Meteor.startup(function() {
  *  to be called within publish and methods functions with respective 'this' object
  */
 var buildSessionSelector= function( meteorObject, noAuth ) {
-    if ( noAuth ) return { userId: null };
+    if ( noAuth ) return { userId: 'none' };
 
     return {
         userId: meteorObject.userId,
@@ -70,6 +70,9 @@ var buildCacheSelector= function( meteorObject, noAuth ) {
     return { userId: noAuth ? null : meteorObject.userId };
 };
 
+/**
+ * Restrict client's access to db
+ */
 Meteor.publish('client-cache', function() {
     var query= buildSessionSelector(this);
     var cacheQuery= { userId: { $in: [ null, this.userId ] } };
@@ -444,6 +447,7 @@ var updateCacheError= function( key, query, err, cb ) {
     if ( typeof err === 'object' && err && err.response ) {
         if ( err.response.data ) data.error= err.response.data;
         if ( err.response.statusCode ) data.error.statusCode= err.response.statusCode;
+        data.error.key= key;
     }
     else {
         data.error= err;
