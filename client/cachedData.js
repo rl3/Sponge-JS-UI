@@ -62,6 +62,7 @@ var postData= function( id, timeout ) {
 
 var buildApiUrl= function( url ) {
     var sd= sessionData.findOne();
+
     if ( !sd ) return '#';
 
     var append= url.match(/\?/) ? '&' : '?';

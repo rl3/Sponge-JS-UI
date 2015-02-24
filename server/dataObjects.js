@@ -54,7 +54,8 @@ var buildSessionSelector= function( meteorObject, noAuth ) {
 
     return {
         userId: meteorObject.userId,
-        session: meteorObject.connection.id,
+// Did we need this? All client connections of the same user should use the same API-Session (they are sharing the cache anyway)
+//        session: meteorObject.connection.id,
     };
 };
 
