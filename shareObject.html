@@ -6,7 +6,9 @@
         <h3 id="shareObjectLabel">share Object</h3>
     </div>
     <div class="modal-body">
-        {{> shareObjectBody}}
+        {{#if currentUser}}
+            {{> shareObjectBody}}
+        {{/if}}
     </div>
 </div>
 </body>

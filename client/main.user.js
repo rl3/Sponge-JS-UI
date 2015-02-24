@@ -193,8 +193,6 @@ T.events({
 
 T.select('userPanel');
 
-
-
 T.events({
     'click a.sign-out': function( event, template ) {
         Meteor.logout();
