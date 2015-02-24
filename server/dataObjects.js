@@ -3,6 +3,9 @@ var dataCache= new Meteor.Collection('Cache');
 var dataCacheMeta= new Meteor.Collection('CacheMeta');
 var sessionData= new Meteor.Collection('SessionData')
 
+// userId to be used for any user (data that should not be cached for every user separately)
+var anyUserId= 'any';
+
 var Future;
 
 Meteor.startup(function() {
@@ -50,7 +53,7 @@ Meteor.startup(function() {
  *  to be called within publish and methods functions with respective 'this' object
  */
 var buildSessionSelector= function( meteorObject, noAuth ) {
-    if ( noAuth ) return { userId: 'none' };
+    if ( noAuth ) return { userId: anyUserId };
 
     return {
         userId: meteorObject.userId,
@@ -67,7 +70,7 @@ var buildSessionSelectorForMethod= function( connection, noAuth ) {
 };
 
 var buildCacheSelector= function( meteorObject, noAuth ) {
-    return { userId: noAuth ? null : meteorObject.userId };
+    return { userId: noAuth ? anyUserId : meteorObject.userId };
 };
 
 /**
@@ -75,7 +78,7 @@ var buildCacheSelector= function( meteorObject, noAuth ) {
  */
 Meteor.publish('client-cache', function() {
     var query= buildSessionSelector(this);
-    var cacheQuery= { userId: { $in: [ null, this.userId ] } };
+    var cacheQuery= { userId: { $in: [ anyUserId, this.userId ] } };
 
     var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
 
@@ -258,7 +261,7 @@ var methods= {};
     methods['save' + type]= function( model ) {
         var cacheSelector= buildCacheSelector(this);
         return put(type + '/save', model, this.connection, function( err, result ) {
-            if ( err ) return updateCacheError(null, cacheSelector, err);
+            if ( err ) return updateCacheError('PUT:' + type + '/save', cacheSelector, err);
 
             var id= model._id;
             if ( !id ) return;
@@ -323,7 +326,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
 
         var instanceKey= urlData.instanceKey ? urlData.instanceKey : key;
 
-        var userId= urlData.noAuth ? null : Meteor.userId();
+        var userId= urlData.noAuth ? anyUserId : Meteor.userId();
 
         var running= instanceKey in getInstances;
 

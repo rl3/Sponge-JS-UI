@@ -6,49 +6,50 @@
         <h3 id="shareObjectLabel">share Object</h3>
     </div>
     <div class="modal-body">
-        {{#if currentUser}}
-            {{> shareObjectBody}}
-        {{/if}}
+        {{> shareObjectBody}}
     </div>
 </div>
 </body>
 
 <template name="shareObjectBody">
-    <table>
-        <tr><td colspan="2"><button class="save btn btn-primary">save</button> <button class="cancel btn">cancel</button></td></tr>
-        <tr><td>Type:</td><td>{{type}}</td></tr>
-        <tr><td>Owner:</td><td>{{owner}}</td></tr>
-        <tr>
-            <td valign="top">ACL:</td>
-            <td>
-                {{#with acl}}
-                    <table><tr valign="top"><td>
-                        <table>
-                            <tr><th>user</th><th>read</th><th>write</th></tr>
-                            {{#each user}}
-                                <tr>
-                                    <td align="right">{{name}}</td>
-                                    <td align="middle"><input type="checkbox" data="read" checked={{checked read}} /></td>
-                                    <td align="middle"><input type="checkbox" data="write" checked={{checked write}} /></td>
-                                </tr>
-                            {{/each}}
-                        </table>
-                    </td><td>
-                        <table>
-                            <tr><th>group</th><th>read</th><th>write</th></tr>
-                            {{#each group}}
-                                <tr>
-                                    <td align="right">{{name}}</td>
-                                    <td align="middle"><input type="checkbox" data="read" checked={{checked read}} /></td>
-                                    <td align="middle"><input type="checkbox" data="write" checked={{checked write}} /></td></tr>
-                            {{/each}}
-                        </table>
-                    </td></tr></table>
-                {{else}}
-                    {{> loadingSmall}}
-                {{/with}}
-            </td>
-        </tr>
-    </table>
+    {{#if currentUser}}
+        <table>
+            <tr><td colspan="2"><button class="save btn btn-primary">save</button> <button class="cancel btn">cancel</button></td></tr>
+            <tr><td>Type:</td><td>{{type}}</td></tr>
+            <tr><td>Owner:</td><td>{{owner}}</td></tr>
+            <tr>
+                <td valign="top">ACL:</td>
+                <td>
+                    {{#with acl}}
+                        <table><tr valign="top"><td>
+                            <table>
+                                <tr><th>user</th><th>read</th><th>write</th></tr>
+                                {{#each user}}
+                                    <tr>
+                                        <td align="right">{{name}}</td>
+                                        <td align="middle"><input type="checkbox" data="read" checked={{checked read}} /></td>
+                                        <td align="middle"><input type="checkbox" data="write" checked={{checked write}} /></td>
+                                    </tr>
+                                {{/each}}
+                            </table>
+                        </td><td>
+                            <table>
+                                <tr><th>group</th><th>read</th><th>write</th></tr>
+                                {{#each group}}
+                                    <tr>
+                                        <td align="right">{{name}}</td>
+                                        <td align="middle"><input type="checkbox" data="read" checked={{checked read}} /></td>
+                                        <td align="middle"><input type="checkbox" data="write" checked={{checked write}} /></td>
+                                    </tr>
+                                {{/each}}
+                            </table>
+                        </td></tr></table>
+                    {{else}}
+                        {{> loadingSmall}}
+                    {{/with}}
+                </td>
+            </tr>
+        </table>
+    {{/if}}
 </template>
 

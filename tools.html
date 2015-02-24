@@ -5,6 +5,8 @@
 </body>
 
 <template name="lazyHelper">
-    {{doJob}}
-    {{showErrors}}
+    {{#if currentUser}}
+        {{doJob}}
+        {{showErrors}}
+    {{/if}}
 </template>
