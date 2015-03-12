@@ -6,7 +6,6 @@ An Meteor based UI for Sponge-JS
 Requirements
 ------------
 * meteor
-* meteorite
 
 
 Update Submodules
