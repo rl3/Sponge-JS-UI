@@ -204,10 +204,10 @@
     <div class="control-group info">
         <div class="controls">
             <label class="control-label">
-                <a href='#' class='by-map'>Select from map</a><br />
-                Location:
+                <a href='#' class='by-map'>pick from map</a><br />
+                location:
                 <input type="text" class="location span2 lat" value="{{location}}" />
-                <span class='help-inline on-no-error'>Format: 'Lat, Lon' (example: '{{defaultLocation}}')</span>
+                <span class='help-inline on-no-error'>{{> valueInfo description="format: 'latitude, longitude' (example: '52.43828, 13.012574')"}}</span>
             </label>
         </div>
     </div>
@@ -256,7 +256,7 @@
     </div>
     {{#if loading}}
     {{else}}
-        <a href="#" class="select-from-map">select from map</a>{{selectFromMapHandler}}
+        <a href="#" class="select-from-map">pick from map</a>{{selectFromMapHandler}}
     {{/if}}
 </template>
 

@@ -6,8 +6,8 @@
 </template>
 
 <template name="wizExportObjectTypeExpand">
-    select type of data to export:<br />
-    data type:
+    select type of object to export:<br />
+    object type:
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
@@ -20,7 +20,7 @@
     {{/if}}
 </template>
 <template name="wizExportObjectTypeCompressed">
-    data type: <b>{{wizardData.getData.type}}</b>
+    object type: <b>{{wizardData.getData.type}}</b>
 </template>
 
 <template name="wizExportSelectorTypeExpand">
@@ -39,7 +39,7 @@
     </label>
 </template>
 <template name="wizExportSelectorTypeCompressed">
-    select type:
+    selection type:
     <b>
         {{#if is "object"}}single object{{/if}}
         {{#if is "nearest"}}nearest object by location from group of objects with common tag{{/if}}
@@ -86,17 +86,17 @@
     {{/if}}
 </template>
 <template name="wizExportMapCompressed">
-    tag: <b>{{wizardData.getData.mapname}}</b>
+    map: <b>{{wizardData.getData.mapname}}</b>
 </template>
 
 
 <template name="wizExportLocationExpand">
     <div class="left">
-        <div class="left">select location:&nbsp;</div>
+        <div class="left">choose location:&nbsp;</div>
         <div class="right">{{> locationInput}}</div>
     </div>
 
-    <!--table border=0><tr><td>select location:</td><td>{{> locationInput}}</td></tr></table-->
+    <!--table border=0><tr><td>choose location:</td><td>{{> locationInput}}</td></tr></table-->
 </template>
 <template name="wizExportLocationCompressed">
     location: <b>{{location}}</b>
@@ -121,7 +121,7 @@
     {{/if}}
 </template>
 <template name="wizExportExportTypeCompressed">
-    export type:
+    data range:
     <b>
         {{#if is "single"}}single data set{{/if}}
         {{#if is "sequence"}}sequence of data sets{{/if}}
@@ -130,7 +130,7 @@
 </template>
 
 <template name="wizExportStartExpand">
-    export start:
+    enter start of data range:
     <a href="#" class="start-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -140,7 +140,7 @@
     </a>
 </template>
 <template name="wizExportStartCompressed">
-    export start:
+    range start:
     <b>
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -149,7 +149,7 @@
 </template>
 
 <template name="wizExportEndExpand">
-    export end:
+    enter end of data range:
     <a href="#" class="end-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -159,7 +159,7 @@
     </a>
 </template>
 <template name="wizExportEndCompressed">
-    export end:
+    range end:
     <b>
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -168,7 +168,7 @@
 </template>
 
 <template name="wizExportStepExpand">
-    step:
+    choose step to iterate over range:
     <a href="#" class="step-value">
         {{#each iteratorValues}}
             {{valueName}}={{value}}
@@ -187,28 +187,28 @@
 </template>
 
 <template name="wizExportFormatExpand">
-    select format to export in:
-    <label>
-        <input type="radio" value="xml" name="format" checked={{checked "xml"}} />
-         XML
-    </label>
+    select format of download:
     <label>
         <input type="radio" value="xlsx" name="format" checked={{checked "xlsx"}} />
-        Excel
+        Microsoft Excel xlsx {{> valueInfo description="Export data in Microsoft Office Open XML format, used by Microsoft Excel 2007 and above."}}
+    </label>
+    <label>
+        <input type="radio" value="xml" name="format" checked={{checked "xml"}} />
+         OpenOffice xml {{> valueInfo description="Export data in OpenOffice XML format, suitable for newer and also older calculation programs."}}
     </label>
     {{#if zalfEnabled}}
         <label>
             <input type="radio" value="zalf" name="format" checked={{checked "zalf"}} />
-            MONICA-CSV {{> valueInfo description="Export data as ZALF-ZIP"}}
+            MONICA csv {{> valueInfo description="Export data as zip archive in special format for MONICA, a model for Nitrogen and Carbon dynamics."}}
         </label>
     {{/if}}
 </template>
 <template name="wizExportFormatCompressed">
-    export type:
+    download format:
     <b>
-        {{#if is "xml"}}XML{{/if}}
-        {{#if is "xlsx"}}Excel (xlsx){{/if}}
-        {{#if is "zalf"}}MONICA-CSV{{/if}}
+        {{#if is "xlsx"}}Microsoft Excel xlsx{{/if}}
+        {{#if is "xml"}}OpenOffice xml{{/if}}
+        {{#if is "zalf"}}MONICA csv{{/if}}
     </b>
 </template>
 
