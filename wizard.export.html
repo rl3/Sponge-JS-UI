@@ -24,26 +24,26 @@
 </template>
 
 <template name="wizExportSelectorTypeExpand">
-    select type of object's selection:<br />
+    choose type of selection:<br />
     <label>
         <input type="radio" value="object" name="selectorType" checked={{checked "object"}} />
         select a single object
     </label>
     <label>
         <input type="radio" value="nearest" name="selectorType" checked={{checked "nearest"}} />
-        select valid data from nearest object by tag
+        select nearest object by location from group of objects with common tag
     </label>
     <label>
         <input type="radio" value="map" name="selectorType" checked={{checked "map"}} />
-        select valid data from nearest object by map name
+        select object by location from a map
     </label>
 </template>
 <template name="wizExportSelectorTypeCompressed">
     select type:
     <b>
-        {{#if is "object"}}select a single object{{/if}}
-        {{#if is "nearest"}}select valid data from nearest object by tag{{/if}}
-        {{#if is "map"}}select valif data from nearest object by map name{{/if}}
+        {{#if is "object"}}single object{{/if}}
+        {{#if is "nearest"}}nearest object by location from group of objects with common tag{{/if}}
+        {{#if is "map"}}object by location from a map{{/if}}
     </b>
 </template>
 
