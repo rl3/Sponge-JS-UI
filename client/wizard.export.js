@@ -278,6 +278,10 @@ T.helper('tag', function() {
     return _getTags();
 });
 
+T.helper('selectedTag', function() {
+    return this.toString() === exportWizardData.tag;
+});
+
 
 T.events({
     'change select': function( event ) {
@@ -313,6 +317,10 @@ T.helper('loading', function( value ) {
 
 T.helper('map', function() {
     return _getMaps();
+});
+
+T.helper('selectedMap', function() {
+    return this.toString() === exportWizardData.mapname;
 });
 
 

@@ -80,7 +80,7 @@
         <select class="mapName">
             <option style="display: none">please select</option>
             {{#each map}}
-                <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
+                <option selected={{selectedMap}} value="{{this}}">{{this}}</option>
             {{/each}}
         </select>
     {{/if}}
@@ -95,8 +95,6 @@
         <div class="left">choose location:&nbsp;</div>
         <div class="right">{{> locationInput}}</div>
     </div>
-
-    <!--table border=0><tr><td>choose location:</td><td>{{> locationInput}}</td></tr></table-->
 </template>
 <template name="wizExportLocationCompressed">
     location: <b>{{location}}</b>

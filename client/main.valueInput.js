@@ -785,8 +785,8 @@ T.events({
 
             Map.registerEventHandler('dblclick', function( event ) {
                 if ( event && event.latLng ) {
-                    var lon= event.latLng.lng();
-                    var lat= event.latLng.lat()
+                    var lon= Math.round(event.latLng.lng() * 1e6) / 1e6;
+                    var lat= Math.round(event.latLng.lat() * 1e6) / 1e6;
                     singleValueSetTemp([ lon, lat ]);
                     $cg.find('input.location').val(lat + ', ' + lon);
                     Map.hide();
