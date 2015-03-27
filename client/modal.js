@@ -24,7 +24,6 @@ var showModal= function( $dialog, cb ) {
         $currentModals.modal('show');
     };
 
-    // when they've finished hiding
     $dialog.one('shown', function() {
         $dialog.data('dialog-is-open', true);
         if ( cb ) return cb();
