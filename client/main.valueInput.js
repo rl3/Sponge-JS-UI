@@ -220,11 +220,11 @@ T.helper('inputTypeTemplate', function() {
 });
 
 $(function() {
-    $('body').delegate('#valueInput button.saveValue', 'click', function() {
+    $('body').on('click', '#valueInput button.saveValue', function() {
         var value= getValue();
         if ( value ) value.setValue(newValue());
         $('#valueInput').modal('hide');
-    }).delegate('#valueInput button.clearValue', 'click', function() {
+    }).on('click', '#valueInput button.clearValue', function() {
         var value= getValue();
         if ( value ) value.setValue(undefined);
         $('#valueInput').modal('hide');
@@ -515,18 +515,19 @@ var simpleValueEvents= {
 
 
 $(function() {
-    $('body').delegate('#singleValueInput button.saveValue', 'click', function() {
+    $('body').on('click', '#singleValueInput button.saveValue',  function() {
         var sv= singleValue();
 
         sv.set(sv.newValue);
         $('#singleValueInput').modal('hide');
-    }).delegate('#singleValueInput button.clearValue', 'click', function() {
+    }).on('click', '#singleValueInput button.clearValue', function() {
         singleValue().set(undefined);
         $('#singleValueInput').modal('hide');
-    }).delegate('#singleValueInput', 'hidden', function() {
+    }).on('hidden', '#singleValueInput', function( ev ) {
+        if ( ev.target !== this ) return;
 
         // do nothing, if another dialog opens
-        if ( SpongeTools.Modal.isTempHiding() ) return;
+        if ( $(this).data('dialog-is-open') ) return;
 
         singleValue({
             get: function() {},

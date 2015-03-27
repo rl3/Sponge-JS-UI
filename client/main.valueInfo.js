@@ -21,5 +21,6 @@ T.addFn('rendered', function() {
     $(this.find('a')).tooltip({
         placement: 'right',
         html: true,
+        trigger: 'hover',
     });
 });

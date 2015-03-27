@@ -1,39 +1,44 @@
 'use strict';
 
-var hidingSemaphore= false;
+var modalStackDepth= 0;
 
-var showModal = function ( $dialog, cb ) {
-    var $currentModals = $('.modal.in');
+var showModal= function( $dialog, cb ) {
+    var $currentModals= $('.modal.in');
 
-    if ( !$currentModals.length ) {
-        $dialog.modal('show');
-        if ( cb ) cb();
-        return;
-    }
+    var currentStackDepth= ++modalStackDepth;
 
-    var onHide= function() {
-        if ( hidingSemaphore ) return $dialog.one('hidden', onHide);
+    var onHide= function( ev ) {
+        if ( this !== ev.target || modalStackDepth !== currentStackDepth ) return;
 
-        // when we close the dialog
+        $dialog.data('dialog-is-open', false);
+    };
+
+    var onHidden= function( ev ) {
+        if ( this !== ev.target || modalStackDepth !== currentStackDepth ) return;
+
+        $dialog.off('hide', onHide);
+        $dialog.off('hidden', onHidden);
+
+        modalStackDepth--;
+
         $currentModals.modal('show');
-    }
+    };
 
-    hidingSemaphore= true;
-    return $currentModals.one('hidden', function () {
+    // when they've finished hiding
+    $dialog.one('shown', function() {
+        $dialog.data('dialog-is-open', true);
+        if ( cb ) return cb();
+    });
+    $dialog.on('hide', onHide);
+    $dialog.on('hidden', onHidden);
 
-        // delay reset of hidingSemaphore to allow other events to be processed
-        setTimeout(function() {
-            hidingSemaphore= false;
-        }, 1);
+    if ( !$currentModals.length ) return $dialog.modal('show');
 
-        // when they've finished hiding
-        if ( cb ) $dialog.one('shown', cb);
+    $currentModals.one('hidden', function() {
         $dialog.modal('show');
-        $dialog.one('hidden', onHide);
     }).modal('hide');
 };
 
 SpongeTools.Modal= {
     show: showModal,
-    isTempHiding: function() { return hidingSemaphore; },
 };
