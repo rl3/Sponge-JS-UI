@@ -215,7 +215,7 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     runCall();
 };
 
-var _request= function( method, url, options, callback ) {
+var _request= function( method, url, options, cacheSelector, callback ) {
 
     options= EJSON.toJSONValue(options);
 
@@ -224,7 +224,10 @@ var _request= function( method, url, options, callback ) {
     var cb= function( err, result ) {
         delete options.connection;
         console.log('API result', method, url, JSON.stringify(options));
-        if ( err ) console.log('error', err);
+        if ( err ) {
+            updateCacheError(url, cacheSelector, err);
+            console.log('error', err);
+        }
 
         result= EJSON.fromJSONValue(result || {});
         if ( Debug ) {
@@ -239,20 +242,20 @@ var _request= function( method, url, options, callback ) {
     return _authenticatedRequest(method, url, options, cb);
 };
 
-var get= function( url, data, connection, callback ) {
-    return _request('GET', url, { connection: connection }, callback);
+var get= function( url, data, connection, cacheSelector, callback ) {
+    return _request('GET', url, { connection: connection }, cacheSelector, callback);
 };
 
-var post= function( url, data, connection, callback ) {
-    return _request('POST', url, { data: data || null, connection: connection }, callback);
+var post= function( url, data, connection, cacheSelector, callback ) {
+    return _request('POST', url, { data: data || null, connection: connection }, cacheSelector, callback);
 };
 
-var put= function( url, data, connection, callback ) {
-    return _request('PUT', url, { data: data || null, connection: connection }, callback);
+var put= function( url, data, connection, cacheSelector, callback ) {
+    return _request('PUT', url, { data: data || null, connection: connection }, cacheSelector, callback);
 };
 
-var del= function( url, data, connection, callback ) {
-    return _request('DELETE', url, { data: data || null, connection: connection }, callback);
+var del= function( url, data, connection, cacheSelector, callback ) {
+    return _request('DELETE', url, { data: data || null, connection: connection }, cacheSelector, callback);
 };
 
 var methods= {};
@@ -365,7 +368,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
         };
 
         var cacheSelector= buildCacheSelector(this, urlData.noAuth);
-        return fn(urlData.url, urlData.data, this.connection, function( err, result ) {
+        return fn(urlData.url, urlData.data, this.connection, cacheSelector, function( err, result ) {
             if ( err ) {
                 return updateCacheError(key, buildCacheSelector(this), err, function( err ) {
                     return finishFn();
@@ -433,12 +436,17 @@ var updateCache= function( key, query, newData, cb ) {
 
     query.key= key;
 
-    return dataCacheMeta.upsert(query, _.extend({ timeStamp: new Date(), }, query), function() {
+    return dataCacheMeta.upsert(query, _.extend({ timeStamp: new Date(), }, query), function( err ) {
+        if ( err ) console.error(1, query, err);
+
         // update data only if changed
         var oldData= dataCache.findOne(query);
         if ( oldData && _.isEqual(oldData.data, newData) ) return cb();
 
-        return dataCache.upsert(query, _.extend({ data: newData, }, query), cb);
+        return dataCache.upsert(query, _.extend({ data: newData, }, query), function( err ) {
+            if ( err ) console.error(2, query, newData, err);
+            cb.apply(this, arguments);
+        });
     });
 };
 
@@ -457,6 +465,8 @@ var updateCacheError= function( key, query, err, cb ) {
     }
 
     return updateCache(SpongeTools.ErrorCacheKey, query, SpongeTools.convertToMongo(data), function( err ) {
+        if ( !cb ) return;
+
         if ( err ) return cb(err);
 
         return cb();
