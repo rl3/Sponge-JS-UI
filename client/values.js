@@ -29,8 +29,12 @@ var _dateToString= function( value, options ) {
     return dateToString(value, options) + ' ' + timeToString(value, options);
 };
 
+var locationRound= function( value ) {
+    return Math.round( value * 1e6 ) / 1e6;
+};
+
 var locationToString= function( value, options ) {
-    return '<a href="#" class="location" lon="' + value[0] + '" lat="' + value[1] + '">' + value.slice().reverse().join(', ') + '</a>';
+    return '<a href="#" class="location" lon="' + value[0] + '" lat="' + value[1] + '">' + value.slice().reverse().map(locationRound).join(', ') + '</a>';
 };
 
 var _getObject= {
