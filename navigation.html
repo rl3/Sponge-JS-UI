@@ -54,10 +54,11 @@
 
 <template name="mainHeader">
     <img class="logo" src="images/logo.png" />
+    <div class="header left">{{applicationName}}</div>
     <div class="header my-box-model">
         {{#if currentUser}}
             {{#with header}}
-                {{applicationName}}: {{main}}
+                {{main}}
                 {{#if title}}
                     <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
                 {{/if}}
@@ -69,7 +70,7 @@
                 {{/if}}
             {{/with}}
         {{else}}
-            <span class="title">{{applicationName}}: Welcome to Sponge-JS!</span>
+            <span class="title">Welcome to Sponge-JS!</span>
         {{/if}}
     </div>
 </template>
