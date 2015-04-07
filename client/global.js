@@ -20,6 +20,10 @@ UI.registerHelper('isExportMode', function() {
     return SpongeTools.Mode === 'exportWizard';
 });
 
+UI.registerHelper('applicationName', function() {
+    return SpongeTools.Mode === 'exportWizard' ? 'Export Wizard' : 'Job-Manager';
+});
+
 SpongeTools.advancedView= function( value ) {
     if ( arguments.length ) session('advancedView', value);
     return session('advancedView');

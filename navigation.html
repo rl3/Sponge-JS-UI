@@ -57,7 +57,7 @@
     <div class="header my-box-model">
         {{#if currentUser}}
             {{#with header}}
-                {{main}}
+                {{applicationName}}: {{main}}
                 {{#if title}}
                     <span class="title {{titleClass}}">&quot;{{title}}&quot;</span>
                 {{/if}}
@@ -69,7 +69,7 @@
                 {{/if}}
             {{/with}}
         {{else}}
-            Welcome to SpongeJS!
+            <span class="title">{{applicationName}}: Welcome to Sponge-JS!</span>
         {{/if}}
     </div>
 </template>
