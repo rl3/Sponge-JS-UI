@@ -2,7 +2,7 @@
 $(function( $ ) {
     switch ( SpongeTools.Mode ) {
         case 'exportWizard': window.document.title= 'Export-Wizard'; break;
-        default: window.document.title= 'Agrohyd-Farmmodell'; break;
+        default: window.document.title= 'Job-Manager'; break;
     }
 });
 
