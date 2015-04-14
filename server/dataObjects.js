@@ -263,8 +263,8 @@ var methods= {};
 ['Model', 'ModelTemplate'].forEach(function( type ) {
     methods['save' + type]= function( model ) {
         var cacheSelector= buildCacheSelector(this);
-        return put(type + '/save', model, this.connection, function( err, result ) {
-            if ( err ) return updateCacheError('PUT:' + type + '/save', cacheSelector, err);
+        return put(type + '/save', model, this.connection, cacheSelector, function( err, result ) {
+            if ( err ) return;
 
             var id= model._id;
             if ( !id ) return;
@@ -278,7 +278,8 @@ var methods= {};
 
 methods.setJobTitle= function( data ) {
     var self= this;
-    return put('Job/setTitle/' + data.jobId, { title: data.title }, this.connection, function( err, result ) {
+    var cacheSelector= buildCacheSelector(this);
+    return put('Job/setTitle/' + data.jobId, { title: data.title }, this.connection, cacheSelector, function( err, result ) {
         if ( err ) return;
 
         methods.getJob.call(self, data.jobId);
@@ -287,7 +288,8 @@ methods.setJobTitle= function( data ) {
 
 methods.setJobDescription= function( data ) {
     var self= this;
-    return put('Job/setDescription/' + data.jobId, { description: data.description }, this.connection, function( err, result ) {
+    var cacheSelector= buildCacheSelector(this);
+    return put('Job/setDescription/' + data.jobId, { description: data.description }, this.connection, cacheSelector, function( err, result ) {
         if ( err ) return;
 
         methods.getJob.call(self, data.jobId);
@@ -429,6 +431,14 @@ methods.getResultTable= function( jobId, tablePath, format ) {
 
 Meteor.methods(methods);
 
+var touchCache= function( key, query, cb ) {
+    if ( !cb ) cb= function() {};
+
+    query.key= key;
+
+    return dataCacheMeta.upsert(query, _.extend({ timeStamp: new Date(), }, query), cb);
+};
+
 var updateCache= function( key, query, newData, cb ) {
     if ( !cb ) cb= function() {};
 
@@ -436,7 +446,7 @@ var updateCache= function( key, query, newData, cb ) {
 
     query.key= key;
 
-    return dataCacheMeta.upsert(query, _.extend({ timeStamp: new Date(), }, query), function( err ) {
+    return touchCache(key, query, function( err ) {
         if ( err ) console.error(1, query, err);
 
         // update data only if changed

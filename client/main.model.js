@@ -114,6 +114,11 @@ T.helper('timeStamp', function() {
     return SpongeTools.formatValue(this.timeStamp, true);
 });
 
+T.helper('owner', function() {
+    var acls= SpongeTools.parseAcls(this.acl).permissions;
+    return acls.owner && acls.owner.user && acls.owner.user[0];
+});
+
 T.helper('inputDefinitions', function() {
     var changedFn= injectVar(this, 'changed');
     var result= _.chain(this.inputDefinitions).pairs().map(function( input ) {
