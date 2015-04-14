@@ -1,9 +1,9 @@
 
 var injectVar= SpongeTools.injectVar;
 
-Template.jsEditor.rendered= function() {
+Template.jsEditor.onRendered(function() {
     var data= this.data;
-    var $editor= $(this.find('.js-editor'));
+    var $editor= this.$('.js-editor');
     var editor= ace.edit(this.find('.js-editor'));
     data._editor= editor;
     editor.setTheme("ace/theme/chrome");
@@ -22,7 +22,7 @@ Template.jsEditor.rendered= function() {
     if ( data.onFocus ) {
         editor.on('focus', data.onFocus);
     }
-};
+});
 
 Template.jsEditor.hasChanged= function() {
     return injectVar(this, 'hasChanged')();

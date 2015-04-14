@@ -119,6 +119,40 @@ T.helper('owner', function() {
     return acls.owner && acls.owner.user && acls.owner.user[0];
 });
 
+T.helper('aclInfo', function() {
+    var acls= SpongeTools.parseAcls(this.acl);
+
+    var perms= acls.permissions
+
+    var owner= perms.owner && ( (perms.owner.user && perms.owner.user[0]) || (perms.owner.group && perms.owner.group[0]) );
+
+    if ( !owner ) return;
+
+    var result= [];
+
+    var userRows= Object.keys(acls.roles.user || {}).map(function( name ) {
+        var user= acls.roles.user[name];
+        return '<tr><td class="right-align">' + name + '</td><td>' + (user.read ? 'x' : '') + '</td><td>' + (user.write ? 'x' : '') + '</td></tr>';
+    });
+
+    var groupRows= Object.keys(acls.roles.group || {}).map(function( name ) {
+        var group= acls.roles.group[name];
+        return '<tr><td class="right-align">' + name + '</td><td>' + (group.read ? 'x' : '') + '</td><td>' + (group.write ? 'x' : '') + '</td></tr>';
+    });
+
+    result.push('<div class="left-align"><b>Owner:</b> <span class="owner">' + owner + '</span></div>');
+    if ( userRows.length ) {
+        result.push('<div class="left-align bold">Users:</div>')
+        result.push('<table><tr><th>Name</th><th>read</th><th>write</th></tr>' + userRows.join('') + '</table>');
+    }
+    if ( groupRows.length ) {
+        result.push('<div class="left-align bold">Groups:</div>')
+        result.push('<table><tr><th>Name</th><th>read</th><th>write</th></tr>' + groupRows.join('') + '</table>');
+    }
+
+    return result.join('');
+});
+
 T.helper('inputDefinitions', function() {
     var changedFn= injectVar(this, 'changed');
     var result= _.chain(this.inputDefinitions).pairs().map(function( input ) {

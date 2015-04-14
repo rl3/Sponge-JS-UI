@@ -15,6 +15,12 @@ var userName= function( username ) {
     return session('username');
 };
 
+Accounts.onLogin(function() {
+    session('view', undefined);
+    modelId(undefined);
+    jobId(undefined);
+});
+
 var T= SpongeTools.Template;
 
 T.select('mainHeader');
@@ -61,8 +67,8 @@ T.helper('header', function() {
 
 T.select('mainNavigation');
 
-T.addFn('rendered', function() {
-    $(this.find('.accordion')).find('.collapse').collapse({ toggle: false, });
+T.call('onRendered', function() {
+    this.$('.accordion .collapse').collapse({ toggle: false, });
     switch (session('view') || 'model' ) {
         case 'model': $('#main-navigation-accordion-model').collapse('show'); break;
         case 'job':   $('#main-navigation-accordion-job').collapse('show'); break;

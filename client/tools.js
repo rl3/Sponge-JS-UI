@@ -63,6 +63,11 @@ T.helper('doJob', function() {
 });
 
 var errorInitialized= false;
+
+Accounts.onLogin(function() {
+    errorInitialized= false;
+});
+
 T.helper('showErrors', function() {
     var error= SpongeTools.getError();
 

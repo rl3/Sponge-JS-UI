@@ -555,7 +555,7 @@ $(function() {
 
         sv.newValue= sv.get();
     });
-    T.addFn('rendered', function() {
+    T.call('onRendered', function() {
         var input= this.find('input, select');
         if ( input ) input.focus();
     });
@@ -619,7 +619,7 @@ var updateCBSelectAll= function( $container ) {
         }
 };
 
-T.addFn('rendered', function() {
+T.call('onRendered', function() {
     updateCBSelectAll($(this.find('table')));
 });
 
@@ -685,7 +685,7 @@ var getColor= function( value ) {
     };
 };
 
-T.addFn('rendered', function() {
+T.call('onRendered', function() {
     var self= this;
     var $modal= $('#singleValueInput');
     var $input= $(this.find('input.color'));
@@ -707,7 +707,7 @@ T.addFn('rendered', function() {
 
 T.select('valueInputDate');
 
-T.addFn('rendered', function() {
+T.call('onRendered', function() {
     var self= this;
     var $modal= $('#singleValueInput');
     var $input= $(this.find('input'));

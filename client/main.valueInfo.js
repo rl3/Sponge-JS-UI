@@ -17,8 +17,8 @@ T.helper('infoText', function() {
     return result.join('<br />');
 });
 
-T.addFn('rendered', function() {
-    $(this.find('a')).tooltip({
+T.call('onRendered', function() {
+    this.$('a').tooltip({
         placement: 'right',
         html: true,
         trigger: 'hover',

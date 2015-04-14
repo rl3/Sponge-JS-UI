@@ -12,7 +12,7 @@
             <th align="right">Last Changed:</th><td>{{timeStamp}}</td>
         </tr>
         <tr>
-            <th align="right">Owner:</th><td>{{owner}}</td>
+            <th align="right">Owner:</th><td>{{owner}} {{> valueInfo description=aclInfo}}</td>
         </tr>
         {{#if advancedView}}
             <tr valign="top">
