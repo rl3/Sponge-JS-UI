@@ -813,9 +813,9 @@ var modelNameTimer= null;
 T.events({
     'keypress input': function( event ) {
         var target= event.currentTarget;
-        if ( modelNameTimer ) clearTimeout(modelNameTimer);
+        if ( modelNameTimer ) Meteor.clearTimeout(modelNameTimer);
 
-        modelNameTimer= setTimeout(function() {
+        modelNameTimer= Meteor.setTimeout(function() {
             modelNameTimer= null;
             getTempValue('modelName')(target.value);
         }, 1000);

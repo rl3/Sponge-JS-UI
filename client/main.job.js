@@ -70,7 +70,7 @@ var deleteJob= function() {
     _deleteJob(_jobId, function() {
         SpongeTools.invalidateJobList(true);
         jobId(undefined);
-        SpongeTools.localSession('main-navigation')('view', undefined);
+        SpongeTools.viewType(undefined);
     });
     jobId(undefined);
 };

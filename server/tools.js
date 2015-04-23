@@ -49,7 +49,7 @@ WebApp.connectHandlers.use(function( req, res, next ) {
                 res.write(buffer.slice(0, num));
                 if ( i++ > 1000 ) {
                     i= 0;
-                    setTimeout(sendFile, 2);
+                    Meteor.setTimeout(sendFile, 2);
                 }
                 sendFile();
             });
@@ -80,7 +80,7 @@ var mktemp= (function() {
         var baseName= prefix + '-' + count + '.tmp';
         var fileName= basedir + '/' + baseName;
 
-        setTimeout(
+        Meteor.setTimeout(
             function() {
                 fs.exists(fileName, function( exists ) {
                     if ( !exists ) return;

@@ -360,7 +360,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
             var lastInstance= getInstances[instanceKey];
 
             // delete running instance after one second to allow propagation of db changes
-            setTimeout(function() {
+            Meteor.setTimeout(function() {
                 delete getInstances[instanceKey];
             }, 1000);
 

@@ -72,7 +72,7 @@ T.helper('showErrors', function() {
     var error= SpongeTools.getError();
 
     if ( !error || !errorInitialized ) {
-        setTimeout(function() {
+        Meteor.setTimeout(function() {
             errorInitialized= true;
         }, 1000);
         return;
@@ -93,7 +93,7 @@ T.helper('showErrors', function() {
     $message.on('click', 'a', hide);
 
     $('#global-error-messages').append($message.show(function() {
-//        setTimeout(hide, 20000);
+//        Meteor.setTimeout(hide, 20000);
     }));
 });
 

@@ -1,6 +1,4 @@
 
-var session= SpongeTools.localSession('main-navigation');
-
 var modelId= SpongeTools.modelId;
 var jobId= SpongeTools.jobId;
 var str2Oid= SpongeTools.str2Oid;
@@ -10,13 +8,14 @@ var getInvalidator= SpongeTools.getInvalidator;
 var invalidateJob= SpongeTools.invalidateJob;
 var invalidateModel= SpongeTools.invalidateModel;
 
-var userName= function( username ) {
-    if ( arguments.length ) return session('username', username);
-    return session('username');
-};
+
+var viewType= SpongeTools.viewType;
+var sortType= SpongeTools.ReactiveValue();
+var allUsers= SpongeTools.ReactiveValue();
+
 
 Accounts.onLogin(function() {
-    session('view', undefined);
+    viewType(undefined);
     modelId(undefined);
     jobId(undefined);
 });
@@ -58,10 +57,10 @@ var buildHeader= function( title, object, property ) {
 
 T.helper('header', function() {
     if ( SpongeTools.Mode === 'exportWizard' ) return buildHeader('', '');
-    switch ( session('view') ) {
+    switch ( viewType() ) {
         case 'model': return buildHeader('Model', getModel(modelId()), 'name');
         case 'job': return buildHeader('Job', getJob(jobId()), 'description.title');
-        case 'user': return buildHeader('User Management', userName());
+        case 'user': return buildHeader('User Management', SpongeTools.editUsername());
     }
 });
 
@@ -69,7 +68,7 @@ T.select('mainNavigation');
 
 T.call('onRendered', function() {
     this.$('.accordion .collapse').collapse({ toggle: false, });
-    switch (session('view') || 'model' ) {
+    switch (viewType() || 'model' ) {
         case 'model': $('#main-navigation-accordion-model').collapse('show'); break;
         case 'job':   $('#main-navigation-accordion-job').collapse('show'); break;
         case 'user':  $('#main-navigation-accordion-user').collapse('show'); break;
@@ -82,11 +81,11 @@ T.call('onRendered', function() {
 T.select('mainNavigationHeader');
 
 var getSort= function() {
-    return session('sort') || { key: 'date', order: 1 };
+    return sortType() || { key: 'date', order: 1 };
 };
 
 var setSort= function( key, order ) {
-    session('sort', { key: key, order: order });
+    sortType({ key: key, order: order });
 };
 
 var sortChar= function( order ) {
@@ -108,11 +107,11 @@ T.helper('sortName', function() {
 });
 
 T.helper('switchAll', function() {
-    return session('allUsers') ? 'btn-primary' : '';
+    return allUsers() ? 'btn-primary' : '';
 });
 
 T.helper('switchMy', function() {
-    return session('allUsers') ? '' : 'btn-primary';
+    return allUsers() ? '' : 'btn-primary';
 });
 
 T.events({
@@ -128,7 +127,7 @@ T.events({
         setSort(sortName, sortOrder);
     },
     'click button': function( event ) {
-        session('allUsers', !session('allUsers'));
+        allUsers(!allUsers());
         return false;
     },
 });
@@ -137,7 +136,7 @@ var _getJobs= SpongeTools.getCachedData('getJobs', 2000);
 var getJobs= function( options ) {
     SpongeTools.invalidateJobList();
     if ( !options ) options= {};
-    if ( !session('allUsers') ) options.userId= getApiUserName();
+    if ( !allUsers() ) options.userId= getApiUserName();
 
     var jobs= _getJobs(options);
     return jobs;
@@ -188,7 +187,7 @@ T.events({
         modelId(undefined);
 
         // if model is current view, reset view to nothing
-        if ( session('view') === 'model' ) session('view', null);
+        if ( viewType() === 'model' ) viewType(null);
         return false;
     }
 });
@@ -215,7 +214,7 @@ var sortFn= function() {
 };
 
 var modelHelper= function() {
-    if ( session('allUsers') ) {
+    if ( allUsers() ) {
         var models= getAllModels();
         if ( !models ) return;
 
@@ -277,7 +276,7 @@ T.helper('rowClass', function() {
 T.events({
     'click .link': function( event ) {
         modelId(this.id);
-        session('view', 'model');
+        viewType('model');
     },
 });
 
@@ -306,7 +305,7 @@ var addJobWatchTimer= function( job ) {
 
     jobsToWatch[job.jobId]= job.invalidator;
 
-    if ( !jobWatchTimer ) jobWatchTimer= setTimeout(jobTimer, 2000);
+    if ( !jobWatchTimer ) jobWatchTimer= Meteor.setTimeout(jobTimer, 2000);
 };
 
 var jobTimer= function() {
@@ -323,7 +322,7 @@ T.helper('jobs', function() {
 
     jobsToWatch= {};
     if ( jobWatchTimer ) {
-        clearTimeout(jobWatchTimer);
+        Meteor.clearTimeout(jobWatchTimer);
         jobWatchTimer= null;
     }
 
@@ -404,7 +403,7 @@ T.helper('rowClass', function() {
 T.events({
     'click .link': function( event ) {
         jobId(this.jobId);
-        session('view', 'job');
+        viewType('job');
     },
 });
 
@@ -421,19 +420,19 @@ T.helper('users', function() {
 T.helper('rowClass', function() {
     var _class= getStatusClasses(this);
 
-    if ( userName() === this.username ) _class+= ' selected';
+    if ( SpongeTools.editUsername() === this.username ) _class+= ' selected';
 
     return _class;
 });
 
 T.events({
     'click .link.edit': function( event ) {
-        userName(this.username);
-        session('view', 'user');
+        SpongeTools.editUsername(this.username);
+        viewType('user');
     },
     'click .link.new': function( event ) {
-        userName(' new user');
-        session('view', 'user');
+        SpongeTools.editUsername(' new user');
+        viewType('user');
     },
 });
 
@@ -445,11 +444,11 @@ T.events({
 T.select('mainRightContent');
 
 T.helper('context', function() {
-    switch ( session('view') ) {
+    switch ( viewType() ) {
         case 'model': return cleanObject(getModel(modelId()));
         case 'job': return cleanObject(getJob(jobId()));
         case 'user':
-            var username= userName();
+            var username= SpongeTools.editUsername();
             if ( !username ) return;
 
             var user= Meteor.users.findOne({ username: username }) || { username: username, profile: {} };
@@ -458,10 +457,13 @@ T.helper('context', function() {
 });
 
 T.helper('content', function() {
-    switch ( session('view') ) {
+    switch ( viewType() ) {
         case 'model': return Template.model;
         case 'job':   return Template.job;
         case 'user':  return Template.userEdit;
     }
     return null;
 });
+
+
+SpongeTools.viewType= viewType;

@@ -8,8 +8,6 @@ $(function( $ ) {
 
 
 
-var session= SpongeTools.localSession('global');
-
 UI.registerHelper('advancedView', function() {
     return SpongeTools.advancedView();
 });
@@ -24,10 +22,7 @@ UI.registerHelper('applicationName', function() {
     return SpongeTools.Mode === 'exportWizard' ? 'Export Wizard' : 'Job-Manager';
 });
 
-SpongeTools.advancedView= function( value ) {
-    if ( arguments.length ) session('advancedView', value);
-    return session('advancedView');
-};
+SpongeTools.advancedView= SpongeTools.ReactiveValue();
 
 SpongeTools.editorContext= function( onChange ) {
     return function( context, property ) {
@@ -51,7 +46,7 @@ SpongeTools.download= function( data, options ) {
 
     SpongeTools.downloadLink(href, options, function() {
         // Need a small delay for the revokeObjectURL to work properly.
-        setTimeout(function() {
+        Meteor.setTimeout(function() {
             window.URL.revokeObjectURL(href);
         }, 1500);
     });
@@ -81,7 +76,7 @@ SpongeTools.downloadLink= function( href, options, cb ) {
     document.body.appendChild(a);
 
     a.onclick= function() {
-        setTimeout(function() {
+        Meteor.setTimeout(function() {
             document.body.removeChild(a);
         }, 2000);
 

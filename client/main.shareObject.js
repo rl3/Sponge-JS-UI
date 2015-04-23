@@ -2,8 +2,6 @@
 var ItemsPerPage= 50;
 var jobUpdateTimeout= 10000; // 10s
 
-var injectVar= SpongeTools.injectVar;
-
 var dataObj= SpongeTools.shareObject;
 
 var oldData= {};

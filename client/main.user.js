@@ -1,9 +1,12 @@
 
+var editUsername= SpongeTools.editUsername;
+
+
 var T= SpongeTools.Template;
 
 T.select('loginPanel');
 
-var loginError= SpongeTools.injectVar({}, 'error');
+var loginError= SpongeTools.ReactiveValue();
 
 T.helper('error', function() {
     return loginError();
@@ -28,8 +31,8 @@ T.events({
 
 T.select('userEdit');
 
-var userError= SpongeTools.injectVar({}, 'error');
-var userSuccess= SpongeTools.injectVar({}, 'success');
+var userError= SpongeTools.ReactiveValue();
+var userSuccess= SpongeTools.ReactiveValue();
 
 T.addFn('created', function() {
     userError(undefined);
@@ -146,7 +149,7 @@ T.events({
                 },
                 roles: chpwAllowed ? [] : ['chpwDenied'],
             }, function( err ) {
-                if ( err ) return userError(err);
+                if ( err ) return userError([ err ]);
 
                 userSuccess('User ' + userName + ' successfully created');
             });
@@ -188,7 +191,15 @@ T.events({
             return userSuccess(successMessage);
         });
         return false;
-    }
+    },
+    'click button.delete': function() {
+        Meteor.users.remove({ _id: this._id }, function( err ) {
+            if ( err ) return userError([ err ]);
+
+            editUsername(' new user');
+            return userSuccess('User successfully removed');
+        });
+    },
 });
 
 T.select('userPanel');
@@ -198,9 +209,8 @@ T.events({
         Meteor.logout();
     },
     'click a.edit-profile': function( event, template ) {
-        var session= SpongeTools.localSession('main-navigation');
-        session('username', Meteor.user().username);
-        session('view', 'user');
+        editUsername(Meteor.user().username);
+        SpongeTools.viewType('user');
         $(template.find('.sign-out-panel')).hide();
     },
 });

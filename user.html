@@ -42,7 +42,12 @@
                     <tr><th align="right">API Password:</th><td><input type="password" name="api-password" value="" autocomplete="off" /></td></tr>
                     <tr><th align="right">API Password:<div class="comment">repeated</div></th><td><input type="password" name="api-password2" value="" autocomplete="off" /></td></tr>
                 {{/if}}
-                <tr><td></td><td><button class="btn btn-primary btn-block" type="submit">Save Profile</button></td></tr>
+                <tr><td></td><td><button class="btn btn-primary btn-block save" type="submit">Save Profile</button></td></tr>
+                {{#if isAdmin}}
+                    {{#if newUser}}{{else}}
+                        <tr><td></td><td><button class="btn btn-warning btn-block delete" type="button">Delete User</button></td></tr>
+                    {{/if}}
+                {{/if}}
             </table>
         </form>
     </div>
