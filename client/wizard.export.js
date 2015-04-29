@@ -106,7 +106,7 @@ var steps= {
     },
     format: {
         templatePrefix: 'wizExportFormat',
-        isValid: function() { return exportWizardData.format && ( exportWizardData.format !== 'zalf' || exportWizardData.type === 'climate' ); },
+        isValid: function() { return exportWizardData.format && ( exportWizardData.format !== 'zalfClimate' || exportWizardData.type === 'climate' ) && ( exportWizardData.format !== 'zalfSoil' || exportWizardData.type === 'soil' ); },
         getNextStepName: function() { return 'submit'; },
     },
     submit: {
@@ -535,7 +535,8 @@ T.select('wizExportFormatExpand');
 T.helper('checked', function( value ) {
     return this.wizardData.getData().format === value;
 });
-T.helper('zalfEnabled', function() { return this.wizardData.getData().type === 'climate'; });
+T.helper('zalfClimateEnabled', function() { return this.wizardData.getData().type === 'climate'; });
+T.helper('zalfSoilEnabled', function() { return this.wizardData.getData().type === 'soil'; });
 
 T.events({
     'click input': function( event ) {
@@ -629,7 +630,8 @@ T.events({
                 case 'csv': contentType= 'text/comma-separated-values'; break;
                 case 'xml': contentType= 'text/xml'; target= '_new'; break;
                 case 'xlsx': contentType= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; target= '_new'; break;
-                case 'zalf': contentType= 'application/zip'; target= '_new'; break;
+                case 'zalfClimate': contentType= 'application/zip'; target= '_new'; break;
+                case 'zalfSoil': contentType= 'application/json'; target= '_new'; break;
                 default: contentType= 'application/vnd.google-earth.kml+xml'; break;
             }
 
