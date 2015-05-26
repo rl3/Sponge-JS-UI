@@ -443,8 +443,6 @@ var clickEvent= function( format ) {
 
                         var url= SpongeTools.buildApiUrl(data.url);
 
-console.log('Map Link', url);
-
                         var contentType, target;
                         switch ( format ) {
                             case 'csv': contentType= 'text/comma-separated-values'; break;

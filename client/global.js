@@ -62,7 +62,7 @@ SpongeTools.downloadLink= function( href, options, cb ) {
     if ( fileName ) a.download = fileName;
 
     if ( options.query ) {
-        href+= '?' + Object.keys(options.query).map(function( name ) {
+        href+= ( href.match(/\?/) ? '&' : '?' ) + Object.keys(options.query).map(function( name ) {
              return encodeURIComponent(name) + '=' + encodeURIComponent(options.query[name]);
         }).join('&');
     }
