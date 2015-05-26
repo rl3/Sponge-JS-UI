@@ -62,21 +62,16 @@ T.helper('doJob', function() {
     });
 });
 
-var errorInitialized= false;
+var errorInitialized= 0;
 
 Accounts.onLogin(function() {
-    errorInitialized= false;
+    errorInitialized= new Date();
 });
 
 T.helper('showErrors', function() {
     var error= SpongeTools.getError();
 
-    if ( !error || !errorInitialized ) {
-        Meteor.setTimeout(function() {
-            errorInitialized= true;
-        }, 1000);
-        return;
-    }
+    if ( !error || +error.date < +errorInitialized ) return;
 
     var time= SpongeTools.valueToString(error.date || 'unknown');
 
