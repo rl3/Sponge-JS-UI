@@ -1151,7 +1151,7 @@ T.events({
 T.select('inputTypeMap');
 
 var getMapValue= function() {
-    return getNewValueInit('map', { type: 'Map', selector: { objectType: undefined, version: undefined, mapname: undefined, }, });
+    return getNewValueInit('map', { type: 'Map', selector: { objectType: undefined, version: undefined, mapId: undefined, }, });
 };
 
 var setMapSelector= function( newSelector ) {
@@ -1182,10 +1182,10 @@ var getMaps= function() {
     }
 
     var maps= getMapnames(sel.objectType, versions);
-    if ( !maps || maps.length === 0 ) return;
+    if ( !maps || !maps.length ) return;
 
-    maps.sort();
-    return maps;
+    maps.sort(function( a, b ) { return a.name.localeCompare(b.name); });
+    return maps.map(function( map ) { return new SpongeTools.TypeMap(map); });
 };
 
 T.helper('showMaps', function() {
@@ -1200,14 +1200,14 @@ T.helper('loadingMaps', function() {
 T.helper('map', getMaps);
 
 T.helper('selectedMap', function() {
-    return getMapValue().selector.mapname === String(this);
+    return String(getMapValue().selector.mapId) === this.mapId.toString();
 });
 
 T.events({
     'change select.mapName': function( event ) {
-        var mapname= $(event.target).val();
+        var mapId= $(event.target).val();
 
-        setMapSelector({ mapname: mapname, });
+        setMapSelector({ mapId: new SpongeTools.ObjectId(mapId) });
     },
 });
 

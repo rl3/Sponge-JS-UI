@@ -1,4 +1,10 @@
 
+var TypeMap= function( map ) {
+    if ( !map ) map= {};
+    this.mapId= map._id instanceof SpongeTools.ObjectId ? map._id.toHexString() : map._id || '';
+    this.name= map.name || '';
+};
+
 var $arrayToString= function( value, options ) {
     options= _.extend({ quoteStrings: true }, options);
     return '[ ' + value.$array.map(function(v) { return _valueToString(v, options); } ).join(', ') + ' ]';
@@ -96,12 +102,25 @@ var selectorToString= function( sel, nameProperty ) {
     return result.join(' ');
 };
 
-var mapToString= function( value, options ) {
-    return 'Map ' + selectorToString(value.selector, 'mapname');
+var mapObjectToString= function( value, options ) {
+    var sel= _.clone(value.selector);
+    sel.map= new SpongeTools.TypeMap({ _id: sel.mapId });
+    delete sel.mapId;
+    return 'Map ' + selectorToString(sel, 'map');
 };
 
-var nearestToString= function( value, options ) {
+var nearestObjectToString= function( value, options ) {
     return 'Nearest ' + selectorToString(value.selector, 'tags');
+};
+
+var mapToString= function( value, options ) {
+    if ( value.name ) return value.name;
+
+    var map= SpongeTools.getCachedData('getMap')(value.mapId);
+    if ( !map ) return valueToString(value.mapId);
+
+    value.name= map.name;
+    return map.name;
 };
 
 var arrayToString= function( value, options ) {
@@ -165,19 +184,20 @@ var setToString= function( value, options ) {
 }
 
 var defaultHandler= {
-    onDate:     _dateToString,
-    onObjectId: function( value ) { return 'ObjectId("' + value + '")'; },
-    onLocation: locationToString,
-    onArray:    arrayToString,
-    on$array:   $arrayToString,
-    on$range:   $rangeToString,
-    onMap:      mapToString,
-    onNearest:  nearestToString,
-    onDataObject: dataObjectToString,
-    onObject:   objectToString,
-    onColor:    colorToString,
-    onSet:      setToString,
-    onString:   function( value, options ) {
+    onDate:          _dateToString,
+    onObjectId:      function( value ) { return 'ObjectId("' + value + '")'; },
+    onMap:           mapToString,
+    onLocation:      locationToString,
+    onArray:         arrayToString,
+    on$array:        $arrayToString,
+    on$range:        $rangeToString,
+    onMapObject:     mapObjectToString,
+    onNearestObject: nearestObjectToString,
+    onDataObject:    dataObjectToString,
+    onObject:        objectToString,
+    onColor:         colorToString,
+    onSet:           setToString,
+    onString:        function( value, options ) {
         if ( options && options.quoteStrings ) return '"' + value + '"';
         return String(value);
     },
@@ -192,8 +212,9 @@ var getHandler= function( value, options ) {
 
     if ( typeof value !== 'object' )    return 'onString'
     if ( value instanceof Date )        return 'onDate';
-    if ( value instanceof Meteor.Collection.ObjectID )
+    if ( value instanceof SpongeTools.ObjectId )
                                         return 'onObjectId';
+    if ( value instanceof TypeMap )     return 'onMap';
     if ( _.isArray(value) ) {
         if ( value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number' ) return 'onLocation';
 
@@ -202,9 +223,9 @@ var getHandler= function( value, options ) {
     if ( '$array' in value )            return 'on$array';
     if ( '$range' in value )            return 'on$range';
     if ( String(value.type).toLowerCase() === 'map' )
-                                        return 'onMap';
+                                        return 'onMapObject';
     if ( String(value.type).toLowerCase() === 'nearest' )
-                                        return 'onNearest';
+                                        return 'onNearestObject';
     if ( '_ref' in value || 'type' in value )
                                         return 'onDataObject';
     if ( value.constructor === Object ) return 'onObject';
@@ -293,6 +314,8 @@ var buildValues= function( args, property, valueContext, lastValue ) {
 
     return result;
 };
+
+SpongeTools.TypeMap= TypeMap;
 
 SpongeTools.indexSortFn= valueSort;
 

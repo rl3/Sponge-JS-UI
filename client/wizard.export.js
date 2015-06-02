@@ -75,7 +75,7 @@ var steps= {
     },
     map: {
         templatePrefix: 'wizExportMap',
-        isValid: function() { return exportWizardData.mapname; },
+        isValid: function() { return exportWizardData.map; },
         getNextStepName: function() { return 'location' },
     },
     location: {
@@ -307,20 +307,18 @@ var _getMaps= function() {
 
     if ( !maps || maps.length === 0 ) return;
 
-    maps.sort();
-    return maps;
+    maps.sort(function( a, b ) { return a.name.localCompare(b.name); });
+    return maps.map(function( map ) { return new SpongeTools.TypeMap(map) });
 };
 
 T.helper('loading', function( value ) {
     return !_getMaps();
 });
 
-T.helper('map', function() {
-    return _getMaps();
-});
+T.helper('map', _getMaps);
 
 T.helper('selectedMap', function() {
-    return this.toString() === exportWizardData.mapname;
+    return this.mapId.toString() === (exportWizardData.map || {}).mapId;
 });
 
 
@@ -328,9 +326,16 @@ T.events({
     'change select': function( event ) {
         var value= $(event.currentTarget).val();
         exportInvalidator(true);
-        this.wizardData.getData().mapname= value;
+        this.wizardData.getData().map= new SpongeTools.TypeMap({ _id: value });
         this.wizardData.finish();
     },
+});
+
+
+T.select('wizExportMapCompressed');
+
+T.helper('mapName', function() {
+    return SpongeTools.valueToString(this.wizardData.getData().map);
 });
 
 
@@ -601,7 +606,7 @@ T.events({
                 args.unshift(exportWizardData.location[1]);
                 args.unshift(exportWizardData.location[0]);
                 args.unshift(exportWizardData.type);
-                args.unshift(exportWizardData.mapname);
+                args.unshift((exportWizardData.map || {}).mapId);
                 break;
         }
 
