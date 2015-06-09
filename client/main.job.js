@@ -253,30 +253,10 @@ T.helper('result', function() {
     if ( !jobResult ) return;
 
     var results= Object.keys(jobResult).map(function( id ) {
+        if ( !jobResult[id] || typeof jobResult[id] !== 'object' ) return;
+
         var result= jobResult[id].result;
-/*
-//console.log('diet', result.sumPerOrganismDiet)
-console.log('lr', result.landRequirement)
 
-console.log("huhu");
-console.log('p_grass', result.sumPerOrganismDiet['ATB_cattle_SBT_500::dietG_4000_ht_Standard'].landRequirement.p_grass_ff);
-var a= result.sumPerOrganismDiet['ATB_cattle_SBT_500::dietG_4000_ht_Standard'].landRequirement.p_grass_ff;
-console.log('a', a);
-console.log("haha");
-
-console.log('p_grass', result.sumPerOrganismDiet['ATB_cattle_SBT_500::dietG_4000_ht_Standard'].landRequirement.p_grass_ff);
-console.log('p_grass', typeof result.sumPerOrganismDiet['ATB_cattle_SBT_500::dietG_4000_ht_Standard'].landRequirement.p_grass_ff);
-
-result.sumPerOrganismDiet['ATB_cattle_SBT_500::dietG_4000_ht_Standard'].landRequirement.p_grass_ff= {};
-
-console.log('p_grass', result.sumPerOrganismDiet['ATB_cattle_SBT_500::dietG_4000_ht_Standard'].landRequirement.p_wheat);
-console.log('p_grass', typeof result.sumPerOrganismDiet['ATB_cattle_SBT_500::dietG_4000_ht_Standard'].landRequirement.p_wheat);
-
-
-//console.log('lr', result.landRequirement)
-//delete result.sumPerOrganismDiet
-delete result.landRequirement
-*/
         var tables= [];
         if ( result ) filterTables(result, tables, [id, 'result']);
         return {
@@ -286,8 +266,7 @@ delete result.landRequirement
             result: result,
             tables: tables,
         };
-    });
-
+    }).filter(function( r ) { return r; });
 
     if (results.length) {
 
