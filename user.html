@@ -60,6 +60,10 @@
             <ul class="dropdown-menu pull-right">
                 <li><a class="sign-out">Sign Out</a></li>
                 <li><a class="edit-profile">Edit Profile</a></li>
+                <li><a class="clear-user-cache">Clear My Cache</a></li>
+                {{#if isAdmin}}
+                    <li><a class="clear-global-cache">Clear All Users' Cache</a></li>
+                {{/if}}
             </ul>
         </div>
     {{/if}}

@@ -213,5 +213,11 @@ T.events({
         SpongeTools.viewType('user');
         $(template.find('.sign-out-panel')).hide();
     },
+    'click a.clear-user-cache': function( event, template ) {
+        Meteor.call('clearCache');
+    },
+    'click a.clear-global-cache': function( event, template ) {
+        Meteor.call('clearCache', true);
+    },
 });
 

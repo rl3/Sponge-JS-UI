@@ -297,6 +297,14 @@ methods.setJobDescription= function( data ) {
 };
 
 
+methods.clearCache= function( global ) {
+    var query= {};
+    if ( !global || !SpongeTools.isAdmin() ) query.userId= this.userId;
+
+    dataCacheMeta.remove(query);
+    dataCache.remove(query);
+};
+
 var onBeforeMethod= {};
 var onAfterMethod= {};
 
