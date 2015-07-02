@@ -369,7 +369,7 @@ T.helper('loading', function() {
     var jobId= this.jobId;
     var path= this.tablePath;
 
-    var formats= ['kml', 'xml', 'csv'];
+    var formats= ['kml', 'xml', 'csv', 'xlsx'];
     for ( var i in formats ) {
         var format= formats[i];
         if (
@@ -377,7 +377,7 @@ T.helper('loading', function() {
             || SpongeTools.lazyHelper.jobRunning('link:' + jobId + ':' + path + ':' + format)
         ) return Template.loadingImage;
     }
-    return null
+    return null;
 });
 
 var clickEvent= function( format ) {
