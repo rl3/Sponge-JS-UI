@@ -221,7 +221,25 @@ T.helper('runModelHelper', function() {
 
     runModelActive= false;
 
-    var args= SpongeTools.buildValues(modelArgs, 'args', this, SpongeTools.clone(lastRunModelArgs[SpongeTools.oid2Str(model._id)]));
+    var _modelArgs= {
+        args: {},
+        info: modelArgs.info,
+        inputs: model.inputs,
+    };
+
+    // add a modifier for every object argument
+    for ( var name in modelArgs.args ) {
+        var args= modelArgs.args[name];
+        _modelArgs.args[name]= args;
+
+        if ( typeof args !== 'object' ) continue;
+
+        var modifierName= name + '::modifier';
+        _modelArgs.args[modifierName]= SpongeTools.clone(args);
+        _modelArgs.args[modifierName].args._orig= SpongeTools.clone(args);
+    }
+
+    var args= SpongeTools.buildValues(_modelArgs, 'args', this, SpongeTools.clone(lastRunModelArgs[SpongeTools.oid2Str(model._id)]));
 
     SpongeTools.valuesInput(
         args, {

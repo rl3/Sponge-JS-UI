@@ -42,6 +42,9 @@
                     <td align="right" class="{{nameClass}}">{{name}}{{> valueInfo info}}:</td>
                     <td>
                         <a class="editValue" href="#">{{valueText}}</a>
+                        {{#if valueIsReference}}
+                            modifier: <a class="editModifier">{{valueModifierText}}</a>
+                        {{/if}}
                     </td>
                 </tr>
             {{/each}}

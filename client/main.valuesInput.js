@@ -48,7 +48,9 @@ var verifyValues= function( values ) {
 
 T.helper('values', function() {
     dialogInvalidator();
-    return values;
+    return values && values.filter(function( value ) {
+        return value.name.substr(-10) !== '::modifier';
+    });
 });
 
 T.helper('nameClass', function() {
@@ -73,6 +75,24 @@ T.helper('errorMessages', function() {
     return errorMessages();
 });
 
+T.helper('valueIsReference', function() {
+    var value= this.getValue();
+    return typeof value === 'object' && value.selector;
+});
+
+var getModifier= function( name ) {
+    name+= '::modifier';
+
+    for ( var i in values ) {
+        if ( values[i].name === name ) return values[i];
+    }
+};
+
+T.helper('valueModifierText', function() {
+    var value= getModifier(this.name);
+    return value && value.valueText();
+});
+
 T.events({
     'click a.editValue': function( event ) {
         if ( options.simple ) {
@@ -85,6 +105,22 @@ T.events({
             return;
         }
         injectGlobalVar('valueInput')(this);
+        SpongeTools.Modal.show($('#valueInput'));
+    },
+    'click a.editModifier': function( event ) {
+        var value= getModifier(this.name);
+        if ( !value ) return;
+
+        if ( options.simple ) {
+            SpongeTools.showSingleValueDialog({
+                get: value.getValue,
+                set: value.setValue,
+                type: value.type,
+                info: value.info,
+            });
+            return;
+        }
+        injectGlobalVar('valueInput')(value);
         SpongeTools.Modal.show($('#valueInput'));
     },
 });
