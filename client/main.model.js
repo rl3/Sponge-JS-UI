@@ -237,6 +237,10 @@ T.helper('runModelHelper', function() {
         var modifierName= name + '::modifier';
         _modelArgs.args[modifierName]= SpongeTools.clone(args);
         _modelArgs.args[modifierName].args._orig= SpongeTools.clone(args);
+
+        // mark modifiers as optional
+        if ( !args.info ) _modelArgs.args[modifierName].info= {};
+        _modelArgs.args[modifierName].info.optional= true;
     }
 
     var args= SpongeTools.buildValues(_modelArgs, 'args', this, SpongeTools.clone(lastRunModelArgs[SpongeTools.oid2Str(model._id)]));
