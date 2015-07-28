@@ -223,7 +223,7 @@ T.helper('runModelHelper', function() {
 
     var _modelArgs= {
         args: {},
-        info: modelArgs.info,
+        info: SpongeTools.clone(modelArgs.info),
         inputs: model.inputs,
     };
 
@@ -239,8 +239,10 @@ T.helper('runModelHelper', function() {
         _modelArgs.args[modifierName].args._orig= SpongeTools.clone(args);
 
         // mark modifiers as optional
-        if ( !args.info ) _modelArgs.args[modifierName].info= {};
-        _modelArgs.args[modifierName].info.optional= true;
+        if ( !_modelArgs.info ) _modelArgs.info= {};
+        if ( !_modelArgs.info.args ) _modelArgs.info.args= {};
+        if ( !_modelArgs.info.args[modifierName] ) _modelArgs.info.args[modifierName]= {};
+        _modelArgs.info.args[modifierName].optional= true;
     }
 
     var args= SpongeTools.buildValues(_modelArgs, 'args', this, SpongeTools.clone(lastRunModelArgs[SpongeTools.oid2Str(model._id)]));
