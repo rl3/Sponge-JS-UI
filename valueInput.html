@@ -89,12 +89,16 @@
         {{#if loadingTags}}
             {{> loadingSmall}}
         {{else}}
-            <select class="tagName">
-                <option style="display: none">please select</option>
-                {{#each tag}}
-                    <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
-                {{/each}}
-            </select>
+            {{#if noTagsFound}}
+                <select class="tagName" disabled><option>No tags found</option></select>
+            {{else}}
+                <select class="tagName">
+                    <option style="display: none">please select</option>
+                    {{#each tag}}
+                        <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            {{/if}}
         {{/if}}
     {{else}}
         <select disabled></select>
@@ -116,12 +120,16 @@
         {{#if loadingMaps}}
             {{> loadingSmall}}
         {{else}}
-            <select class="mapName">
-                <option style="display: none">please select</option>
-                {{#each map}}
-                        <option selected={{selectedMap}} value="{{mapId}}">{{name}}</option>
-                {{/each}}
-            </select>
+            {{#if noMapsFound}}
+                <select class="mapName" disabled><option>No maps found</option></select>
+            {{else}}
+                <select class="mapName">
+                    <option style="display: none">please select</option>
+                    {{#each map}}
+                            <option selected={{selectedMap}} value="{{mapId}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            {{/if}}
         {{/if}}
     {{else}}
         <select disabled></select>

@@ -1116,7 +1116,7 @@ var _getTags= function() {
     }
 
     var tags= getTags(sel.objectType, version);
-    if ( !tags || tags.length === 0 ) return;
+    if ( !tags ) return;
 
     tags.sort();
     return tags;
@@ -1129,6 +1129,10 @@ T.helper('showTags', function() {
 
 T.helper('loadingTags', function() {
     return _getTags() === undefined;
+});
+
+T.helper('noTagsFound', function() {
+    return (_getTags() || []).length === 0;
 });
 
 T.helper('tag', _getTags);
@@ -1182,7 +1186,7 @@ var getMaps= function() {
     }
 
     var maps= getMapnames(sel.objectType, versions);
-    if ( !maps || !maps.length ) return;
+    if ( !maps ) return;
 
     maps.sort(function( a, b ) { return a.name.localeCompare(b.name); });
     return maps.map(function( map ) { return new SpongeTools.TypeMap(map); });
@@ -1195,6 +1199,10 @@ T.helper('showMaps', function() {
 
 T.helper('loadingMaps', function() {
     return getMaps() === undefined;
+});
+
+T.helper('noMapsFound', function() {
+    return (getMaps() || []).length === 0;
 });
 
 T.helper('map', getMaps);
