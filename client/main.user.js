@@ -12,6 +12,10 @@ T.helper('error', function() {
     return loginError();
 });
 
+T.helper('loggingIn', function() {
+    return Meteor.loggingIn();
+});
+
 T.events({
     'submit form': function( event ) {
         var $form= $(event.currentTarget);

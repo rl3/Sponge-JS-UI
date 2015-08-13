@@ -9,7 +9,7 @@
                 {{/if}}
                 <tr><th align="right">User Name:</th><td><input type="text" name="username" /></td></tr>
                 <tr><th align="right">Password:</th><td><input type="password" name="password" /></td></tr>
-                <tr><td></td><td><button class="btn btn-primary btn-block" type="submit">Login</button></td></tr>
+                <tr><td></td><td align="center">{{# if loggingIn}}{{> loadingLineImage}}{{else}}<button class="btn btn-primary btn-block" type="submit">Login</button>{{/if}}</td></tr>
             </table>
         </form>
     </div>
