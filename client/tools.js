@@ -92,8 +92,51 @@ T.helper('showErrors', function() {
     }));
 });
 
+
+var Confirmation= {};
+var confirmationInvalidator= SpongeTools.getInvalidator();
+T.select('confirmationTitle');
+T.helper('title', function() {
+    confirmationInvalidator();
+    return Confirmation.title;
+});
+T.select('confirmationBody');
+T.helper('body', function() {
+    confirmationInvalidator();
+    return Confirmation.body;
+});
+
+var showConfirmation= function( data, success, cancel ) {
+    Confirmation= {
+        title: data.title,
+        body: data.body,
+        success: success,
+        cancel: cancel,
+    };
+    confirmationInvalidator(true);
+    SpongeTools.Modal.show($confirmation);
+};
+
+
+var $confirmation;
+$(function() {
+    $confirmation= $('#confirmation');
+    $confirmation.on('click', '.success', function() {
+        if ( Confirmation.success ) Confirmation.success();
+    });
+    $confirmation.on('click', '.cancel', function() {
+        if ( Confirmation.cancel ) Confirmation.cancel();
+    });
+});
+
 SpongeTools.lazyHelper= {
     addJob: addJob,
     jobRunning: jobRunning,
     addInvalidator: addInvalidator,
 };
+
+SpongeTools.Confirmation= {
+    show: showConfirmation,
+};
+
+

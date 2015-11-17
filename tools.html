@@ -2,6 +2,20 @@
 <body>
     <div id="global-error-messages"></div>
     {{> lazyHelper}}
+
+    <div id="confirmation" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            {{> confirmationTitle}}
+        </div>
+        <div class="modal-body">
+            {{> confirmationBody}}
+        </div>
+        <div class="modal-footer">
+            <button class="btn cancel" data-dismiss="modal" aria-hidden="true">No</button>
+            <button class="btn btn-primary success" data-dismiss="modal">Yes</button>
+        </div>
+    </div>
 </body>
 
 <template name="lazyHelper">
@@ -9,4 +23,12 @@
         {{doJob}}
         {{showErrors}}
     {{/if}}
+</template>
+
+
+<template name="confirmationTitle">
+    {{title}}
+</template>
+<template name="confirmationBody">
+    {{body}}
 </template>

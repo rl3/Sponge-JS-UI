@@ -66,13 +66,15 @@ var restartJob= function() {
 
 var _deleteJob= SpongeTools.getCachedData('deleteJob', 2000);
 var deleteJob= function() {
-    var _jobId= jobId();
-    _deleteJob(_jobId, function() {
-        SpongeTools.invalidateJobList(true);
+    SpongeTools.Confirmation.show({ title: 'Delete Job', body: 'Do you really want to delete this job?' }, function() {
+        var _jobId= jobId();
+        _deleteJob(_jobId, function() {
+            SpongeTools.invalidateJobList(true);
+            jobId(undefined);
+            SpongeTools.viewType(undefined);
+        });
         jobId(undefined);
-        SpongeTools.viewType(undefined);
     });
-    jobId(undefined);
 };
 
 var _getModel= SpongeTools.getCachedData('getModel');
@@ -465,7 +467,9 @@ T.events({
     'click a.resultMapCsv': clickEvent('csv'),
     'click a.resultMapXlsx': clickEvent('xlsx'),
     'click a.delete-result': function( event ) {
-        deleteResult(jobId(), this.id)
+        SpongeTools.Confirmation.show({ title: 'Delete Result', body: 'Do you really want to delete this result?'}, function() {
+            deleteResult(jobId(), this.id)
+        }.bind(this));
         return false;
     },
 });

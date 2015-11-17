@@ -197,11 +197,13 @@ T.events({
         return false;
     },
     'click button.delete': function() {
-        Meteor.users.remove({ _id: this._id }, function( err ) {
-            if ( err ) return userError([ err ]);
+        SpongeTools.Confirmation.show({ title: 'Delete User', body: 'Do you really want to delete this user?', }, function() {
+            Meteor.users.remove({ _id: this._id }, function( err ) {
+                if ( err ) return userError([ err ]);
 
-            editUsername(' new user');
-            return userSuccess('User successfully removed');
+                editUsername(' new user');
+                return userSuccess('User successfully removed');
+            });
         });
     },
 });
