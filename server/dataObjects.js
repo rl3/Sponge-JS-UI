@@ -94,7 +94,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /getJobQueue/;
+// debugFilter= /startJob/;
 
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);

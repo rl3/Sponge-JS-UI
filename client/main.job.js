@@ -39,6 +39,7 @@ var getJob= function( _jobId ) {
 var getJobLog= SpongeTools.postData('getJobLog');
 var deleteJobLog= SpongeTools.postData('deleteJobLog');
 var deleteResult= SpongeTools.postData('deleteResult');
+var deleteArchive= SpongeTools.postData('deleteArchive');
 
 var _getJobResult= SpongeTools.getCachedData('getJobResult', 2000);
 var getJobResult= function( jobId, path ) {
@@ -77,12 +78,12 @@ var deleteJob= function() {
     });
 };
 
-var _getModel= SpongeTools.getCachedData('getModel');
+var _getModel= SpongeTools.getCachedData('getArchiveModel');
 var getModel= function() {
     var job= getJob();
     if ( !job ) return;
 
-    return SpongeTools.cleanObject(_getModel(job.modelId));
+    return SpongeTools.cleanObject(_getModel(job.modelId, job.jobId));
 };
 
 var T= SpongeTools.Template;
@@ -164,7 +165,22 @@ T.events({
         var jobId= SpongeTools.jobId();
         if ( !jobId ) return;
 
-        var log= deleteJobLog(jobId, function(err, result) {});
+        deleteJobLog(jobId, function(err, result) {});
+    },
+    'click button.delete-archive': function( event ) {
+        var jobId= SpongeTools.jobId();
+        if ( !jobId ) return;
+
+        return SpongeTools.Confirmation.show(
+            {
+                title: 'Delete job archive',
+                body: "Do you really want to delete this job's model archive?<br/>"
+                    + "All models used in previous runs will be removed from archive and current versions will be used in further runs",
+            },
+            function() {
+                deleteArchive(jobId, function(err, result) {});
+            }
+        );
 
     },
     'click button.rerun-job': restartJob,
