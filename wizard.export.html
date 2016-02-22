@@ -14,7 +14,7 @@
         <select>
             <option value="" style="display:none">select one</option>
             {{#each objectTypes}}
-                <option value="{{type}}" selected={{selected}}>{{type}}</option>
+                <option value="{{this}}" selected={{selected}}>{{this}}</option>
             {{/each}}
         </select>
     {{/if}}
@@ -60,12 +60,18 @@
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
-        <select class="tagName">
-            <option style="display: none">please select</option>
-            {{#each tag}}
-                <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
-            {{/each}}
-        </select>
+        {{#if tag}}
+            <select class="tagName">
+                <option style="display: none">please select</option>
+                {{#each tag}}
+                    <option selected={{selectedTag}} value="{{this}}">{{this}}</option>
+                {{/each}}
+            </select>
+        {{else}}
+            <select disabled="1" class="tagName">
+                <option style="display: none">no tags available</option>
+            </select>
+        {{/if}}
     {{/if}}
 </template>
 <template name="wizExportNearestCompressed">
@@ -77,12 +83,18 @@
     {{#if loading}}
         {{> loadingSmall}}
     {{else}}
-        <select class="mapName">
-            <option style="display: none">please select</option>
-            {{#each map}}
-                <option selected={{selectedMap}} value="{{mapId}}">{{name}}</option>
-            {{/each}}
-        </select>
+        {{#if map}}
+            <select class="mapName">
+                <option style="display: none">please select</option>
+                {{#each map}}
+                    <option selected={{selectedMap}} value="{{mapId}}">{{name}}</option>
+                {{/each}}
+            </select>
+        {{else}}
+            <select disabled class="mapName">
+                <option style="display: none">no maps available</option>
+            </select>
+        {{/if}}
     {{/if}}
 </template>
 <template name="wizExportMapCompressed">
