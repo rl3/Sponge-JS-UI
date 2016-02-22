@@ -175,11 +175,15 @@ T.helper('objectTypes', function() {
 
     if ( !typeVersions ) return;
 
-    return Object.keys(typeVersions).map(function( type ) { return { type: type }; });
+    var types= Object.keys(typeVersions);
+
+    types.sort();
+
+    return types;
 });
 
 T.helper('selected', function() {
-    return this.type === exportWizardData.type;
+    return this === exportWizardData.type;
 });
 
 T.events({
@@ -264,7 +268,8 @@ var _getTags= function() {
 
     var tags= getTags(type, typeVersions[type]);
 
-    if ( !tags || tags.length === 0 ) return;
+    if ( !tags ) return;
+    if ( tags.length === 0 ) return tags;
 
     tags.sort();
     return tags;
@@ -305,7 +310,8 @@ var _getMaps= function() {
 
     var maps= getMapnames(type, typeVersions[type]);
 
-    if ( !maps || maps.length === 0 ) return;
+    if ( !maps ) return;
+    if ( maps.length === 0 ) return maps;
 
     maps.sort(function( a, b ) { return a.name.localCompare(b.name); });
     return maps.map(function( map ) { return new SpongeTools.TypeMap(map) });
