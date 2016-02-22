@@ -546,7 +546,7 @@ T.helper('zalfSoilEnabled', function() { return this.wizardData.getData().type =
 T.events({
     'click input': function( event ) {
         var value= $(event.currentTarget).val();
-console.log('click', event.currentTarget, value)
+        //console.log('click', event.currentTarget, value)
         exportInvalidator(true);
         this.wizardData.getData().format= value;
         this.wizardData.finish();

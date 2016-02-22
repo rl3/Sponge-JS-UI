@@ -194,6 +194,10 @@
         <input type="radio" value="xml" name="format" checked={{checked "xml"}} />
          OpenOffice xml {{> valueInfo description="Export data in OpenOffice XML format, suitable for newer and also older calculation programs."}}
     </label>
+    <label>
+        <input type="radio" value="csv" name="format" checked={{checked "csv"}} />
+         Common csv {{> valueInfo description="Export data in common csv format, suitable for nearly any program. Separator char is ';'."}}
+    </label>
     {{#if zalfClimateEnabled}}
         <label>
             <input type="radio" value="zalfClimate" name="format" checked={{checked "zalfClimate"}} />
@@ -212,6 +216,7 @@
     <b>
         {{#if is "xlsx"}}Microsoft Excel xlsx{{/if}}
         {{#if is "xml"}}OpenOffice xml{{/if}}
+        {{#if is "csv"}}Common csv{{/if}}
         {{#if is "zalfClimate"}}MONICA climate csv{{/if}}
         {{#if is "zalfSoil"}}MONICA soil csv{{/if}}
     </b>
