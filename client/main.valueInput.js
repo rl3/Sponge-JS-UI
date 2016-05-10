@@ -764,7 +764,7 @@ T.events({
             return setError(event.currentTarget, false);
         }
 
-        var match= value.match(/^(\d*\.?\d+)\,\s*(\d*\.?\d+)$/);
+        var match= value.match(/^(-?\d*\.?\d+)\,\s*(-?\d*\.?\d+)$/);
         if ( !match ) return setError(event.currentTarget, true);
 
         setError(event.currentTarget, false);
