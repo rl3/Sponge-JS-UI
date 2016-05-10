@@ -516,6 +516,10 @@ var simpleValueEvents= {
 
 $(function() {
     $('body').on('click', '#singleValueInput button.saveValue',  function() {
+
+        // if an error occured, do nothing
+        if ( $('#singleValueInput .error').length ) return;
+
         var sv= singleValue();
 
         sv.set(sv.newValue);
