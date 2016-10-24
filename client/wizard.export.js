@@ -313,7 +313,7 @@ var _getMaps= function() {
     if ( !maps ) return;
     if ( maps.length === 0 ) return maps;
 
-    maps.sort(function( a, b ) { return a.name.localCompare(b.name); });
+    maps.sort(function( a, b ) { return a.name.localeCompare(b.name); });
     return maps.map(function( map ) { return new SpongeTools.TypeMap(map) });
 };
 
@@ -321,7 +321,9 @@ T.helper('loading', function( value ) {
     return !_getMaps();
 });
 
-T.helper('map', _getMaps);
+T.helper('map', function() {
+    return _getMaps();
+});
 
 T.helper('selectedMap', function() {
     return this.mapId.toString() === (exportWizardData.map || {}).mapId;
