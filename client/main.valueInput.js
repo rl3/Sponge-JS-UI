@@ -1030,10 +1030,14 @@ T.helper('selectFromMapHandler', function() {
             infotext: infotext,
             events: {
                 dblclick: function( event ) {
+                    var id= o.properties._id;
+                    if ( !(id instanceof ObjectId) ) {
+                        id= new ObjectId(String(id));
+                    }
                     singleValueSetTemp({
                         _ref: selectedType.schemas ? 'DataObj' : 'Model',
                         selector: {
-                            _id: new ObjectId(o.properties._id),
+                            _id: id,
                         },
                     });
                     Map.hide();
