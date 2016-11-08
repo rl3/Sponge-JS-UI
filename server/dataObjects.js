@@ -112,9 +112,8 @@ var authUrl= SpongeTools.Config.authurl;
 
 var getAuth= function() {
     var user= Meteor.user();
-    if ( !user || !user.profile || !user.profile.agrohyd ) return;
 
-    var apiUser= user.profile.agrohyd.apiUser;
+    var apiUser= user.username;
     var apiPassword= user.profile.agrohyd.apiPassword;
 
     if ( !apiUser || !apiPassword ) return;

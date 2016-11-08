@@ -102,10 +102,6 @@ T.events({
         var password=     $form.find('[name=new-password]').val();
         var password2=    $form.find('[name=new-password2]').val();
 
-        var apiUsername=  $form.find('[name=api-user-name]').val().trim();
-        var apiPassword=  $form.find('[name=api-password]').val();
-        var apiPassword2= $form.find('[name=api-password2]').val();
-
         userError(undefined);
         userSuccess(undefined);
 
@@ -119,15 +115,12 @@ T.events({
 
         if ( fullName && fullName !== template.data.profile.name ) set['profile.name']= fullName;
 
-        if ( password && password !== password2 ) errors.push("Passwords don't match");
-
-        if ( apiUsername && apiUsername !== (template.data.profile.agrohyd || {}).apiUser ) set['profile.agrohyd.apiUser']= apiUsername;
-        if ( apiUsername && apiPassword ) {
-            if ( apiPassword === apiPassword2 ) {
-                set['profile.agrohyd.apiPassword']= apiPassword;
+        if ( password ) {
+            if ( password === password2 ) {
+                set['profile.agrohyd.apiPassword']= password;
             }
             else {
-                errors.push("API's passwords don't match");
+                errors.push("Passwords don't match");
             }
         }
         if ( SpongeTools.isAdmin() ) {
@@ -147,7 +140,6 @@ T.events({
                 profile: {
                     name: fullName,
                     agrohyd: {
-                        apiUser: apiUsername,
                         apiPassword: apiPassword,
                     },
                 },

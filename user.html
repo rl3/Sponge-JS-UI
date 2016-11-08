@@ -37,10 +37,6 @@
                     {{/if}}
                     <tr><th align="right">New Password:</th><td><input type="password" name="new-password" value="" autocomplete="off" /></td></tr>
                     <tr><th align="right">New Password:<div class="comment">repeated</div></th><td><input type="password" name="new-password2" value="" autocomplete="off" /></td></tr>
-                    <tr><th colspan="2" align="center">Agrohyd API Credentials</th></tr>
-                    <tr><th align="right">API User Name:</th><td><input type="text" name="api-user-name" value="{{profile.agrohyd.apiUser}}" /></td></tr>
-                    <tr><th align="right">API Password:</th><td><input type="password" name="api-password" value="" autocomplete="off" /></td></tr>
-                    <tr><th align="right">API Password:<div class="comment">repeated</div></th><td><input type="password" name="api-password2" value="" autocomplete="off" /></td></tr>
                 {{/if}}
                 <tr><td></td><td><button class="btn btn-primary btn-block save" type="submit">Save Profile</button></td></tr>
                 {{#if isAdmin}}
