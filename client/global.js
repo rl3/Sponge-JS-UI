@@ -24,6 +24,10 @@ UI.registerHelper('applicationName', function() {
 
 SpongeTools.advancedView= SpongeTools.ReactiveValue();
 
+UI.registerHelper('username', function() {
+    return SpongeTools.getUsername();
+});
+
 SpongeTools.editorContext= function( onChange ) {
     return function( context, property ) {
         return new GuiTools.Edit({

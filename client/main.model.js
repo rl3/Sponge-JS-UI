@@ -26,7 +26,7 @@ var getModelArgs= function() {
     return _getModelArgs(modelId);
 };
 
-var _runModel= SpongeTools.getCachedData('startJob', 2000);
+var _runModel= SpongeTools.getCachedData('startJob', SpongeTools.TIMEOUT_SHORT);
 var runModel= function( args, details ) {
     return _runModel(SpongeTools.modelId(), args, details, function() {
         SpongeTools.invalidateJobList(true);

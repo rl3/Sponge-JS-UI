@@ -13,7 +13,7 @@ T.helper('error', function() {
 });
 
 T.helper('loggingIn', function() {
-    return Meteor.loggingIn();
+    return SpongeTools.loginState;
 });
 
 T.events({
@@ -24,7 +24,7 @@ T.events({
 
         loginError(undefined);
 
-        Meteor.loginWithPassword(username, password, function( err ) {
+        Meteor.call('login', username, password, function( err ) {
             if ( err ) loginError(err);
         });
 
@@ -48,14 +48,14 @@ var needOldPassword= function( templateData ) {
     // new users don't hav an old password
     if ( !templateData._id ) return false;
 
-    var user= Meteor.user();
+    var username= SpongeTools.getUsername();
 
     // this should never happen
-    if ( !user ) return false;
+    if ( !username ) return false;
 
     // to change own password *always* require old password
     // only admins may change password without old password
-    return user.username === templateData.username || !SpongeTools.isAdmin();
+    return username === templateData.username || !SpongeTools.isAdmin();
 };
 
 T.helper('error', function() {
@@ -69,12 +69,41 @@ T.helper('success', function() {
     return userSuccess();
 });
 
+var getUserData= SpongeTools.getCachedData('getUserData', SpongeTools.TIMEOUT_SHORT);
+var saveUser= SpongeTools.getCachedData('saveUser', 1);
+var getAllRoles= SpongeTools.getCachedData('getAllRoles');
+var getAllGroups= SpongeTools.getCachedData('getAllGroupNames');
+
+T.helper('userData', function() {
+    var username= editUsername();
+    if ( username.match(/^ /) ) return {};
+
+    var userData= getUserData(username);
+    console.log('userData', userData);
+    return userData;
+});
+
+T.helper('allRoles', function() {
+    var roles= getAllRoles();
+    if ( !roles ) return;
+
+    return roles.map(name => ({ name: name, active: (this.roles || []).indexOf(name) >= 0 }));
+});
+
+T.helper('allGroups', function() {
+    var groups= getAllGroups();
+    if ( !groups ) return;
+
+    return groups.map(name => ({ name: name, active: (this.groups || []).indexOf(name) >= 0 }));
+});
+
 T.helper('needOldPassword', function() {
     return needOldPassword(this);
 });
 
 T.helper('newUser', function() {
-    return this.username && this.username[0] === ' ';
+    var username= editUsername();
+    return username && username[0] === ' ';
 });
 
 T.helper('isAdmin', function() {
@@ -84,23 +113,35 @@ T.helper('isAdmin', function() {
 T.helper('changePasswordAllowed', function() {
     if ( SpongeTools.isAdmin() ) return true;
 
-    return !SpongeTools.hasRole('chpwDenied', this);
+    return SpongeTools.hasRole('chpw', this);
 });
 
 T.helper('chpwAllowedChecked', function() {
-    return !SpongeTools.hasRole('chpwDenied', this);
+    return SpongeTools.hasRole('chpw', this);
 });
 
 T.events({
-    'submit form': function( event, template ) {
+    'submit form': function( event ) {
+console.log('submit', this)
         var $form= $(event.currentTarget);
-        var userId=       template.data._id;
-        var userName=     userId ? template.data.username : $form.find('[name=user-name]').val().trim();
-        var fullName=     $form.find('[name=full-name]').val().trim();
-        var chpwAllowed=  $form.find('[name=change-pw-allowed]').attr('checked');
+        var userId=       this._id;
+        var oldUserName=  userId ? this.name : null;
+        var userName=     userId ? this.name : $form.find('[name=user-name]').val().trim().replace(/\W/, '_').toLowerCase();
+
+        var t= {};
+        t.Name=           $form.find('[name=full-name]').val().trim();
+        t.Mail=           $form.find('[name=email]').val().trim();
+        t.Organisation=   $form.find('[name=organisation]').val().trim();
+        t.Address=        $form.find('[name=address]').val().trim();
+        t.Description=    $form.find('[name=description]').val().trim();
+        t.www=            $form.find('[name=url]').val().trim();
+
+        var chpwAllowed=  $form.find('[name=change-pw-allowed]').is(':checked');
         var oldPassword=  $form.find('[name=old-password]').val();
         var password=     $form.find('[name=new-password]').val();
         var password2=    $form.find('[name=new-password2]').val();
+        var roles=        $form.find('[name=roles]:checked').map(function() { return $(this).val(); }).get();
+        var groups=       $form.find('[name=groups]:checked').map(function() { return $(this).val(); }).get();
 
         userError(undefined);
         userSuccess(undefined);
@@ -110,21 +151,34 @@ T.events({
 
         var errors= [];
 
-        var set= {};
-        var update= {};
+        var set= {
+            name: userName,
+            template: {},
+        };
+        if ( userId ) set._id= userId;
 
-        if ( fullName && fullName !== template.data.profile.name ) set['profile.name']= fullName;
+        for ( var prop in t ) {
+            if ( t[prop] ) set.template[prop]= t[prop];
+        }
 
         if ( password ) {
             if ( password === password2 ) {
-                set['profile.agrohyd.apiPassword']= password;
+                set['oldPassword']= oldPassword;
+                set['newPassword']= password;
             }
             else {
                 errors.push("Passwords don't match");
             }
         }
         if ( SpongeTools.isAdmin() ) {
-            update[chpwAllowed ? '$pull' : '$addToSet' ]= { roles: 'chpwDenied' };
+            set.roles= roles;
+            set.groups= groups;
+            if ( chpwAllowed ) {
+                set.roles.push('chpw');
+            }
+            else {
+                set.roles= roles.filter(role => role !== 'chpw');
+            }
         }
 
         if ( errors.length ) {
@@ -132,62 +186,15 @@ T.events({
             return false;
         }
 
-        // new user
-        if ( !userId ) {
-            Accounts.createUser({
-                username: userName,
-                password: password,
-                profile: {
-                    name: fullName,
-                    agrohyd: {
-                        apiPassword: apiPassword,
-                    },
-                },
-                roles: chpwAllowed ? [] : ['chpwDenied'],
-            }, function( err ) {
-                if ( err ) return userError([ err ]);
+        console.log('updateUser', set, roles, chpwAllowed);
 
-                userSuccess('User ' + userName + ' successfully created');
-            });
-            return false;
-        }
+        saveUser(set, oldUserName);
+        editUsername(userName);
 
-        var successMessage= "User " + userName + "'s data successfully updated";
-
-        if ( Object.keys(set).length ) update.$set= set;
-
-        if ( !Object.keys(update).length && !password ) {
-            userSuccess('There is no data to change');
-            return false;
-        }
-
-        if ( Object.keys(update).length ) {
-            Meteor.users.update({ _id: userId }, update, function( err, count ) {
-                if ( err ) return userError([ err ]);
-            });
-        }
-
-        if ( !password ) {
-            userError() ? undefined : userSuccess(successMessage);
-            return false;
-        }
-
-        if ( needOldPassword(template.data) ) {
-            Accounts.changePassword(oldPassword, password, function( err ) {
-                if ( err ) return userError([ err ]);
-
-                return userSuccess(successMessage);
-            });
-            return false;
-        }
-
-        Accounts.setPassword(template.data._id, password, function( err ) {
-            if ( err ) return userError([ err ]);
-
-            return userSuccess(successMessage);
-        });
         return false;
     },
+/*
+    // FIXME::
     'click button.delete': function() {
         SpongeTools.Confirmation.show({ title: 'Delete User', body: 'Do you really want to delete this user?', }, function() {
             Meteor.users.remove({ _id: this._id }, function( err ) {
@@ -198,16 +205,19 @@ T.events({
             });
         });
     },
+*/
 });
 
 T.select('userPanel');
 
 T.events({
     'click a.sign-out': function( event, template ) {
-        Meteor.logout();
+        Meteor.call('logout', function( err ) {
+            if ( err ) loginError(err);
+        });
     },
     'click a.edit-profile': function( event, template ) {
-        editUsername(Meteor.user().username);
+        editUsername(SpongeTools.getUsername());
         SpongeTools.viewType('user');
         $(template.find('.sign-out-panel')).hide();
     },

@@ -9,7 +9,7 @@
         {{> mainHeader}}
     </div>
     <div id="main-content">
-        {{#if currentUser}}
+        {{#if username}}
             {{#if isExportMode}}
                 {{> wizExport}}
             {{else}}
@@ -25,7 +25,7 @@
         {{/if}}
     </div>
     <div class="right-nav-panel">
-        {{#if currentUser}}
+        {{#if username}}
             {{> systemInfo}}
         {{/if}}
         {{> userPanel}}
@@ -56,7 +56,7 @@
     <img class="logo" src="images/logo.png" />
     <div class="header left">{{applicationName}}</div>
     <div class="header my-box-model">
-        {{#if currentUser}}
+        {{#if username}}
             {{#with header}}
                 {{main}}
                 {{#if title}}
@@ -185,8 +185,7 @@
             <div class="nav-list">
                 {{#each users}}
                     <div class="nav-row user link edit {{rowClass}}">
-                        <div class="user-name">{{username}}</div>
-                        <div class="full-name">{{profile.name}}</div>
+                        <div class="user-name">{{this.username}}</div>
                     </div>
                 {{/each}}
             </div>

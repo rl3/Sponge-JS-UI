@@ -26,25 +26,6 @@ Meteor.startup(function() {
 
     var isAdmin= SpongeTools.isAdmin;
 
-    Meteor.users.allow({
-        insert: isAdmin,
-        update: function( userId, doc, fieldNames, modifier ) {
-            return isAdmin() || userId === doc._id;
-        },
-        remove: isAdmin,
-    });
-
-    // deny all changes except in user's profile (or role for admins)
-    Meteor.users.deny({
-        update: function( userId, doc, fieldNames, modifier ) {
-            return fieldNames.filter(function( name ) {
-                if ( name === 'roles' && isAdmin() ) return false;
-
-                return name !== 'profile';
-            }).length;
-        }
-    });
-
     sessionData.remove({});
 });
 
@@ -56,21 +37,18 @@ var buildSessionSelector= function( meteorObject, noAuth ) {
     if ( noAuth ) return { userId: anyUserId };
 
     return {
-        userId: meteorObject.userId,
-// Did we need this? All client connections of the same user should use the same API-Session (they are sharing the cache anyway)
-//        session: meteorObject.connection.id,
+        session: meteorObject.connection.id,
     };
 };
 
 var buildSessionSelectorForMethod= function( connection, noAuth ) {
     return buildSessionSelector({
-        userId: Meteor.userId(),
         connection: connection,
     }, noAuth);
 };
 
 var buildCacheSelector= function( meteorObject, noAuth ) {
-    return { userId: noAuth ? anyUserId : meteorObject.userId };
+    return { userId: (noAuth ? anyUserId : getUsername(meteorObject.connection)) || null };
 };
 
 /**
@@ -78,15 +56,12 @@ var buildCacheSelector= function( meteorObject, noAuth ) {
  */
 Meteor.publish('client-cache', function() {
     var query= buildSessionSelector(this);
-    var cacheQuery= { userId: { $in: [ anyUserId, this.userId ] } };
-
-    var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
+    var cacheQuery= { userId: { $in: [ anyUserId, getUsername(this.connection) ] } };
 
     return [
         dataCache.find(cacheQuery),
         dataCacheMeta.find(cacheQuery),
         sessionData.find(query),
-        Meteor.users.find(admin ? {} : { _id: this.userId }, { fields: { username: true, roles: true, profile: true, } }),
     ];
 });
 
@@ -94,7 +69,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /startJob/;
+// debugFilter= /getJobs/;
 
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);
@@ -110,17 +85,6 @@ var baseUrl= SpongeTools.Config.baseurl;
 var baseUrlExt= SpongeTools.Config.baseurlExternal;
 var authUrl= SpongeTools.Config.authurl;
 
-var getAuth= function() {
-    var user= Meteor.user();
-
-    var apiUser= user.username;
-    var apiPassword= user.profile.agrohyd.apiPassword;
-
-    if ( !apiUser || !apiPassword ) return;
-
-    return apiUser + ':' + apiPassword;
-};
-
 var async= function( fn ) {
     var future= new Future();
     fn(function( err, result ) {
@@ -129,14 +93,13 @@ var async= function( fn ) {
     return future.wait();
 };
 
-var authenticationQueue= [];
+var logout= function( connection ) {
+    sessionData.update(buildSessionSelectorForMethod(connection), { $unset: { token: '', username: '' } });
+};
 
-var authenticate= function( runFn, connection ) {
-    var auth= getAuth();
-    if ( !auth ) return;
-
-    authenticationQueue.push(runFn);
-    if ( authenticationQueue.length > 1 ) return;
+var authenticate= function( username, password, connection, cb ) {
+    if ( !username || !password ) return;
+    var auth= username + ':' + password;
 
     var sessionSelector= buildSessionSelectorForMethod(connection);
     console.log('authenticate...', auth.replace(/:.+$/, ':********'));
@@ -148,12 +111,30 @@ var authenticate= function( runFn, connection ) {
             console.log('authentication done. Token:', result.data.token);
         }
 
-        var data= _.extend(SpongeTools.clone(sessionSelector), { baseUrl: baseUrlExt || baseUrl, token: err ? null : result.data.token });
+        var data= _.extend(SpongeTools.clone(sessionSelector), {
+            baseUrl: baseUrlExt || baseUrl,
+            token: err ? null : result.data.token,
+            username: err ? null : username,
+            template: err ? null : result.data.template,
+            roles: err ? null : result.data.roles,
+        });
 
-        return sessionData.upsert(sessionSelector, data, function() {
-            while( authenticationQueue.length ) authenticationQueue.shift()(err);
+        return sessionData.upsert(sessionSelector, data, function( err2 ) {
+            if ( cb ) cb(err||err2);
         });
     });
+};
+
+var getUsername= function( connection ) {
+    var query= buildSessionSelectorForMethod(connection);
+    var sd= sessionData.findOne(query);
+    return sd && sd.username;
+};
+
+var getUser= function( connection ) {
+    var query= buildSessionSelectorForMethod(connection);
+    var sd= sessionData.findOne(query);
+    return sd && { username: sd.username, roles: sd.roles, template: sd.template };
 };
 
 var setCookie= function( options, name, value ) {
@@ -184,10 +165,9 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     var authCounter= 2;
     var cb= function( err, result ) {
         if ( err && err.response && err.response.statusCode ) {
-            var auth= getAuth();
-            if ( auth && err.response.statusCode == 401 && authCounter-- ) {
+            if ( err.response.statusCode == 401 ) {
                 console.log('Permission denied. Trying to (re-)authenticate...', url);
-                return authenticate(runCall, options.connection);
+                logout(options.connection);
             }
         }
         if ( callback ) return callback.call(this, err, result);
@@ -259,6 +239,14 @@ var del= function( url, data, connection, cacheSelector, callback ) {
 
 var methods= {};
 
+methods.login= function( username, password ) {
+    authenticate(username, password, this.connection);
+};
+
+methods.logout= function() {
+    logout(this.connection);
+};
+
 ['Model', 'ModelTemplate'].forEach(function( type ) {
     methods['save' + type]= function( model ) {
         var cacheSelector= buildCacheSelector(this);
@@ -298,7 +286,7 @@ methods.setJobDescription= function( data ) {
 
 methods.clearCache= function( global ) {
     var query= {};
-    if ( !global || !SpongeTools.isAdmin() ) query.userId= this.userId;
+    if ( !global || !SpongeTools.isAdmin() ) query.userId= getUsername(this.connection);
 
     dataCacheMeta.remove(query);
     dataCache.remove(query);
@@ -338,7 +326,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
 
         var instanceKey= urlData.instanceKey ? urlData.instanceKey : key;
 
-        var userId= urlData.noAuth ? anyUserId : Meteor.userId();
+        var userId= urlData.noAuth ? anyUserId : getUsername(this.connection);
 
         var running= instanceKey in getInstances;
 
@@ -379,7 +367,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
         var cacheSelector= buildCacheSelector(this, urlData.noAuth);
         return fn(urlData.url, urlData.data, this.connection, cacheSelector, function( err, result ) {
             if ( err ) {
-                return updateCacheError(key, buildCacheSelector(this), err, function( err ) {
+                return updateCacheError(key, cacheSelector, err, function( err ) {
                     return finishFn();
                 });
             }
@@ -406,6 +394,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
                 default:
                     if ( urlData.noResult ) return finishFn();
 
+console.log('updateCache', key, cacheSelector)
                     return updateCache(key, cacheSelector, SpongeTools.convertToMongo(data), function( err ) {
                         return finishFn();
                     });
@@ -509,4 +498,31 @@ onAfterMethod.deleteResult= function( jobId, resultId ) {
     removeFromCache('getJobResult', jobId);
 };
 
+onAfterMethod.saveUser= function( userData, oldUserName, result ) {
+console.log( 'saveUser', oldUserName, userData );
+
+    // user name has been changed (or added), refresh user names' list
+    if ( userData.name ) removeFromCache('getAllUserNames');
+
+    // refresh current user
+    if ( oldUserName ) removeFromCache('getUserData', oldUserName)
+};
+
+// fill 'getJob'-Cache with data from getJobs
+onAfterMethod.getJobs= function( /* arguments */ ) {
+    var args= Array.prototype.slice.apply(arguments);
+    var data= args.pop();
+
+    data.forEach(function( job ) {
+        var jobId= job.jobId;
+        if ( !jobId ) return;
+
+        var urlData= SpongeTools.getCachedMethodData('getJob', [ jobId ]);
+        var key= SpongeTools.buildCacheKey(urlData);
+        var cacheSelector= buildCacheSelector(this, urlData.noAuth);
+
+        updateCache(key, cacheSelector, SpongeTools.convertToMongo(job), () => {});
+    }.bind(this));
+    return data;
+};
 

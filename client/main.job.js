@@ -28,36 +28,36 @@ var editorContext= SpongeTools.editorContext(function( context, property ) {
     injectVar(context, 'changed')(true);
 });
 
-var _getJob= SpongeTools.getCachedData('getJob', 2000);
+var _getJob= SpongeTools.getCachedData('getJob', SpongeTools.TIMEOUT_SHORT);
 var getJob= function( _jobId ) {
     if ( !_jobId ) _jobId= jobId();
     invalidateJob(_jobId);
     return _getJob(_jobId);
 };
 
-// var getJobLog= SpongeTools.getCachedData('getJobLog', 2000);
+// var getJobLog= SpongeTools.getCachedData('getJobLog', SpongeTools.TIMEOUT_SHORT);
 var getJobLog= SpongeTools.postData('getJobLog');
 var deleteJobLog= SpongeTools.postData('deleteJobLog');
 var deleteResult= SpongeTools.postData('deleteResult');
 var deleteArchive= SpongeTools.postData('deleteArchive');
 
-var _getJobResult= SpongeTools.getCachedData('getJobResult', 2000);
+var _getJobResult= SpongeTools.getCachedData('getJobResult', SpongeTools.TIMEOUT_SHORT);
 var getJobResult= function( jobId, path ) {
     invalidateJob(jobId);
     return _getJobResult(jobId, path);
 };
 
-var _getJobResultMapArgs= SpongeTools.getCachedData('getJobResultMapArgs', 2000);
+var _getJobResultMapArgs= SpongeTools.getCachedData('getJobResultMapArgs', SpongeTools.TIMEOUT_SHORT);
 var getJobResultMapArgs= function( jobId, path ) {
     return _getJobResultMapArgs(jobId, path);
 };
 
-var _getJobResultMap= SpongeTools.getCachedData('getJobResultMap', 2000);
+var _getJobResultMap= SpongeTools.getCachedData('getJobResultMap', SpongeTools.TIMEOUT_SHORT);
 var getJobResultMap= function( jobId, path, data, format ) {
     return _getJobResultMap(jobId, path, data, format);
 };
 
-var _restartJob= SpongeTools.getCachedData('restartJob', 2000);
+var _restartJob= SpongeTools.getCachedData('restartJob', SpongeTools.TIMEOUT_SHORT);
 var restartJob= function() {
     _restartJob(jobId(), function() {
         SpongeTools.invalidateJobList(true);
@@ -65,7 +65,7 @@ var restartJob= function() {
     });
 };
 
-var _deleteJob= SpongeTools.getCachedData('deleteJob', 2000);
+var _deleteJob= SpongeTools.getCachedData('deleteJob', SpongeTools.TIMEOUT_SHORT);
 var deleteJob= function() {
     SpongeTools.Confirmation.show({ title: 'Delete Job', body: 'Do you really want to delete this job?' }, function() {
         var _jobId= jobId();

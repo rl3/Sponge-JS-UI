@@ -13,7 +13,7 @@ var owner;
 var getAllUsers= SpongeTools.getCachedData('getAllUserNames');
 var getAllGroups= SpongeTools.getCachedData('getAllGroupNames');
 
-var _getAcls= SpongeTools.getCachedData('getAcl', 2000);
+var _getAcls= SpongeTools.getCachedData('getAcl', SpongeTools.TIMEOUT_SHORT);
 var getAcls= function() {
     var allUsers= getAllUsers();
     var allGroups= getAllGroups();

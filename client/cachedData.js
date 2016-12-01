@@ -5,8 +5,10 @@ var dataCache= new Meteor.Collection('Cache');
 var dataCacheMeta= new Meteor.Collection('CacheMeta');
 var sessionData= new Meteor.Collection('SessionData')
 
+var TIMEOUT_DEFAULT= 1e6; //1000s
+
 var getCachedData= function( name, timeout ) {
-    if ( arguments.length < 2 ) timeout= 1000000;
+    if ( arguments.length < 2 ) timeout= TIMEOUT_DEFAULT;
 
     return function( /* aguments */ ) {
         var now= new Date();
@@ -48,7 +50,7 @@ var getError= function() {
 };
 
 var postData= function( id, timeout ) {
-    if ( arguments.length < 2 ) timeout= 1000000;
+    if ( arguments.length < 2 ) timeout= TIMEOUT_DEFAULT;
 
     return function( data, options ) {
         var args= Array.prototype.slice.call(arguments);
@@ -69,8 +71,24 @@ var buildApiUrl= function( url ) {
     return SpongeTools.cleanUrl(sd.baseUrl + url) + append + 'SessionId=' + sd.token;
 };
 
+var getUsername= function() {
+    var sd= sessionData.findOne();
+
+    if ( sd ) return sd.username;
+};
+
+var getUser= function( connection ) {
+    var sd= sessionData.findOne();
+    return sd && { username: sd.username, roles: sd.roles, template: sd.template };
+};
+
 SpongeTools.getCachedData= getCachedData;
 SpongeTools.postData= postData;
 SpongeTools.getError= getError;
+SpongeTools.getUsername= getUsername;
+SpongeTools.getUser= getUser;
+SpongeTools.TIMEOUT_SHORT= 20e3; // 20s
+SpongeTools.TIMEOUT_MEDIUM= 100e3; // 100s
+SpongeTools.TIMEOUT_DEFAULT= TIMEOUT_DEFAULT; // 1000s
 
 SpongeTools.buildApiUrl= buildApiUrl;

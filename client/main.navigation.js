@@ -14,11 +14,13 @@ var sortType= SpongeTools.ReactiveValue();
 var allUsers= SpongeTools.ReactiveValue();
 
 
+/*
 Accounts.onLogin(function() {
     viewType(undefined);
     modelId(undefined);
     jobId(undefined);
 });
+*/
 
 var T= SpongeTools.Template;
 
@@ -132,7 +134,7 @@ T.events({
     },
 });
 
-var _getJobs= SpongeTools.getCachedData('getJobs', 2000);
+var _getJobs= SpongeTools.getCachedData('getJobs', SpongeTools.TIMEOUT_SHORT);
 var getJobs= function( options ) {
     SpongeTools.invalidateJobList();
     if ( !options ) options= {};
@@ -154,14 +156,14 @@ var getModel= function( modelId ) {
     return _getModel.apply(null, arguments);
 };
 
-var _getJob= SpongeTools.getCachedData('getJob', 2000);
+var _getJob= SpongeTools.getCachedData('getJob', SpongeTools.TIMEOUT_SHORT);
 var getJob= function( jobId ) {
     invalidateJob(jobId);
     return _getJob.apply(null, arguments);
 };
 
 var getApiUserName= function() {
-    var user= Meteor.user();
+    var user= SpongeTools.getUsername();
     if ( !user || !user.profile || !user.profile.agrohyd ) return;
 
     return user.profile.agrohyd.apiUser;
@@ -413,8 +415,18 @@ T.events({
  */
 T.select('mainNavigationUsers');
 
+var _getAllUserNames= SpongeTools.getCachedData('getAllUserNames', SpongeTools.TIMEOUT_SHORT);
+var getAllUserNames= function() {
+    return _getAllUserNames();
+};
+
 T.helper('users', function() {
-    return Meteor.users.find({}, { sort: [[ 'username', 'asc' ]] });
+    var userNames= getAllUserNames();
+    if ( !userNames ) return;
+
+    userNames.sort();
+
+    return userNames.map( username => ({ username: username }));
 });
 
 T.helper('rowClass', function() {
@@ -451,7 +463,8 @@ T.helper('context', function() {
             var username= SpongeTools.editUsername();
             if ( !username ) return;
 
-            var user= Meteor.users.findOne({ username: username }) || { username: username, profile: {} };
+// FIXME
+            var user= /*Meteor.users.findOne({ username: username }) ||*/ { username: username, profile: {} };
             return cleanObject(user);
     }
 });
