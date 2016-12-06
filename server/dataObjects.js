@@ -118,7 +118,7 @@ Accounts.registerLoginHandler(function( loginRequest ) {
     var connection= this.connection;
     var r= async2(function( cb ) { authenticate(username, password, connection, cb) });
 
-    if ( r[0] || !r[1] ) return null;
+    if ( r[0] || !r[1] ) return;// { error: r[0] };
 
     var userData= {
         profile: r[1].template,
@@ -538,13 +538,17 @@ onAfterMethod.deleteResult= function( jobId, resultId ) {
 };
 
 onAfterMethod.saveUser= function( userData, oldUserName, result ) {
-console.log( 'saveUser', oldUserName, userData );
 
     // user name has been changed (or added), refresh user names' list
     if ( userData.name ) removeFromCache('getAllUserNames');
 
     // refresh current user
     if ( oldUserName ) removeFromCache('getUserData', oldUserName)
+};
+
+onAfterMethod.removeUser= function( userId, result ) {
+
+    removeFromCache('getAllUserNames');
 };
 
 // fill 'getJob'-Cache with data from getJobs
