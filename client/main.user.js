@@ -1,7 +1,6 @@
 
 var editUsername= SpongeTools.editUsername;
 
-
 var T= SpongeTools.Template;
 
 T.select('loginPanel');
@@ -13,7 +12,7 @@ T.helper('error', function() {
 });
 
 T.helper('loggingIn', function() {
-    return SpongeTools.loginState;
+    return Meteor.loggingIn();
 });
 
 T.events({
@@ -24,7 +23,7 @@ T.events({
 
         loginError(undefined);
 
-        Meteor.call('login', username, password, function( err ) {
+        Meteor.loginWithSpongeApi(username, password, function( err ) {
             if ( err ) loginError(err);
         });
 
@@ -48,14 +47,14 @@ var needOldPassword= function( templateData ) {
     // new users don't hav an old password
     if ( !templateData._id ) return false;
 
-    var username= SpongeTools.getUsername();
+    var user= Meteor.user();
 
     // this should never happen
-    if ( !username ) return false;
+    if ( !user ) return false;
 
     // to change own password *always* require old password
     // only admins may change password without old password
-    return username === templateData.username || !SpongeTools.isAdmin();
+    return user.username === templateData.username || !SpongeTools.isAdmin();
 };
 
 T.helper('error', function() {
@@ -79,7 +78,6 @@ T.helper('userData', function() {
     if ( username.match(/^ /) ) return {};
 
     var userData= getUserData(username);
-    console.log('userData', userData);
     return userData;
 });
 
@@ -217,7 +215,7 @@ T.events({
         });
     },
     'click a.edit-profile': function( event, template ) {
-        editUsername(SpongeTools.getUsername());
+        editUsername(Meteor.user().username);
         SpongeTools.viewType('user');
         $(template.find('.sign-out-panel')).hide();
     },

@@ -71,22 +71,9 @@ var buildApiUrl= function( url ) {
     return SpongeTools.cleanUrl(sd.baseUrl + url) + append + 'SessionId=' + sd.token;
 };
 
-var getUsername= function() {
-    var sd= sessionData.findOne();
-
-    if ( sd ) return sd.username;
-};
-
-var getUser= function( connection ) {
-    var sd= sessionData.findOne();
-    return sd && { username: sd.username, roles: sd.roles, template: sd.template };
-};
-
 SpongeTools.getCachedData= getCachedData;
 SpongeTools.postData= postData;
 SpongeTools.getError= getError;
-SpongeTools.getUsername= getUsername;
-SpongeTools.getUser= getUser;
 SpongeTools.TIMEOUT_SHORT= 20e3; // 20s
 SpongeTools.TIMEOUT_MEDIUM= 100e3; // 100s
 SpongeTools.TIMEOUT_DEFAULT= TIMEOUT_DEFAULT; // 1000s

@@ -14,13 +14,11 @@ var sortType= SpongeTools.ReactiveValue();
 var allUsers= SpongeTools.ReactiveValue();
 
 
-/*
 Accounts.onLogin(function() {
     viewType(undefined);
     modelId(undefined);
     jobId(undefined);
 });
-*/
 
 var T= SpongeTools.Template;
 
@@ -138,7 +136,7 @@ var _getJobs= SpongeTools.getCachedData('getJobs', SpongeTools.TIMEOUT_SHORT);
 var getJobs= function( options ) {
     SpongeTools.invalidateJobList();
     if ( !options ) options= {};
-    if ( !allUsers() ) options.userId= getApiUserName();
+    if ( !allUsers() ) options.userId= Meteor.user().username;
 
     var jobs= _getJobs(options);
     return jobs;
@@ -160,13 +158,6 @@ var _getJob= SpongeTools.getCachedData('getJob', SpongeTools.TIMEOUT_SHORT);
 var getJob= function( jobId ) {
     invalidateJob(jobId);
     return _getJob.apply(null, arguments);
-};
-
-var getApiUserName= function() {
-    var user= SpongeTools.getUsername();
-    if ( !user || !user.profile || !user.profile.agrohyd ) return;
-
-    return user.profile.agrohyd.apiUser;
 };
 
 T.select('mainNavigationModelTitle');
@@ -463,8 +454,7 @@ T.helper('context', function() {
             var username= SpongeTools.editUsername();
             if ( !username ) return;
 
-// FIXME
-            var user= /*Meteor.users.findOne({ username: username }) ||*/ { username: username, profile: {} };
+            var user= Meteor.users.findOne({ username: username }) || { username: username, profile: {} };
             return cleanObject(user);
     }
 });

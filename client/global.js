@@ -6,7 +6,13 @@ $(function( $ ) {
     }
 });
 
-
+Meteor.loginWithSpongeApi= function( username, password, callback ) {
+    var loginRequest= { method: 'agrohyd-api', username: username, password: password };
+    Accounts.callLoginMethod({
+        methodArguments: [ loginRequest ],
+        userCallback: callback,
+    })
+};
 
 UI.registerHelper('advancedView', function() {
     return SpongeTools.advancedView();
@@ -23,10 +29,6 @@ UI.registerHelper('applicationName', function() {
 });
 
 SpongeTools.advancedView= SpongeTools.ReactiveValue();
-
-UI.registerHelper('username', function() {
-    return SpongeTools.getUsername();
-});
 
 SpongeTools.editorContext= function( onChange ) {
     return function( context, property ) {

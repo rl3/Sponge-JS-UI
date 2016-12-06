@@ -23,8 +23,7 @@ Meteor.startup(function() {
     dataCache.deny(deny);
     dataCacheMeta.deny(deny);
     sessionData.deny(deny);
-
-    var isAdmin= SpongeTools.isAdmin;
+    Meteor.users.deny(deny);
 
     sessionData.remove({});
 });
@@ -34,21 +33,17 @@ Meteor.startup(function() {
  *  to be called within publish and methods functions with respective 'this' object
  */
 var buildSessionSelector= function( meteorObject, noAuth ) {
-    if ( noAuth ) return { userId: anyUserId };
-
-    return {
-        session: meteorObject.connection.id,
-    };
+    return { userId: noAuth ? anyUserId : meteorObject.userId };
 };
 
-var buildSessionSelectorForMethod= function( connection, noAuth ) {
+var buildSessionSelectorForMethod= function( noAuth ) {
     return buildSessionSelector({
-        connection: connection,
+        userId: Meteor.userId(),
     }, noAuth);
 };
 
 var buildCacheSelector= function( meteorObject, noAuth ) {
-    return { userId: (noAuth ? anyUserId : getUsername(meteorObject.connection)) || null };
+    return { userId: noAuth ? anyUserId : meteorObject.userId };
 };
 
 /**
@@ -56,12 +51,14 @@ var buildCacheSelector= function( meteorObject, noAuth ) {
  */
 Meteor.publish('client-cache', function() {
     var query= buildSessionSelector(this);
-    var cacheQuery= { userId: { $in: [ anyUserId, getUsername(this.connection) ] } };
+    var cacheQuery= { userId: { $in: [ anyUserId, this.userId ] } };
+    var admin= Meteor.users.findOne({ _id: this.userId, roles: 'admin' });
 
     return [
         dataCache.find(cacheQuery),
         dataCacheMeta.find(cacheQuery),
         sessionData.find(query),
+        Meteor.users.find(admin ? {} : { _id: this.userId }, { fields: { username: true, roles: true, profile: true } }),
     ];
 });
 
@@ -69,7 +66,7 @@ var Debug= false;
 var debugFilter;
 
 // Debug= true;
-// debugFilter= /getJobs/;
+// debugFilter= /getAllUser/;
 
 var addHeaders= function( options, connection ) {
     options= SpongeTools.clone(options);
@@ -93,15 +90,85 @@ var async= function( fn ) {
     return future.wait();
 };
 
-var logout= function( connection ) {
-    sessionData.update(buildSessionSelectorForMethod(connection), { $unset: { token: '', username: '' } });
+var async2= function( fn ) {
+    var future= new Future();
+    fn(function( err, result ) {
+        future.return([err, result]);
+    });
+    return future.wait();
 };
+
+var logout= function( cb ) {
+
+    // Log all instances of this user out
+    return Meteor.users.update({ _id: Meteor.userId() }, {$set : { "services.resume.loginTokens" : [] }}, cb || function() {});
+};
+
+Accounts.registerLoginHandler(function( loginRequest ) {
+    // there are multiple login handlers in meteor.
+    // a login request go through all these handlers to find it's login hander
+    // so in our login handler, we only consider login requests which has admin field
+
+    if ( loginRequest.method !== 'agrohyd-api' ) return;
+
+    var username= loginRequest.username;
+    var password= loginRequest.password;
+    if ( !username || !password ) return;
+
+    var connection= this.connection;
+    var r= async2(function( cb ) { authenticate(username, password, connection, cb) });
+
+    if ( r[0] || !r[1] ) return null;
+
+    var userData= {
+        profile: r[1].template,
+        roles: r[1].roles,
+    };
+
+    //we create a admin user if not exists, and get the userId
+    var userId = null;
+    var user = Meteor.users.findOne({ username: username });
+    if( !user ) {
+        userId = Meteor.users.insert({ username: username });
+    }
+    else {
+        userId = user._id;
+    }
+
+    //creating the token and adding to the user
+    var stampedToken = Accounts._generateStampedLoginToken();
+
+    //hashing is something added with Meteor 0.7.x, 
+    //you don't need to do hashing in previous versions
+    var hashStampedToken = Accounts._hashStampedToken(stampedToken);
+
+    Meteor.users.update(userId, { $set: userData, $push: { 'services.resume.loginTokens': hashStampedToken } });
+
+    var sessionSelector= buildSessionSelector({
+        userId: userId,
+    });
+
+    var data= _.extend(SpongeTools.clone(sessionSelector), {
+        baseUrl: baseUrlExt || baseUrl,
+        token: r[1].token,
+        username: username,
+        template: userData.profile,
+        roles: userData.roles,
+    });
+
+    sessionData.upsert(sessionSelector, data);
+
+    //sending token along with the userId
+    return {
+        userId: userId,
+        token: stampedToken.token
+    };
+});
 
 var authenticate= function( username, password, connection, cb ) {
     if ( !username || !password ) return;
     var auth= username + ':' + password;
 
-    var sessionSelector= buildSessionSelectorForMethod(connection);
     console.log('authenticate...', auth.replace(/:.+$/, ':********'));
     return HTTP.call('GET', baseUrl + authUrl, addHeaders({ auth: auth }, connection), function( err, result ) {
         if ( err ) {
@@ -111,30 +178,8 @@ var authenticate= function( username, password, connection, cb ) {
             console.log('authentication done. Token:', result.data.token);
         }
 
-        var data= _.extend(SpongeTools.clone(sessionSelector), {
-            baseUrl: baseUrlExt || baseUrl,
-            token: err ? null : result.data.token,
-            username: err ? null : username,
-            template: err ? null : result.data.template,
-            roles: err ? null : result.data.roles,
-        });
-
-        return sessionData.upsert(sessionSelector, data, function( err2 ) {
-            if ( cb ) cb(err||err2);
-        });
+        return cb(err, result.data);
     });
-};
-
-var getUsername= function( connection ) {
-    var query= buildSessionSelectorForMethod(connection);
-    var sd= sessionData.findOne(query);
-    return sd && sd.username;
-};
-
-var getUser= function( connection ) {
-    var query= buildSessionSelectorForMethod(connection);
-    var sd= sessionData.findOne(query);
-    return sd && { username: sd.username, roles: sd.roles, template: sd.template };
 };
 
 var setCookie= function( options, name, value ) {
@@ -166,8 +211,9 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     var cb= function( err, result ) {
         if ( err && err.response && err.response.statusCode ) {
             if ( err.response.statusCode == 401 ) {
-                console.log('Permission denied. Trying to (re-)authenticate...', url);
-                logout(options.connection);
+                console.log('Permission denied. Logging out...', url);
+
+                return logout(callback.bind(this, err));
             }
         }
         if ( callback ) return callback.call(this, err, result);
@@ -176,7 +222,8 @@ var _authenticatedRequest= function( method, url, options, callback ) {
     var runCall= function( err ) {
         if ( err ) return callback(err);
 
-        var sd= sessionData.findOne(buildSessionSelectorForMethod(options.connection));
+        var sessionSelector= buildSessionSelectorForMethod();
+        var sd= sessionData.findOne(sessionSelector);
 
         var _options= SpongeTools.clone(options);
         delete _options.connection;
@@ -239,14 +286,6 @@ var del= function( url, data, connection, cacheSelector, callback ) {
 
 var methods= {};
 
-methods.login= function( username, password ) {
-    authenticate(username, password, this.connection);
-};
-
-methods.logout= function() {
-    logout(this.connection);
-};
-
 ['Model', 'ModelTemplate'].forEach(function( type ) {
     methods['save' + type]= function( model ) {
         var cacheSelector= buildCacheSelector(this);
@@ -286,7 +325,7 @@ methods.setJobDescription= function( data ) {
 
 methods.clearCache= function( global ) {
     var query= {};
-    if ( !global || !SpongeTools.isAdmin() ) query.userId= getUsername(this.connection);
+    if ( !global || !SpongeTools.isAdmin() ) query.userId= this.userId;
 
     dataCacheMeta.remove(query);
     dataCache.remove(query);
@@ -326,7 +365,7 @@ SpongeTools.getCachedMethodNames().forEach(function( name ) {
 
         var instanceKey= urlData.instanceKey ? urlData.instanceKey : key;
 
-        var userId= urlData.noAuth ? anyUserId : getUsername(this.connection);
+        var userId= urlData.noAuth ? anyUserId : Meteor.userId();
 
         var running= instanceKey in getInstances;
 

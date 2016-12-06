@@ -12,7 +12,7 @@
 </body>
 
 <template name="shareObjectBody">
-    {{#if username}}
+    {{#if currentUser}}
         <table>
             <tr><td colspan="2"><button class="save btn btn-primary">save</button> <button class="cancel btn">cancel</button></td></tr>
             <tr><td>Type:</td><td>{{type}}</td></tr>

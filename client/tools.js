@@ -64,11 +64,9 @@ T.helper('doJob', function() {
 
 var errorInitialized= 0;
 
-/*
 Accounts.onLogin(function() {
     errorInitialized= new Date();
 });
-*/
 
 T.helper('showErrors', function() {
     var error= SpongeTools.getError();

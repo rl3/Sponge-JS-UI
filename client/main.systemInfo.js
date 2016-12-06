@@ -1,7 +1,7 @@
 
 var injectVar= SpongeTools.injectVar;
 
-var getJobQueue= SpongeTools.getCachedData('getJobQueue', 20e3);
+var getJobQueue= SpongeTools.getCachedData('getJobQueue', SpongeTools.TIMEOUT_SHORT);
 var removeJob= SpongeTools.getCachedData('removeJobFromQueue', SpongeTools.TIMEOUT_SHORT);
 
 var invalidateJobQueue= SpongeTools.invalidateJobQueue;

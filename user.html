@@ -3,7 +3,7 @@
     <div id="login-panel">
         <form>
             <table>
-                <tr><th colspan="2" align="center">Please log in first!{{username}}</th></tr>
+                <tr><th colspan="2" align="center">Please log in first!</th></tr>
                 {{#if error}}
                     <tr><td colspan="2" align="center" class="alert alert-error">{{error}}</td></tr>
                 {{/if}}
@@ -70,9 +70,9 @@
 </template>
 
 <template name="userPanel">
-    {{#if username}}
+    {{#if currentUser}}
         <div class="btn-group">
-            <a href="#" class="btn btn-small dropdown-toggle" data-toggle="dropdown">{{username}} <b class="caret"></b></a>
+            <a href="#" class="btn btn-small dropdown-toggle" data-toggle="dropdown">{{currentUser.username}} <b class="caret"></b></a>
             <ul class="dropdown-menu pull-right">
                 <li><a class="sign-out">Sign Out</a></li>
                 <li><a class="edit-profile">Edit Profile</a></li>
