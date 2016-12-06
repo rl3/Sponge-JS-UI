@@ -193,7 +193,7 @@ console.log('submit', this)
         SpongeTools.Confirmation.show({ title: 'Delete User', body: 'Do you really want to delete this user?', }, function() {
             var user= getUserData(editUsername());
             if ( !user ) {
-                return;
+                return userError(['Could not get user data. Try again!']);
             }
             removeUser( user._id );
             editUsername(' new user');
