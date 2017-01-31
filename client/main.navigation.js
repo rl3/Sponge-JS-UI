@@ -417,7 +417,7 @@ T.helper('users', function() {
 
     userNames.sort();
 
-    return userNames.map( username => ({ username: username }));
+    return userNames.map(function( username ) { return { username: username }; });
 });
 
 T.helper('rowClass', function() {

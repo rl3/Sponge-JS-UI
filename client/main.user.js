@@ -86,14 +86,14 @@ T.helper('allRoles', function() {
     var roles= getAllRoles();
     if ( !roles ) return;
 
-    return roles.map(name => ({ name: name, active: (this.roles || []).indexOf(name) >= 0 }));
+    return roles.map(function( name ) { return { name: name, active: (this.roles || []).indexOf(name) >= 0 }; });
 });
 
 T.helper('allGroups', function() {
     var groups= getAllGroups();
     if ( !groups ) return;
 
-    return groups.map(name => ({ name: name, active: (this.groups || []).indexOf(name) >= 0 }));
+    return groups.map(function( name ) { return { name: name, active: (this.groups || []).indexOf(name) >= 0 }; });
 });
 
 T.helper('needOldPassword', function() {
@@ -170,7 +170,7 @@ console.log('submit', this)
             }
         }
         if ( SpongeTools.isAdmin() ) {
-            set.roles= roles.filter(role => role !== 'chpw');
+            set.roles= roles.filter(function( role ) { return role !== 'chpw'; });
             set.groups= groups;
             if ( chpwAllowed ) {
                 set.roles.push('chpw');

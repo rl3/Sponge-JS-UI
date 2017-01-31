@@ -564,7 +564,7 @@ onAfterMethod.getJobs= function( /* arguments */ ) {
         var key= SpongeTools.buildCacheKey(urlData);
         var cacheSelector= buildCacheSelector(this, urlData.noAuth);
 
-        updateCache(key, cacheSelector, SpongeTools.convertToMongo(job), () => {});
+        updateCache(key, cacheSelector, SpongeTools.convertToMongo(job), function() {});
     }.bind(this));
     return data;
 };
