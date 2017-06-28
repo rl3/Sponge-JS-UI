@@ -130,10 +130,11 @@ var arrayToString= function( value, options ) {
     var table= true;
     for ( var i in value ) {
         var v= value[i];
-        if ( typeof v !== 'object' ) {
+        if ( v === null || typeof v !== 'object' ) {
             table= false;
             break;
         };
+
         var _keys= Object.keys(v);
         if ( !+i ) {
             keys= _keys;
