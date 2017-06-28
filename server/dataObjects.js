@@ -104,7 +104,7 @@ var logout= function( cb ) {
     return Meteor.users.update({ _id: Meteor.userId() }, {$set : { "services.resume.loginTokens" : [] }}, cb || function() {});
 };
 
-Accounts.registerLoginHandler(function( loginRequest ) {
+Accounts.registerLoginHandler('SpongeApi', function( loginRequest ) {
     // there are multiple login handlers in meteor.
     // a login request go through all these handlers to find it's login hander
     // so in our login handler, we only consider login requests which has admin field
@@ -118,7 +118,7 @@ Accounts.registerLoginHandler(function( loginRequest ) {
     var connection= this.connection;
     var r= async2(function( cb ) { authenticate(username, password, connection, cb) });
 
-    if ( r[0] || !r[1] ) return null;
+    if ( r[0] || !r[1] ) return; // r[0];
 
     var userData= {
         profile: r[1].template,
@@ -538,13 +538,17 @@ onAfterMethod.deleteResult= function( jobId, resultId ) {
 };
 
 onAfterMethod.saveUser= function( userData, oldUserName, result ) {
-console.log( 'saveUser', oldUserName, userData );
 
     // user name has been changed (or added), refresh user names' list
     if ( userData.name ) removeFromCache('getAllUserNames');
 
     // refresh current user
     if ( oldUserName ) removeFromCache('getUserData', oldUserName)
+};
+
+onAfterMethod.removeUser= function( userId, result ) {
+
+    removeFromCache('getAllUserNames');
 };
 
 // fill 'getJob'-Cache with data from getJobs
@@ -560,7 +564,7 @@ onAfterMethod.getJobs= function( /* arguments */ ) {
         var key= SpongeTools.buildCacheKey(urlData);
         var cacheSelector= buildCacheSelector(this, urlData.noAuth);
 
-        updateCache(key, cacheSelector, SpongeTools.convertToMongo(job), () => {});
+        updateCache(key, cacheSelector, SpongeTools.convertToMongo(job), function() {});
     }.bind(this));
     return data;
 };

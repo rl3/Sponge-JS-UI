@@ -88,7 +88,7 @@ T.helper('showErrors', function() {
     $message.on('click', 'a', hide);
 
     $('#global-error-messages').append($message.show(function() {
-//        Meteor.setTimeout(hide, 20000);
+//        Meteor.setTimeout(hide, 20e3);
     }));
 });
 

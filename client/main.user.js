@@ -70,6 +70,7 @@ T.helper('success', function() {
 
 var getUserData= SpongeTools.getCachedData('getUserData', SpongeTools.TIMEOUT_SHORT);
 var saveUser= SpongeTools.getCachedData('saveUser', 1);
+var removeUser= SpongeTools.getCachedData('removeUser', 1);
 var getAllRoles= SpongeTools.getCachedData('getAllRoles');
 var getAllGroups= SpongeTools.getCachedData('getAllGroupNames');
 
@@ -85,14 +86,14 @@ T.helper('allRoles', function() {
     var roles= getAllRoles();
     if ( !roles ) return;
 
-    return roles.map(name => ({ name: name, active: (this.roles || []).indexOf(name) >= 0 }));
+    return roles.map(function( name ) { return { name: name, active: (this.roles || []).indexOf(name) >= 0 }; });
 });
 
 T.helper('allGroups', function() {
     var groups= getAllGroups();
     if ( !groups ) return;
 
-    return groups.map(name => ({ name: name, active: (this.groups || []).indexOf(name) >= 0 }));
+    return groups.map(function( name ) { return { name: name, active: (this.groups || []).indexOf(name) >= 0 }; });
 });
 
 T.helper('needOldPassword', function() {
@@ -169,13 +170,10 @@ console.log('submit', this)
             }
         }
         if ( SpongeTools.isAdmin() ) {
-            set.roles= roles;
+            set.roles= roles.filter(function( role ) { return role !== 'chpw'; });
             set.groups= groups;
             if ( chpwAllowed ) {
                 set.roles.push('chpw');
-            }
-            else {
-                set.roles= roles.filter(role => role !== 'chpw');
             }
         }
 
@@ -191,19 +189,16 @@ console.log('submit', this)
 
         return false;
     },
-/*
-    // FIXME::
-    'click button.delete': function() {
+    'click button.delete': function( template ) {
         SpongeTools.Confirmation.show({ title: 'Delete User', body: 'Do you really want to delete this user?', }, function() {
-            Meteor.users.remove({ _id: this._id }, function( err ) {
-                if ( err ) return userError([ err ]);
-
-                editUsername(' new user');
-                return userSuccess('User successfully removed');
-            });
+            var user= getUserData(editUsername());
+            if ( !user ) {
+                return userError(['Could not get user data. Try again!']);
+            }
+            removeUser( user._id );
+            editUsername(' new user');
         });
     },
-*/
 });
 
 T.select('userPanel');
