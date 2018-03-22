@@ -190,7 +190,6 @@ var getViewRange= function() {
 
 var get$container= function() {
     return $('#google-map-dialog');
-    return $('#google-maps-container');
 };
 
 var get$map= function() {

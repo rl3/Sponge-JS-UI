@@ -65,14 +65,36 @@ T.helper('descriptionContext', function() {
     return editorContext(this, 'description');
 });
 
+var prepareArgsResult= function( info, types ) {
+    if ( !types ) types= {};
+    return Object.keys(info)
+        .map(function( name ) {
+            var t= types[name];
+            var i= info[name] || {};
+            if ( typeof t === 'object' ) t= 'DataObj';
+            var infoTexts= [];
+            if ( i.optional ) infoTexts.push('<b>optional</b>');
+            if ( i.description ) infoTexts.push(i.description);
+            if ( i.unit && i.unit !== 'none' ) infoTexts.push('Unit: ' + i.unit);
+            if ( i.default !== undefined ) infoTexts.push('Default: ' + i.default);
+            var infoText= infoTexts.length ? '<div style="text-align: left">' + infoTexts.join('<br/>') + '</div>' : undefined;
+            return { name: name, type: t, infoText: infoText, class: i.optional ? 'warning' : 'important' };
+        })
+        .sort(function( a, b ) { return a.index|0 - b.index|0; })
+    ;
+};
+
 T.helper('args', function() {
-    return SpongeTools.editableTypeMap(this.definition, 'args', injectVar(this, 'changed'));
+    if ( !this.definition.info || !this.definition.info.args ) return;
+    return prepareArgsResult(this.definition.info.args, this.definition.args);
 });
 
 T.helper('result', function() {
-    return SpongeTools.editableTypeMap(this.definition, 'result', injectVar(this, 'changed'));
+    if ( !this.definition.info || !this.definition.info.result ) return;
+    return prepareArgsResult(this.definition.info.result);
 });
 
+/*
 T.helper('functionCode', function() {
     var body= (this.functionBody || {}).code || '';
     var self= this;
@@ -105,6 +127,7 @@ T.helper('bodyEscaped', function() {
     var body= (this.functionBody || {}).code || '';
     return body.replace(/\&/g, '&amp;').replace(/\</g, '&lt;');
 });
+*/
 
 T.helper('isTemplate', function() {
     return this.type === 'ModelTemplate';
@@ -194,9 +217,11 @@ T.helper('inputs', function() {
 });
 
 T.events({
+/*
     'dblclick pre.javascript': function() {
         injectVar(this, 'editFunction')(true);
     },
+*/
     'click button.btn-primary.save': function() {
         saveModel(this);
         injectVar(this, 'changed')(false);
@@ -204,6 +229,12 @@ T.events({
     'click a.modelRun': function() {
         runModelActive= true;
         runModelInvalidator(true);
+    },
+    'click button.toggle-advanced-view': function() {
+        SpongeTools.advancedView(SpongeTools.advancedView() ? false : true);
+    },
+    'click button.edit-code': function() {
+        SpongeTools.AceEditor.show((this.functionBody || {}).code || '');
     },
 });
 
@@ -339,3 +370,12 @@ T.helper('defaultJobDescription', function() {
     return 'started at ' + now.getUTCFullYear() + '-' + pad(now.getUTCMonth() + 1) + '-' + pad(now.getUTCDate()) + ' ' + pad(now.getUTCHours()) + ':' + pad(now.getUTCMinutes()) + ':' + pad(now.getUTCSeconds());
 });
 
+
+T.select('modelArgView');
+T.call('onRendered', function() {
+    this.$('span').tooltip({
+        placement: 'bottom',
+        html: true,
+        trigger: 'hover',
+    });
+});
