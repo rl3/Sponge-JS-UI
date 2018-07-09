@@ -84,6 +84,11 @@ var prepareArgsResult= function( info, types ) {
     ;
 };
 
+var saveModelCode= function( code ) {
+    this.functionBody= new SpongeTools.Types.Code(code);
+    injectVar(this, 'changed')(true);
+};
+
 T.helper('args', function() {
     if ( !this.definition.info || !this.definition.info.args ) return;
     return prepareArgsResult(this.definition.info.args, this.definition.args);
@@ -234,7 +239,7 @@ T.events({
         SpongeTools.advancedView(SpongeTools.advancedView() ? false : true);
     },
     'click button.edit-code': function() {
-        SpongeTools.AceEditor.show((this.functionBody || {}).code || '');
+        SpongeTools.AceEditor.show((this.functionBody || {}).code || '', saveModelCode.bind(this));
     },
 });
 

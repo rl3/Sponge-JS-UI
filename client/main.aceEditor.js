@@ -27,6 +27,14 @@ var setOptions= function( aceEditor ) {
     aceEditor.clearSelection();
 };
 
+var onCloseFn;
+var onClose= function( value ) {
+    if ( !onCloseFn ) return;
+    var _onCloseFn= onCloseFn;
+    onCloseFn= undefined;
+    _onCloseFn(value);
+};
+
 var show= function( content, cb ) {
     if ( !globalAceEditor ) {
         globalAceEditor= initEditor(globalAceId);
@@ -35,6 +43,9 @@ var show= function( content, cb ) {
     globalAceEditor.session.setValue(content || '');
     setOptions(globalAceEditor);
 
+    onCloseFn= function( status ) {
+        if ( status ) cb(globalAceEditor.session.getValue());
+    };
     SpongeTools.Modal.show(get$container(), function() {
     });
 };
@@ -64,10 +75,21 @@ T.call('onRendered', function() {
 
 T.helper('aceEditorId', function() {
     var _ace= Template.instance()._ace;
-    _ace.content= this.functionBody.code;
+    _ace.content= this;
     if ( _ace.editor ) setContent(_ace.editor, _ace.content);
     return _ace.id;
 });
+
+$(function() {
+    $('body').on('click', '#' + globalAceContainerId + ' button', function() {
+
+        get$container().modal('hide');
+
+        onClose($(this).hasClass('edit-save'));
+        return false;
+    });
+});
+
 
 SpongeTools.AceEditor= {
     show: show,
