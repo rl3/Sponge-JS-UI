@@ -1,0 +1,16 @@
+
+<body>
+<div id="ace-editor-dialog" class="modal hide" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-body">
+        <div id="ace-editor"></div>
+    </div>
+</div>
+</body>
+
+
+<template name="aceEditor">
+    <div class="read-only-editor-container">
+        <div id="{{aceEditorId}}" class="ace-read-only-editor"></div>
+    </div>
+    {{triggerContent}}
+</template>

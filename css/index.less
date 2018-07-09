@@ -411,38 +411,6 @@ table.parameterSets {
     }
 }
 
-.js-editor-container {
-    .js-editor {
-        position: relative;
-        border: 1px solid black;
-        min-width: 600px;
-        min-height: 400px;
-    }
-}
-.full-screen-editor {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    overflow: auto;
-
-    .button-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        margin: 0;
-    }
-    .js-editor {
-        position: fixed;
-        top: 42px;
-        left: 0;
-        width: 100%;
-        bottom: 0;
-    }
-}
 
 .value {
     .valueName {
@@ -720,3 +688,35 @@ table.wizard {
     }
 }
 
+#ace-editor-dialog {
+    .box-model;
+    position: fixed;
+    top: 5%;
+    bottom: 5%;
+    left: 5%;
+    right: 5%;
+    width: auto;
+    height: auto;
+    margin: 0;
+
+    .modal-body {
+        .box-model;
+        max-height: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    #ace-editor {
+        height: 100%;
+        width: 100%;
+    }
+}
+
+.read-only-editor-container {
+    border: 1px solid black;
+    min-width: 600px;
+    height: 400px;
+    .ace-read-only-editor {
+        height: 400px;
+    }
+}

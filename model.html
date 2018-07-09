@@ -14,37 +14,45 @@
         <tr>
             <th align="right">Owner:</th><td>{{owner}} {{> valueInfo description=aclInfo}}</td>
         </tr>
+        {{#if inputs}}
+            <tr valign="top">
+                <th align="right">Inputs:</th><td>
+                    <table>
+                        {{#each inputs}}
+                            {{> editValue this}}
+                        {{/each}}
+                    </table>
+                </td>
+            </tr>
+        {{/if}}
+        <tr>
+            <td colspan="2"><button class="btn btn-mini toggle-advanced-view">toggle</button></td>
+        </tr>
         {{#if advancedView}}
             <tr valign="top">
                 <th align="right">Definition:</th><td>
                     <table>
-                        <tr><th>Arguments</th><th>Result</th></tr>
-                        <tr valign="top">
-                            <td><table>
+                        <tr valign="top"><th>Arguments</th>
+                            <td>
                                 {{#each args}}
-                                    {{this}}
+                                    {{> modelArgView this}}
                                 {{/each}}
-                            </table></td>
-                            <td><table>
+                            </td>
+                        </tr>
+                        <tr valign="top"><th>Result</th>
+                            <td>
                                 {{#each result}}
-                                    {{this}}
+                                    {{> modelArgView this}}
                                 {{/each}}
-                            </table></td>
+                            </td>
                         </tr>
                     </table>
                 </td>
             </tr>
             <tr valign="top">
                 <th align="right">Body:</th><td>
-                    {{#if editFunction}}
-                        <div class="full-screen-editor">
-                            {{> jsEditor functionCode}}
-                        </div>
-                    {{else}}
-                        <div class="js-editor-container">
-                            <pre class="pre-scrollable javascript"><code class="javascript">{{bodyEscaped}}</code></pre>
-                        </div>
-                    {{/if}}
+                    {{> aceEditor this}}
+                    <button class="btn btn-mini edit-code" type="button">Edit code</button>
                 </td>
             </tr>
             {{#if inputDefinitions}}
@@ -58,17 +66,6 @@
                     </td>
                 </tr>
             {{/if}}
-        {{/if}}
-        {{#if inputs}}
-            <tr valign="top">
-                <th align="right">Inputs:</th><td>
-                    <table>
-                        {{#each inputs}}
-                            {{> editValue this}}
-                        {{/each}}
-                    </table>
-                </td>
-            </tr>
         {{/if}}
     </table>
     {{runModelHelper}}
@@ -123,4 +120,8 @@
 <template name="modelRunArgsBottom">
     <tr valign="top"><td align="right">job title:</td><td><input class="span3" type="text" name="job-title" value=""></td></tr>
     <tr valign="top"><td align="right">job description:</td><td><textarea class="span3" rows="3" name="job-description">{{defaultJobDescription}}</textarea></td></tr>
+</template>
+
+<template name="modelArgView">
+    <span class="badge badge-{{class}}" data-toggle="tooltip" data-original-title="{{infoText}}">{{name}}{{#if type}}: {{type}}{{/if}}{{#if infoText}} <a href="#" class="value-info"><i class="icon-info-sign"></i></a>{{/if}}</span>
 </template>
