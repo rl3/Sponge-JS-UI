@@ -236,7 +236,10 @@ var _authenticatedRequest= function( method, url, options, callback ) {
             }
         }
 
-        return HTTP.call(method, baseUrl + url, addHeaders(_options, options.connection), cb);
+        var __options= addHeaders(_options, options.connection);
+        __options.timeout= SpongeTools.ApiRequestTimeout || 300e3;
+
+        return HTTP.call(method, baseUrl + url, __options, cb);
     };
     runCall();
 };

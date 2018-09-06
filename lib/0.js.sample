@@ -1,4 +1,5 @@
 SpongeTools= {
     Mode: 'exportWizard',
     ObjectId: Meteor.Collection.ObjectID,
+    ApiRequestTimeout: 3600e3,
 };
