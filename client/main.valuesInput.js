@@ -58,6 +58,7 @@ T.helper('nameClass', function() {
 });
 
 T.helper('topTemplate', function() {
+    dialogInvalidator();
     return options.topTemplate || null;
 });
 T.helper('topTemplateContext', function() {
@@ -65,6 +66,7 @@ T.helper('topTemplateContext', function() {
 });
 
 T.helper('bottomTemplate', function() {
+    dialogInvalidator();
     return options.bottomTemplate || null;
 });
 T.helper('bottomTemplateContext', function() {
