@@ -1,6 +1,6 @@
 #!/bin/bash
 
 while true; do
-    meteor
+    meteor --port $PORT
     sleep 2
 done
